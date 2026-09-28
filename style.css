@@ -140,6 +140,14 @@ body.flower-popup-open{position:fixed;width:100%;overflow:hidden;overscroll-beha
 .search-recommend-info small{font-size:11px;color:#9b7d88}
 .search-empty{padding:18px;text-align:center;font-size:13px;color:#9b7d88}
 
+
+/* Fixed flower chooser overlay */
+.flower-popup{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(45,20,30,.38);backdrop-filter:blur(6px);overflow:hidden;overscroll-behavior:none;touch-action:none}
+.flower-popup.open{display:flex}
+.flower-popup-panel{position:relative;width:min(900px,94vw);max-height:90vh;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;background:#fffafd;border:1px solid #ead5de;border-radius:28px;padding:28px;box-shadow:0 30px 90px rgba(50,20,32,.25)}
+.flower-popup-panel::-webkit-scrollbar{width:7px}
+.flower-popup-panel::-webkit-scrollbar-thumb{background:#d9b2c1;border-radius:20px}
+
 /* Rosemoon responsive layout: portrait + landscape phones */
 @media (max-width: 600px) and (orientation: portrait){
   html,body{overflow-x:hidden}
