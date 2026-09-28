@@ -67,7 +67,8 @@
     return products.filter(p=>{
       if(p.active===false)return false;
       if(!q)return false;
-      return [p.name,p.category,p.price,"rs. "+p.price].some(v=>String(v??'').toLowerCase().includes(q));
+      const flowerNames=["Flower 1","Flower 2","Flower 3"];
+      return [p.name,p.category,p.price,"rs. "+p.price,...flowerNames].some(v=>String(v??'').toLowerCase().includes(q));
     });
   }
   function renderSearchRecommendations(){
