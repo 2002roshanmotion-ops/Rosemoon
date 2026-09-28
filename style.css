@@ -312,19 +312,3 @@ body.flower-popup-open{
   pointer-events:none !important;
   z-index:-1 !important;
 }
-
-/* Interactive Rosemoon butterflies */
-.rosemoon-butterflies{position:fixed;inset:0;z-index:15;pointer-events:none;overflow:hidden}
-.rosemoon-butterfly{position:absolute;left:0;top:0;width:34px;height:26px;pointer-events:auto;cursor:pointer;touch-action:manipulation;will-change:transform,opacity;filter:drop-shadow(0 5px 7px rgba(126,62,88,.18))}
-.rosemoon-butterfly::before,.rosemoon-butterfly::after{content:"";position:absolute;top:2px;width:16px;height:21px;border-radius:90% 15% 90% 20%;background:linear-gradient(135deg,#f8b7d0,#d985ae);box-shadow:inset 2px 2px 4px rgba(255,255,255,.65)}
-.rosemoon-butterfly::before{left:1px;transform-origin:100% 80%;transform:rotate(-25deg)}
-.rosemoon-butterfly::after{right:1px;transform-origin:0 80%;transform:scaleX(-1) rotate(-25deg)}
-.rosemoon-butterfly i{position:absolute;left:15px;top:5px;width:4px;height:17px;border-radius:8px;background:#70445a;z-index:2}
-.rosemoon-butterfly span,.rosemoon-butterfly b{position:absolute;width:3px;height:8px;border-radius:50%;background:#70445a;z-index:2}
-.rosemoon-butterfly span{left:13px;top:0;transform:rotate(-35deg)}.rosemoon-butterfly b{left:18px;top:0;transform:rotate(35deg)}
-@keyframes rosemoonWingL{50%{transform:rotate(-25deg) rotateY(62deg) scale(.88)}}
-@keyframes rosemoonWingR{50%{transform:scaleX(-1) rotate(-25deg) rotateY(62deg) scale(.88)}}
-.rosemoon-butterfly::before{animation:rosemoonWingL .28s ease-in-out infinite}
-.rosemoon-butterfly::after{animation:rosemoonWingR .28s ease-in-out infinite}
-.rosemoon-butterfly.flying-away{pointer-events:none;transition:transform 1.2s cubic-bezier(.2,.75,.25,1),opacity 1.2s ease;opacity:0}
-@media (prefers-reduced-motion:reduce){.rosemoon-butterfly::before,.rosemoon-butterfly::after{animation:none}.rosemoon-butterfly{transition:none}}
