@@ -84,6 +84,7 @@ body.flower-popup-open{position:fixed;width:100%;overflow:hidden;overscroll-beha
 
 /* Phone portrait: keep the four price categories in a clean 2 × 2 grid. */
 @media (max-width: 600px) and (orientation: portrait){
+  .flower-popup-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
   .shop-main{padding:34px 12px 112px}
   .shop-heading{margin-bottom:26px}
   .shop-heading h1{font-size:40px;line-height:1.05}
@@ -145,6 +146,10 @@ body.flower-popup-open{position:fixed;width:100%;overflow:hidden;overscroll-beha
 .flower-popup{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(45,20,30,.38);backdrop-filter:blur(6px);overflow:hidden;overscroll-behavior:none;touch-action:none}
 .flower-popup.open{display:flex}
 .flower-popup-panel{position:relative;width:min(900px,94vw);max-height:90vh;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;background:#fffafd;border:1px solid #ead5de;border-radius:28px;padding:28px;box-shadow:0 30px 90px rgba(50,20,32,.25)}
+.flower-popup-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:stretch}
+.flower-popup-card{min-width:0;display:flex;flex-direction:column}
+.flower-popup-card button{margin-top:auto}
+
 .flower-popup-panel::-webkit-scrollbar{width:7px}
 .flower-popup-panel::-webkit-scrollbar-thumb{background:#d9b2c1;border-radius:20px}
 
