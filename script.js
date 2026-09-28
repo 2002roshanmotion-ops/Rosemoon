@@ -36,6 +36,12 @@
 
   function enterShop(){
     playUISound('breeze');
+    // Reuse the Rosemoon flower loading screen when entering the shop.
+    if(loader){
+      loader.classList.remove("done");
+      loader.setAttribute("aria-hidden","false");
+      setLoading(0,"Loading Rosemoon…");
+    }
     landing.style.display="none";
     shop.classList.add("active");
     shop.setAttribute("aria-hidden","false");
@@ -46,6 +52,10 @@
     music.loadTitle();
     // Start playback directly from the Start Shopping user gesture. Never wait for an async fetch here.
     music.startFromUserGesture();
+    if(loader){
+      setLoading(100,"Ready");
+      setTimeout(()=>loader.classList.add("done"),650);
+    }
   }
   start?.addEventListener("click",enterShop);
   if(start)start.disabled=true;
