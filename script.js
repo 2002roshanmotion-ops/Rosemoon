@@ -488,6 +488,44 @@
 
 
   renderProducts();renderCart();window.rosemoonProducts=products;
+
+  // Interactive Rosemoon butterflies: touch/click -> flutter away -> return.
+  function initRosemoonButterflies(){
+    const layer=document.getElementById("rosemoonButterflies");
+    if(!layer)return;
+    const spawn=()=>{
+      if(document.hidden)return;
+      const b=document.createElement("div");
+      b.className="rosemoon-butterfly";
+      b.innerHTML="<i></i><span></span><b></b>";
+      const w=window.innerWidth,h=window.innerHeight;
+      const x=Math.random()*Math.max(40,w-50)+10,y=Math.random()*Math.max(80,h-120)+50;
+      b.dataset.x=x;b.dataset.y=y;layer.appendChild(b);
+      let t=Math.random()*10,dead=false;
+      const fly=()=>{
+        if(dead)return;
+        t+=.025;
+        const bx=+b.dataset.x,by=+b.dataset.y;
+        const nx=bx+Math.sin(t*1.7)*35+Math.cos(t*.7)*12;
+        const ny=by+Math.cos(t*1.2)*24+Math.sin(t*.8)*10;
+        b.style.transform="translate3d("+nx+"px,"+ny+"px,0) rotate("+Math.sin(t*1.4)*8+"deg)";
+        b._raf=requestAnimationFrame(fly);
+      };
+      fly();
+      const escape=()=>{
+        if(dead)return; dead=true; cancelAnimationFrame(b._raf);
+        const bx=+b.dataset.x,by=+b.dataset.y,dx=(Math.random()<.5?-1:1)*(180+Math.random()*220),dy=(Math.random()-.5)*260;
+        b.classList.add("flying-away");
+        b.style.transform="translate3d("+(bx+dx)+"px,"+(by+dy)+"px,0) rotate("+(dx>0?25:-25)+"deg) scale(.55)";
+        setTimeout(()=>{b.remove();setTimeout(spawn,1800+Math.random()*3000)},1250);
+      };
+      b.addEventListener("pointerdown",e=>{e.preventDefault();escape()},{passive:false});
+      setTimeout(()=>{if(!dead)escape()},18000+Math.random()*12000);
+    };
+    for(let i=0;i<5;i++)setTimeout(spawn,i*900);
+  }
+  initRosemoonButterflies();
+
   (async()=>{
     setLoading(8,"Loading Rosemoon…");
     await syncProducts();
