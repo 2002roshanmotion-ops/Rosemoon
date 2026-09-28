@@ -212,3 +212,11 @@ body.flower-popup-open{position:fixed;width:100%;overflow:hidden;overscroll-beha
 .flower-popup-head{position:sticky;top:0;z-index:20;background:#fff7fa;padding:2px 0 12px;margin-top:-2px}
 .flower-popup-close{position:relative;z-index:21;flex:0 0 42px;box-shadow:0 4px 12px rgba(84,38,57,.10)}
 @media (max-width:600px){.flower-popup-head{padding-top:2px;padding-bottom:10px}.flower-popup-close{flex-basis:40px}}
+
+
+/* Category chooser: fixed full-screen viewport, independent of page scroll. */
+.flower-popup{position:fixed;top:0;right:0;bottom:0;left:0;width:100vw;height:100dvh;min-height:100dvh;box-sizing:border-box;align-items:stretch;justify-content:center;padding:0;overflow:hidden;z-index:1000}
+.flower-popup-panel{width:min(1050px,100vw);height:100dvh;max-height:100dvh;min-height:0;margin:0;border-radius:0;box-sizing:border-box;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+@supports not (height:100dvh){.flower-popup{height:100vh;min-height:100vh}.flower-popup-panel{height:100vh;max-height:100vh}}
+.flower-popup-head{position:sticky;top:0;z-index:20}
+@media (max-width:600px){.flower-popup{padding:0}.flower-popup-panel{width:100vw;height:100dvh;max-height:100dvh;border-radius:0;padding:16px}.flower-popup-head{padding-top:2px}}
