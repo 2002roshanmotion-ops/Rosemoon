@@ -200,6 +200,8 @@ body.flower-popup-open{position:fixed;width:100%;overflow:hidden;overscroll-beha
 .flower-popup{overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y}
 .flower-popup-panel{overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;max-height:94vh;-webkit-overflow-scrolling:touch}
 
-.landing-main-flower{width:130px;height:130px;margin:0 auto 24px;border-radius:50%;padding:6px;background:rgba(255,255,255,.82);box-shadow:0 16px 45px rgba(126,62,88,.18),0 0 0 1px rgba(126,62,88,.10);animation:landingFlowerBloom 2.4s ease-in-out infinite;overflow:hidden}
+.landing-main-flower{width:88px;height:88px;margin:2px auto 12px;border-radius:50%;padding:5px;background:rgba(255,255,255,.82);box-shadow:0 14px 38px rgba(126,62,88,.18),0 0 0 1px rgba(126,62,88,.10);animation:landingFlowerBloom 2.4s ease-in-out infinite;overflow:hidden}
 .landing-main-flower img{width:100%;height:100%;display:block;object-fit:cover;border-radius:50%}
+@media (max-height:720px){.landing-main-flower{width:70px;height:70px;margin:0 auto 8px}.landing-mark{margin:4px 0 10px}.start-shopping{padding:15px 26px 15px 30px}}
+@media (max-width:600px){.landing-main-flower{width:82px;height:82px;margin:2px auto 10px}}
 @keyframes landingFlowerBloom{0%,100%{transform:scale(1);box-shadow:0 16px 45px rgba(126,62,88,.18),0 0 0 1px rgba(126,62,88,.10)}50%{transform:scale(1.045);box-shadow:0 20px 55px rgba(126,62,88,.24),0 0 0 8px rgba(182,93,123,.06)}}
