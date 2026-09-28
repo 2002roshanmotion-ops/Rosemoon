@@ -62,14 +62,36 @@
     const key=String(p?.category||p?.name||'').trim().toLowerCase();
     return categoryImages[key]||categoryImages[String(p?.name||'').trim().toLowerCase()]||"";
   }
+  function searchMatches(query){
+    const q=String(query||'').trim().toLowerCase();
+    return products.filter(p=>{
+      if(p.active===false)return false;
+      if(!q)return false;
+      return [p.name,p.category,p.price,"rs. "+p.price].some(v=>String(v??'').toLowerCase().includes(q));
+    });
+  }
+  function renderSearchRecommendations(){
+    const box=document.getElementById('searchRecommendations');
+    const input=document.getElementById('productSearch');
+    if(!box||!input)return;
+    const q=String(input.value||'').trim();
+    if(!q){box.innerHTML='';box.classList.remove('show');return;}
+    const matches=searchMatches(q);
+    if(!matches.length){box.innerHTML='<div class="search-empty">🌸 No matching bouquets found</div>';box.classList.add('show');return;}
+    box.innerHTML='<div class="search-recommend-title">✨ Matching bouquets</div>'+matches.map(p=>{
+      const img=categoryImageFor(p);
+      const art=img?'<img src="'+escapeAttr(img)+'" alt="'+escapeAttr(p.name)+'">':(p.imageUrl?'<img src="'+escapeAttr(p.imageUrl)+'" alt="'+escapeAttr(p.name)+'">':'🌹');
+      return '<button class="search-recommend-item" type="button" data-search-id="'+escapeAttr(p.id)+'"><span class="search-recommend-pic">'+art+'</span><span class="search-recommend-info"><strong>'+escapeHtml(p.name)+'</strong><small>'+escapeHtml(p.category)+' · '+money(p.price)+'</small></span></button>';
+    }).join('');
+    box.classList.add('show');
+    box.querySelectorAll('[data-search-id]').forEach(item=>item.addEventListener('click',()=>{
+      const id=item.dataset.searchId; input.value=''; box.classList.remove('show'); renderProducts(); openFlowerPopup(id);
+    }));
+  }
   function renderProducts(){
     const grid=document.getElementById("productsGrid"); if(!grid)return;
     const query=String(document.getElementById("productSearch")?.value||"").trim().toLowerCase();
-    const active=products.filter(p=>{
-      if(p.active===false)return false;
-      if(!query)return true;
-      return [p.name,p.category,p.price,"rs. "+p.price].some(v=>String(v??"").toLowerCase().includes(query));
-    });
+    const active=query?searchMatches(query):products.filter(p=>p.active!==false);
     if(!active.length){
       grid.innerHTML='<div class="product" style="grid-column:1/-1;text-align:center;padding:35px"><div style="font-size:38px;margin-bottom:8px">🌸</div>No bouquets found.<br><small style="color:#9b7d88">Try another name, category or price.</small></div>';
       return;
@@ -92,8 +114,10 @@
 
   const productSearch=document.getElementById("productSearch");
   const clearProductSearch=document.getElementById("clearProductSearch");
-  productSearch?.addEventListener("input",()=>renderProducts());
-  clearProductSearch?.addEventListener("click",()=>{if(productSearch){productSearch.value="";productSearch.focus();renderProducts()}});
+  productSearch?.addEventListener("input",()=>{renderProducts();renderSearchRecommendations()});
+  productSearch?.addEventListener("focus",()=>renderSearchRecommendations());
+  clearProductSearch?.addEventListener("click",()=>{if(productSearch){productSearch.value="";productSearch.focus();renderProducts();renderSearchRecommendations()}});
+  document.addEventListener('click',e=>{if(!e.target.closest('.rosemoon-search'))document.getElementById('searchRecommendations')?.classList.remove('show')});
 
   const popup=document.getElementById("flowerPopup"), grid=document.getElementById("flowerPopupGrid"), sub=document.getElementById("flowerPopupSub"), closePopup=document.getElementById("closeFlowerPopup");
   let popupProduct=null;
