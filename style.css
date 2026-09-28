@@ -84,7 +84,7 @@ body.flower-popup-open{position:fixed;width:100%;overflow:hidden;overscroll-beha
 
 /* Phone portrait: keep the four price categories in a clean 2 × 2 grid. */
 @media (max-width: 600px) and (orientation: portrait){
-  .flower-popup-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .flower-popup-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
   .shop-main{padding:34px 12px 112px}
   .shop-heading{margin-bottom:26px}
   .shop-heading h1{font-size:40px;line-height:1.05}
