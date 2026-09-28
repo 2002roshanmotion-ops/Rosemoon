@@ -347,15 +347,32 @@ function placeOrder_(payload) {
       const productId=String(item.productId||item.id||'');
       const row=rows[productId];
       if(!row) throw new Error('Product not found: '+productId);
-      const stock=Number(inv.getRange(row,5).getValue())||0;
       const qty=Math.max(1,Number(item.qty||item.quantity)||1);
-      if(qty>stock) throw new Error(String(item.name||'Product')+' has only '+stock+' left.');
+      const totalStock=Number(inv.getRange(row,5).getValue())||0;
+      if(qty>totalStock) throw new Error(String(item.name||'Product')+' has only '+totalStock+' left.');
+      const options=parseCategoryOptions_(inv.getRange(row,10).getValue());
+      if(options && item.type){
+        const option=options.find(o=>String(o.type||'').trim()===String(item.type||'').trim());
+        if(option){
+          const optionStock=Math.max(0,Number(option.stock)||0);
+          if(qty>optionStock) throw new Error(String(item.type)+' has only '+optionStock+' left.');
+        }
+      }
     });
 
     payload.items.forEach(item=>{
       const row=rows[String(item.productId||item.id)];
-      const c=inv.getRange(row,5);
-      c.setValue((Number(c.getValue())||0)-Math.max(1,Number(item.qty||item.quantity)||1));
+      const qty=Math.max(1,Number(item.qty||item.quantity)||1);
+      const stockCell=inv.getRange(row,5);
+      stockCell.setValue((Number(stockCell.getValue())||0)-qty);
+      if(item.type){
+        const descCell=inv.getRange(row,10);
+        const options=parseCategoryOptions_(descCell.getValue());
+        if(options){
+          const option=options.find(o=>String(o.type||'').trim()===String(item.type||'').trim());
+          if(option){option.stock=Math.max(0,(Number(option.stock)||0)-qty);descCell.setValue(JSON.stringify({rosemoonCategory:true,options:options}));}
+        }
+      }
     });
 
     const customerId=upsertCustomer_(Object.assign({},customer,{total:Number(payload.total)||0}));
@@ -471,6 +488,14 @@ function logActivity_(action,details) {
       new Date(),String(action),String(details).slice(0,500)
     ]);
   } catch(e) {}
+}
+
+function parseCategoryOptions_(value) {
+  try {
+    const d=JSON.parse(String(value||''));
+    if(d&&d.rosemoonCategory&&Array.isArray(d.options)) return d.options;
+  } catch(e) {}
+  return null;
 }
 
 function bool_(value,fallback) {
