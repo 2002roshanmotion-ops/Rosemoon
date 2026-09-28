@@ -270,3 +270,22 @@ body.flower-popup-open{
   .flower-popup{height:100vh !important;min-height:100vh !important}
   .flower-popup-panel{height:100vh !important;max-height:100vh !important}
 }
+
+/* Keep category chooser heading fully covered while scrolling */
+.flower-popup-head{
+  background:#fff7fa !important;
+  background-clip:padding-box !important;
+  box-shadow:0 8px 14px rgba(255,247,250,.96) !important;
+  padding-bottom:14px !important;
+  margin-bottom:0 !important;
+}
+.flower-popup-head::after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:-10px;
+  height:10px;
+  background:linear-gradient(to bottom,#fff7fa,rgba(255,247,250,0));
+  pointer-events:none;
+}
