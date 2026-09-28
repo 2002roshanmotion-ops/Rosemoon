@@ -205,3 +205,10 @@ body.flower-popup-open{position:fixed;width:100%;overflow:hidden;overscroll-beha
 @media (max-height:720px){.landing-main-flower{width:70px;height:70px;margin:0 auto 8px}.landing-mark{margin:4px 0 10px}.start-shopping{padding:15px 26px 15px 30px}}
 @media (max-width:600px){.landing-main-flower{width:82px;height:82px;margin:2px auto 10px}}
 @keyframes landingFlowerBloom{0%,100%{transform:scale(1);box-shadow:0 16px 45px rgba(126,62,88,.18),0 0 0 1px rgba(126,62,88,.10)}50%{transform:scale(1.045);box-shadow:0 20px 55px rgba(126,62,88,.24),0 0 0 8px rgba(182,93,123,.06)}}
+
+
+/* Keep the flower chooser close button visible while its contents scroll. */
+.flower-popup-panel{position:relative}
+.flower-popup-head{position:sticky;top:0;z-index:20;background:#fff7fa;padding:2px 0 12px;margin-top:-2px}
+.flower-popup-close{position:relative;z-index:21;flex:0 0 42px;box-shadow:0 4px 12px rgba(84,38,57,.10)}
+@media (max-width:600px){.flower-popup-head{padding-top:2px;padding-bottom:10px}.flower-popup-close{flex-basis:40px}}
