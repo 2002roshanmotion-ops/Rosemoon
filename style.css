@@ -182,3 +182,7 @@ body.flower-popup-open{position:fixed;width:100%;overflow:hidden;overscroll-beha
   .rosemoon-loader-card{padding:20px 24px}
   .loader-main-flower{width:105px;height:105px}
 }
+
+/* Flower chooser: keep the background fixed, but let the chooser itself scroll */
+.flower-popup{overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y}
+.flower-popup-panel{overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;max-height:94vh;-webkit-overflow-scrolling:touch}
