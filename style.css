@@ -220,3 +220,53 @@ body.flower-popup-open{position:fixed;width:100%;overflow:hidden;overscroll-beha
 @supports not (height:100dvh){.flower-popup{height:100vh;min-height:100vh}.flower-popup-panel{height:100vh;max-height:100vh}}
 .flower-popup-head{position:sticky;top:0;z-index:20}
 @media (max-width:600px){.flower-popup{padding:0}.flower-popup-panel{width:100vw;height:100dvh;max-height:100dvh;border-radius:0;padding:16px}.flower-popup-head{padding-top:2px}}
+
+/* Final category popup viewport lock */
+html.flower-popup-open,
+body.flower-popup-open{
+  overflow:hidden !important;
+  overscroll-behavior:none !important;
+}
+.flower-popup{
+  position:fixed !important;
+  inset:0 !important;
+  width:100vw !important;
+  height:100dvh !important;
+  min-height:100dvh !important;
+  padding:0 !important;
+  margin:0 !important;
+  display:none;
+  align-items:stretch !important;
+  justify-content:center !important;
+  overflow:hidden !important;
+  z-index:2147483000 !important;
+}
+.flower-popup.open{display:flex !important}
+.flower-popup-panel{
+  position:relative !important;
+  width:min(1050px,100vw) !important;
+  height:100dvh !important;
+  max-height:100dvh !important;
+  min-height:0 !important;
+  margin:0 !important;
+  border-radius:0 !important;
+  box-sizing:border-box !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  overscroll-behavior:contain !important;
+  -webkit-overflow-scrolling:touch !important;
+}
+.flower-popup-head{
+  position:sticky !important;
+  top:0 !important;
+  z-index:50 !important;
+  background:#fff7fa !important;
+}
+.flower-popup-close{
+  position:relative !important;
+  z-index:51 !important;
+}
+@supports not (height:100dvh){
+  .flower-popup{height:100vh !important;min-height:100vh !important}
+  .flower-popup-panel{height:100vh !important;max-height:100vh !important}
+}
