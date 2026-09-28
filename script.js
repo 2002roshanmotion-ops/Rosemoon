@@ -132,7 +132,7 @@
 
   const popup=document.getElementById("flowerPopup"), grid=document.getElementById("flowerPopupGrid"), sub=document.getElementById("flowerPopupSub"), closePopup=document.getElementById("closeFlowerPopup");
   let popupProduct=null;
-  const choices=[["Flower 1","🌹"],["Flower 2","🌸"],["Flower 3","🌼"]];
+  const choices=[["Flower 1","🌹"],["Flower 2","🌸"],["Flower 3","🌼"],["Flower 4","🌷"],["Flower 5","🌻"]];
   function playCategorySound(product){
     const text=(product?.category||product?.name||'').toLowerCase();
     if(text.includes('basket')) return playUISound('basket');
