@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rosemoon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style id="flowerPopupStyles">.flower-popup{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;padding:22px;background:rgba(40,18,28,.48);backdrop-filter:blur(8px)}.flower-popup.open{display:flex}.flower-popup-panel{width:min(1050px,96vw);max-height:92vh;overflow:auto;background:#fff7fa;border:1px solid #ead5de;border-radius:28px;box-shadow:0 30px 80px rgba(40,18,28,.28);padding:28px}.flower-popup-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:22px}.flower-popup-kicker{font-size:11px;color:#a65c78;letter-spacing:.12em;font-weight:800;text-transform:uppercase}.flower-popup-title{margin:5px 0 4px;font:600 clamp(32px,5vw,48px) "Playfair Display";color:#3b202b}.flower-popup-sub{margin:0;color:#80636e}.flower-popup-close{border:1px solid #e6cad5;background:#fff;border-radius:999px;width:42px;height:42px;font-size:22px;color:#54333f;cursor:pointer}.flower-popup-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.flower-popup-card{background:#fff;border:1px solid #ead5de;border-radius:22px;padding:18px;box-shadow:0 12px 30px rgba(84,38,57,.07)}.flower-popup-art{height:155px;border-radius:18px;background:linear-gradient(145deg,#fff0f5,#ffe1eb);display:grid;place-items:center;font-size:86px;margin-bottom:14px}.flower-popup-card h3{margin:0 0 5px;color:#3b202b}.flower-popup-price{font-weight:800;font-size:19px;color:#7e3e58;margin-bottom:8px}.flower-popup-stock{font-size:12px;font-weight:800;color:#3c8b62;margin-bottom:13px}.flower-popup-stock.low{color:#bd7a28}.flower-popup-stock.out{color:#c13b4b}.flower-popup-card button{width:100%;border:0;border-radius:13px;padding:12px 14px;background:#3b202b;color:#fff;font-weight:800;cursor:pointer}.flower-popup-card button:disabled{opacity:.6;cursor:not-allowed}.flower-popup-card{position:relative}.flower-popup-card button{position:relative;z-index:3}.flower-popup-card button.added{animation:flowerCartPop .45s cubic-bezier(.2,.8,.2,1);box-shadow:0 0 0 4px rgba(126,62,88,.10)}@keyframes flowerCartPop{0%{transform:scale(1)}35%{transform:scale(1.06)}65%{transform:scale(.98)}100%{transform:scale(1)}}.flower-flyer{position:fixed;z-index:20000;pointer-events:none;font-size:58px;line-height:1;filter:drop-shadow(0 8px 12px rgba(59,32,43,.18));transform-origin:center;transition:transform .62s cubic-bezier(.2,.85,.25,1),opacity .62s ease}.flower-flyer::after{content:'✦';position:absolute;right:-14px;top:-10px;font-size:18px;animation:flowerSpark .85s ease forwards}.flower-spark{position:fixed;z-index:20001;pointer-events:none;font-size:16px;font-weight:900;animation:flowerSparkTrail .9s ease forwards;filter:drop-shadow(0 0 5px rgba(255,196,220,.9))}@keyframes flowerSparkTrail{0%{opacity:0;transform:translate(0,0) scale(.3) rotate(0)}18%{opacity:1}70%{opacity:1;transform:translate(var(--dx),var(--dy)) scale(1) rotate(90deg)}100%{opacity:0;transform:translate(var(--dx2),var(--dy2)) scale(.2) rotate(180deg)}}.flower-cart-bounce{animation:flowerCartBounce .55s cubic-bezier(.2,.8,.2,1)}@keyframes flowerCartBounce{0%{transform:scale(1)}35%{transform:scale(1.18)}65%{transform:scale(.94)}100%{transform:scale(1)}}@keyframes flowerSpark{0%{opacity:0;transform:scale(.4) rotate(-20deg)}30%{opacity:1;transform:scale(1.1) rotate(10deg)}100%{opacity:0;transform:scale(.5) rotate(35deg) translate(8px,-8px)}}.flower-popup-note{margin-top:18px;padding:13px 16px;border-radius:14px;background:#fff0f5;color:#75515f;font-size:12px}@media(max-width:760px){.flower-popup{padding:10px}.flower-popup-panel{padding:20px;border-radius:22px}.flower-popup-grid{grid-template-columns:1fr}.flower-popup-art{height:120px;font-size:72px}.flower-popup-art img{width:100%;height:100%;object-fit:cover;display:block}}</style></head>
+<body>
+<div class="rosemoon-loader" id="rosemoonLoader" aria-live="polite">
+  <div class="loader-petals" aria-hidden="true">
+    <span>✿</span><span>❀</span><span>🌸</span><span>✧</span><span>🌷</span><span>♡</span><span>✿</span><span>🌸</span><span>✦</span><span>❀</span>
+  </div>
+  <div class="rosemoon-loader-orbit orbit-a" aria-hidden="true"></div>
+  <div class="rosemoon-loader-orbit orbit-b" aria-hidden="true"></div>
+  <div class="rosemoon-loader-card">
+    <div class="loader-bloom loader-main-flower" aria-hidden="true"><img src="assets/main-flower.webp" alt="Rosemoon handmade flower bouquet"></div>
+    <div class="rosemoon-loader-title">ROSEMOON</div>
+    <div class="rosemoon-loader-subtitle">A little beauty is on its way</div>
+    <div class="rosemoon-loader-track"><div class="rosemoon-loader-fill" id="rosemoonLoaderFill"><span></span></div></div>
+    <div class="rosemoon-loader-meta"><span>LOADING</span><strong id="rosemoonLoaderPercent">0%</strong></div>
+    <div class="loader-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+  </div>
+</div>
+
+<div class="flower-bg" aria-hidden="true">
+  <span>🌸</span><span>🌹</span><span>🌷</span><span>🌼</span><span>🌸</span><span>🌹</span>
+  <span>✦</span><span>♡</span><span>✧</span><span>❀</span><span>✦</span><span>🌷</span>
+</div>
+
+<!-- FIRST PAGE: no welcome paragraph/text, only branding + START SHOPPING -->
+<section class="landing-page" id="landingPage">
+  <div class="landing-orbit orbit-1"></div>
+  <div class="landing-orbit orbit-2"></div>
+  <div class="landing-flowers" aria-hidden="true">
+    <span>🌹</span><span>🌸</span><span>🌷</span><span>🌼</span><span>🌹</span><span>🌸</span>
+  </div>
+  <div class="landing-content">
+    <div class="landing-logo">ROSEMOON</div>
+    <div class="landing-mark">✿</div>
+    <button class="start-shopping" id="startShopping" type="button">
+      <span>START SHOPPING</span><b>→</b>
+    </button>
+  </div>
+</section>
+
+<!-- SHOPPING PAGE -->
+<section class="shop-page" id="shopPage" aria-hidden="true">
+  <header class="header">
+    <a class="logo" href="#" id="homeLogo">ROSEMOON <small>HANDMADE FLOWERS</small></a>
+    <nav class="nav">
+      <a href="#shopPage">Bouquets</a>
+      <button id="openGuide" type="button">How to Order</button>
+    </nav>
+    <button class="cart-btn" id="openCartBtn" type="button">🛒 Cart <b id="headerCartCount">0</b></button>
+  </header>
+
+  <main class="shop-main" id="shop">
+    <div class="shop-heading">
+      <p class="eyebrow">ROSEMOON</p>
+      <h1>Choose Your Bouquets</h1>
+      <p>Choose a price and then select your flower.</p>
+    </div>
+
+    <div class="products" id="productsGrid">
+      <div class="product" style="grid-column:1/-1;text-align:center;padding:30px">Loading flowers…</div>
+    </div>
+  </main>
+
+  <!-- MUSIC BOTTOM BAR -->
+  <div class="music-bar" id="musicBar">
+    <div class="music-now">
+      <div class="music-disc" id="musicDisc"><span>♪</span></div>
+      <div class="music-info">
+        <strong id="songTitle">Rosemoon Music</strong>
+        <small id="songStatus">Ready</small>
+      </div>
+    </div>
+    <div class="music-wave" id="musicWave" aria-hidden="true">
+      <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+    </div>
+    <div class="music-controls">
+      <button id="prevSong" type="button" aria-label="Previous song">⏮</button>
+      <button class="music-play" id="toggleMusic" type="button" aria-label="Play music">▶</button>
+      <button id="nextSong" type="button" aria-label="Next song">⏭</button>
+      <button id="muteMusic" type="button" aria-label="Mute music">🔊</button>
+    </div>
+    <audio id="rosemoonAudio" preload="auto"></audio>
+  </div>
+
+  <!-- GUIDE -->
+  <div class="guide-modal" id="guideModal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-guide></div>
+    <div class="guide-card">
+      <button class="modal-close" id="closeGuide" type="button">×</button>
+      <p class="eyebrow">HOW TO ORDER</p>
+      <h2>Three simple steps</h2>
+      <div class="guide-steps">
+        <div><b>01</b><span>Choose a price</span></div>
+        <div><b>02</b><span>Choose Flower 1, 2 or 3</span></div>
+        <div><b>03</b><span>Add to cart and checkout</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CART -->
+  <div class="cart-backdrop" id="cartBackdrop"></div>
+  <aside class="cart-panel" id="cartPanel" aria-hidden="true">
+    <div class="cart-heading">
+      <div><p class="eyebrow">YOUR CART</p><h2>Selected Bouquets</h2></div>
+      <button id="closeCart" type="button">×</button>
+    </div>
+    <div id="cartItems" class="cart-items"></div>
+    <div class="cart-total"><span>Total</span><strong id="cartTotal">Rs. 0</strong></div>
+    <form id="orderForm">
+      <label>Name<input id="name" required placeholder="Your name"></label>
+      <label>Phone<input id="phone" required placeholder="Phone number"></label>
+      <label>Delivery details<textarea id="note" rows="3" placeholder="Delivery area / special note"></textarea></label>
+      <label>Payment
+        <select id="payment" required>
+          <option value="">Choose payment method</option>
+          <option>Cash on Delivery</option><option>eSewa</option><option>Khalti</option><option>Bank Transfer</option>
+        </select>
+      </label>
+      <button class="checkout-btn" type="submit">Place Order →</button>
+      <p id="formNote"></p>
+    </form>
+  </aside>
+
+  <div class="flower-popup" id="flowerPopup" aria-hidden="true"><div class="flower-popup-panel" role="dialog" aria-modal="true" aria-labelledby="flowerPopupTitle"><div class="flower-popup-head"><div><div class="flower-popup-kicker">Rosemoon · Flower Shop</div><h2 class="flower-popup-title" id="flowerPopupTitle">Choose Your Flower</h2><p class="flower-popup-sub" id="flowerPopupSub">Choose a flower for Rs. 500.</p></div><button class="flower-popup-close" id="closeFlowerPopup" type="button" aria-label="Close">×</button></div><div class="flower-popup-grid" id="flowerPopupGrid"></div><div class="flower-popup-note">Your flower is added directly to the Rosemoon cart. This shop stays on the same page.</div></div></div>
+  <div class="toast" id="toast"></div>
+</section>
+
+
+<script src="script.js"></script>
+</body>
+</html>

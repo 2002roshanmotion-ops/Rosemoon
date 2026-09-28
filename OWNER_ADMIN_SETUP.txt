@@ -1,0 +1,28 @@
+ROSEMOON OWNER / ADMIN TEST VERSION
+
+1. Open the Google Apps Script project connected to your Rosemoon Google Sheet.
+2. Replace Code.gs with the Code.gs included in this ZIP.
+3. Save.
+4. Run setupRosemoonSheet() once and approve Google permissions.
+5. Deploy > Manage deployments > Edit > New version > Deploy.
+6. Web app settings:
+   Execute as: Me
+   Who has access: Anyone
+7. The website is already configured to use:
+   https://script.google.com/macros/s/AKfycbw3ovS6hIwHLhp50Xrs-6ejMxZkI_q-AhB-Mz6JXbsIRKSphJcMoqBELVY4nUogRR__/exec
+8. Admin password/key: 1
+
+Google Sheet tabs:
+Settings, Categories, Products, Orders, Customers, Music, Offers, Activity
+
+Google Drive folders:
+Rosemoon Product Photos
+Rosemoon Music
+
+Music upload:
+- MP3 only
+- One or multiple MP3 files
+- Title optional; blank title uses the MP3 filename
+- Maximum file size per file: 12 MB
+
+Keep the original safe Rosemoon backup unchanged.

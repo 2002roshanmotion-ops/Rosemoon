@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rosemoon Flower Shop</title>
+<link rel="stylesheet" href="style.css">
+<style>
+.flower-shop-page{min-height:100vh;position:relative;z-index:2;padding-bottom:55px}.flower-shop-header{position:sticky;top:0;z-index:50;height:76px;display:flex;align-items:center;justify-content:space-between;padding:0 34px;background:rgba(255,247,250,.94);backdrop-filter:blur(16px);border-bottom:1px solid rgba(91,48,64,.08)}
+.flower-back{border:1px solid #e6cad5;background:#fff;border-radius:999px;padding:10px 16px;color:#54333f;text-decoration:none;font-size:13px;font-weight:700}.flower-back:hover{background:#fff0f5}.flower-shop-main{max-width:1120px;margin:auto;padding:45px 28px 80px}.flower-breadcrumb{font-size:12px;color:#a65c78;letter-spacing:.12em;font-weight:700;text-transform:uppercase;margin-bottom:14px}.flower-shop-title{font:600 clamp(40px,5vw,64px) "Playfair Display";color:#3b202b;margin:0 0 8px}.flower-shop-sub{color:#80636e;margin:0 0 28px}.price-picker{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:30px}.price-choice{border:1px solid #e2c5d1;background:#fff;border-radius:999px;padding:11px 18px;color:#694653;font-weight:800;cursor:pointer}.price-choice.active,.price-choice:hover{background:#3b202b;color:#fff;border-color:#3b202b}.flower-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}.flower-card{background:#fff;border:1px solid #ead5de;border-radius:24px;padding:24px;box-shadow:0 16px 40px rgba(84,38,57,.08)}.flower-card-art{height:190px;border-radius:20px;background:linear-gradient(145deg,#fff0f5,#ffe1eb);display:grid;place-items:center;font-size:105px;margin-bottom:18px}.flower-card h2{margin:0 0 6px;color:#3b202b}.flower-price{font-weight:800;font-size:20px;color:#7e3e58;margin-bottom:12px}.flower-stock{font-size:12px;font-weight:800;color:#3c8b62;margin-bottom:16px}.flower-stock.low{color:#bd7a28}.flower-stock.out{color:#c13b4b}.flower-card button{width:100%;border:0;border-radius:13px;padding:13px 16px;background:#3b202b;color:#fff;font-weight:800;cursor:pointer}.flower-card button:disabled{opacity:.65;cursor:not-allowed}.cart-pop{position:fixed;inset:0;display:grid;place-items:center;pointer-events:none;z-index:100}.cart-pop span{background:#3b202b;color:#fff;padding:15px 22px;border-radius:999px;font-weight:800;box-shadow:0 12px 35px rgba(59,32,43,.25);animation:cartPop 1.15s ease forwards}@keyframes cartPop{0%{opacity:0;transform:translateY(18px) scale(.8)}18%{opacity:1;transform:translateY(0) scale(1.05)}45%{transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-28px) scale(.98)}}@media(prefers-reduced-motion:reduce){.cart-pop span{animation:none;opacity:1;transform:none}}.flower-note{margin-top:26px;padding:16px 18px;background:#fff0f5;border:1px solid #f0d5df;border-radius:16px;color:#75515f;font-size:13px;line-height:1.6}@media(max-width:760px){.flower-shop-header{padding:0 16px}.flower-shop-main{padding:32px 18px 70px}.flower-grid{grid-template-columns:1fr}.flower-shop-title{font-size:45px}}
+</style>
+</head>
+<body>
+<div class="flower-bg" aria-hidden="true"><span>🌸</span><span>🌹</span><span>🌷</span><span>🌼</span><span>🌸</span><span>🌹</span><span>✦</span><span>♡</span><span>✧</span><span>❀</span><span>✦</span><span>🌷</span></div>
+<section class="flower-shop-page">
+<header class="flower-shop-header"><a class="logo" href="index.html">ROSEMOON <small>HANDMADE FLOWERS</small></a><a class="flower-back" id="flowerBack" href="index.html">← Back to Flower Options</a></header>
+<main class="flower-shop-main">
+<div class="flower-breadcrumb">Rosemoon · Flower Shop</div>
+<h1 class="flower-shop-title">Choose Your Flower</h1>
+<p class="flower-shop-sub">Choose your flower. Stock is shown here.</p>
+<div class="flower-grid" id="flowerGrid"></div>
+<div class="flower-note">Your selected flower is added to the Rosemoon cart. When you return to the main shop, your cart is preserved.</div>
+</main></section>
+<script>
+(()=>{
+ const money=n=>'Rs. '+Number(n).toLocaleString('en-IN');
+ const defaults={500:{size:'Small',stock:10},800:{size:'Medium',stock:3},1500:{size:'Large',stock:5},1800:{size:'Flower Basket',stock:5}};
+ const flowers={Small:[['Flower 1','🌹'],['Flower 2','🌸'],['Flower 3','🌼']],Medium:[['Flower 1','🌹'],['Flower 2','🌸'],['Flower 3','🌼']],Large:[['Flower 1','🌹'],['Flower 2','🌸'],['Flower 3','🌼']],['Flower Basket']:[['Flower 1','🧺🌸'],['Flower 2','🧺🌹'],['Flower 3','🧺🌼']]};
+ let inventory={}; try{inventory=JSON.parse(localStorage.getItem('rosemoonInventoryV3')||'{}')}catch(e){}
+ const qs=new URLSearchParams(location.search); let price=Number(qs.get('price'))||500; if(!defaults[price])price=500;
+ const back=document.getElementById('flowerBack'); const returnUrl=qs.get('return'); if(returnUrl){back.href=returnUrl}
+ const grid=document.getElementById('flowerGrid');
+ function stockFor(size){return Math.max(0,Number(inventory[size]?.stock??defaults[price].stock))}
+ function render(){
+   const d=defaults[price], list=flowers[d.size];
+   grid.innerHTML=list.map(([name,emoji])=>{const stock=stockFor(d.size);return `<article class="flower-card"><div class="flower-card-art">${emoji}</div><h2>${name}</h2><div class="flower-price">${money(price)}</div><div class="flower-stock ${stock===0?'out':stock<=2?'low':''}">${stock===0?'Sold out':stock+' in stock'}</div><button ${stock===0?'disabled':''} data-buy data-type="${name}" data-emoji="${emoji}">🛒 Add to Cart</button></article>`}).join('');
+   document.title=`Rosemoon · ${money(price)}`;
+ }
+ grid.addEventListener('click',e=>{const b=e.target.closest('[data-buy]');if(!b)return;const d=defaults[price], stock=stockFor(d.size);let cart=[];try{cart=JSON.parse(localStorage.getItem('rosemoonPendingCart')||'[]')}catch(e){};const existing=cart.find(x=>x.size===d.size&&x.type===b.dataset.type);if((existing?.qty||0)>=stock)return;if(existing)existing.qty++;else cart.push({size:d.size,type:b.dataset.type,emoji:b.dataset.emoji,price,qty:1});localStorage.setItem('rosemoonPendingCart',JSON.stringify(cart)); localStorage.setItem('rosemoonCart',JSON.stringify(cart)); b.textContent='✓ Added to Cart'; b.disabled=true; const pop=document.createElement('div'); pop.className='cart-pop'; pop.innerHTML='<span>🛒 Added to Cart</span>'; document.body.appendChild(pop); setTimeout(()=>{pop.remove(); b.textContent='🛒 Add to Cart'; b.disabled=false;},1150)});
+ render();
+})();
+</script>
+</body>
+</html>
