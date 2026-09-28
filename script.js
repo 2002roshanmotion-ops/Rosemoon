@@ -136,9 +136,20 @@
     sub.textContent=`${popupProduct.name} · ${money(popupProduct.price)}. Choose a flower.`;
     const stock=stockFor(id);
     grid.innerHTML=choices.map(([type,emoji])=>`<article class="flower-popup-card"><div class="flower-popup-art">${popupProduct.imageUrl?`<img src="${escapeAttr(popupProduct.imageUrl)}" alt="${escapeAttr(popupProduct.name)}" style="width:100%;height:100%;object-fit:cover;border-radius:18px">`:emoji}</div><h3>${type}</h3><div class="flower-popup-price">${money(popupProduct.price)}</div><div class="flower-popup-stock ${stock===0?'out':stock<=2?'low':''}">${stock===0?'Sold out':stock+' in stock'}</div><button type="button" data-popup-buy data-type="${type}" data-emoji="${emoji}" ${stock===0?'disabled':''}>🛒 Add to Cart</button></article>`).join("");
-    popup.classList.add("open"); popup.setAttribute("aria-hidden","false"); document.body.classList.add("flower-popup-open");
+    popup.classList.add("open"); popup.setAttribute("aria-hidden","false"); lockBackgroundScroll();
   }
-  function closeFlowerPopup(){popup.classList.remove("open");popup.setAttribute("aria-hidden","true");document.body.classList.remove("flower-popup-open")}
+  let lockedScrollY=0;
+  function lockBackgroundScroll(){
+    lockedScrollY=window.scrollY||window.pageYOffset||0;
+    document.body.classList.add("flower-popup-open");
+    document.body.style.top="-"+lockedScrollY+"px";
+  }
+  function unlockBackgroundScroll(){
+    document.body.classList.remove("flower-popup-open");
+    document.body.style.top="";
+    window.scrollTo(0,lockedScrollY);
+  }
+  function closeFlowerPopup(){popup.classList.remove("open");popup.setAttribute("aria-hidden","true");unlockBackgroundScroll()}
   closePopup?.addEventListener("click",closeFlowerPopup); popup?.addEventListener("click",e=>{if(e.target===popup)closeFlowerPopup()});
   grid?.addEventListener("click",e=>{const b=e.target.closest("[data-popup-buy]");if(!b||!popupProduct)return;const ok=addItem({id:popupProduct.id,size:popupProduct.category,name:popupProduct.name,price:popupProduct.price,type:b.dataset.type,emoji:b.dataset.emoji,imageUrl:popupProduct.imageUrl},true,b);if(ok){b.textContent="✓ Added";b.disabled=true;setTimeout(closeFlowerPopup,300)}});
 
