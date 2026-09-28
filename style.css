@@ -289,3 +289,26 @@ body.flower-popup-open{
   background:linear-gradient(to bottom,#fff7fa,rgba(255,247,250,0));
   pointer-events:none;
 }
+
+/* Solid occlusion zone: scrolled flower cards must never show through the header */
+.flower-popup-head{
+  position:sticky !important;
+  top:0 !important;
+  z-index:100 !important;
+  background:#fff7fa !important;
+  background-color:#fff7fa !important;
+  box-shadow:0 12px 0 #fff7fa,0 14px 18px rgba(255,247,250,.95) !important;
+  isolation:isolate !important;
+}
+.flower-popup-head::after{
+  content:"" !important;
+  position:absolute !important;
+  left:-2px !important;
+  right:-2px !important;
+  bottom:-16px !important;
+  height:16px !important;
+  background:#fff7fa !important;
+  box-shadow:0 4px 8px rgba(255,247,250,.9) !important;
+  pointer-events:none !important;
+  z-index:-1 !important;
+}
