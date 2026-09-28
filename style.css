@@ -122,6 +122,23 @@ button{cursor:pointer}
   .music-info{display:none}
 }
 
+/* Animated bouquet search */
+.rosemoon-search{margin-bottom:12px;transition:transform .25s ease,box-shadow .3s ease,border-color .3s ease;animation:rosemoonSearchFloat 3.5s ease-in-out infinite}
+.rosemoon-search:hover{transform:translateY(-2px)}
+.rosemoon-search:focus-within{transform:translateY(-3px) scale(1.01);animation:none}
+@keyframes rosemoonSearchFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+.search-recommendations{max-width:620px;margin:0 auto 34px;background:rgba(255,255,255,.97);border:1px solid #ead5de;border-radius:20px;box-shadow:0 18px 45px rgba(84,38,57,.13);overflow:hidden;opacity:0;transform:translateY(-8px) scale(.98);pointer-events:none;max-height:0;transition:opacity .22s ease,transform .22s ease,max-height .3s ease}
+.search-recommendations.show{opacity:1;transform:translateY(0) scale(1);pointer-events:auto;max-height:420px}
+.search-recommend-title{padding:12px 16px 8px;font-size:12px;font-weight:800;color:#8b536a;letter-spacing:.3px}
+.search-recommend-item{width:100%;display:flex;align-items:center;gap:12px;padding:10px 14px;border:0;border-top:1px solid #f3e5ea;background:transparent;text-align:left;cursor:pointer;transition:background .18s ease,transform .18s ease}
+.search-recommend-item:hover{background:#fff5f8;transform:translateX(4px)}
+.search-recommend-pic{width:54px;height:54px;flex:0 0 54px;border-radius:14px;background:#fff0f5;display:grid;place-items:center;overflow:hidden;font-size:28px}
+.search-recommend-pic img{width:100%;height:100%;object-fit:cover;display:block}
+.search-recommend-info{display:flex;flex-direction:column;gap:3px;min-width:0}
+.search-recommend-info strong{font-size:14px;color:#3b202b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.search-recommend-info small{font-size:11px;color:#9b7d88}
+.search-empty{padding:18px;text-align:center;font-size:13px;color:#9b7d88}
+
 /* Rosemoon responsive layout: portrait + landscape phones */
 @media (max-width: 600px) and (orientation: portrait){
   html,body{overflow-x:hidden}
