@@ -33,6 +33,10 @@
   function loadCart(){ try{return JSON.parse(localStorage.getItem(CART_KEY)||"[]")}catch(e){return []} }
   function saveCart(){ localStorage.setItem(CART_KEY,JSON.stringify(cart)); }
   function stockFor(id){ return Math.max(0,Number(products.find(p=>p.id===id)?.stock??0)); }
+  function categoryOptions(product){
+    try{const d=JSON.parse(String(product?.description||''));if(d&&d.rosemoonCategory&&Array.isArray(d.options)&&d.options.length)return d.options}catch(e){}
+    return choices.map(([type,emoji])=>({type,emoji,stock:stockFor(product?.id),imageUrl:product?.imageUrl||''}));
+  }
 
   function enterShop(){
     playUISound('breeze');
@@ -67,7 +71,7 @@
     return products.filter(p=>{
       if(p.active===false)return false;
       if(!q)return false;
-      const flowerNames=["Flower 1","Flower 2","Flower 3"];
+      const flowerNames=["Flower 1","Flower 2","Flower 3","Flower 4","Flower 5"];
       return [p.name,p.category,p.price,"rs. "+p.price,...flowerNames].some(v=>String(v??'').toLowerCase().includes(q));
     });
   }
@@ -134,8 +138,12 @@
     popupProduct=products.find(p=>p.id===id); if(!popupProduct)return;
     playCategorySound(popupProduct);
     sub.textContent=`${popupProduct.name} · ${money(popupProduct.price)}. Choose a flower.`;
-    const stock=stockFor(id);
-    grid.innerHTML=choices.map(([type,emoji])=>`<article class="flower-popup-card"><div class="flower-popup-art">${popupProduct.imageUrl?`<img src="${escapeAttr(popupProduct.imageUrl)}" alt="${escapeAttr(popupProduct.name)}" style="width:100%;height:100%;object-fit:cover;border-radius:18px">`:emoji}</div><h3>${type}</h3><div class="flower-popup-price">${money(popupProduct.price)}</div><div class="flower-popup-stock ${stock===0?'out':stock<=2?'low':''}">${stock===0?'Sold out':stock+' in stock'}</div><button type="button" data-popup-buy data-type="${type}" data-emoji="${emoji}" ${stock===0?'disabled':''}>🛒 Add to Cart</button></article>`).join("");
+    const options=categoryOptions(popupProduct);
+    grid.innerHTML=options.map(o=>{
+      const type=String(o.type||'Flower 1'),emoji=String(o.emoji||'🌸'),stock=Math.max(0,Number(o.stock)||0),imageUrl=String(o.imageUrl||'');
+      const art=imageUrl?`<img src="${escapeAttr(imageUrl)}" alt="${escapeAttr(type)}" style="width:100%;height:100%;object-fit:cover;border-radius:18px">`:emoji;
+      return `<article class="flower-popup-card"><div class="flower-popup-art">${art}</div><h3>${escapeHtml(type)}</h3><div class="flower-popup-price">${money(popupProduct.price)}</div><div class="flower-popup-stock ${stock===0?'out':stock<=2?'low':''}">${stock===0?'Sold out':stock+' in stock'}</div><button type="button" data-popup-buy data-type="${escapeAttr(type)}" data-emoji="${escapeAttr(emoji)}" ${stock===0?'disabled':''}>🛒 Add to Cart</button></article>`;
+    }).join("");
     popup.classList.add("open"); popup.setAttribute("aria-hidden","false"); lockBackgroundScroll();
   }
   let lockedScrollY=0;
