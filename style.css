@@ -3,6 +3,7 @@ html{scroll-behavior:smooth}
 body{margin:0;background:#fff7fa;color:#351f28;font-family:"DM Sans",sans-serif;overflow-x:hidden}
 button,a{font:inherit}
 button{cursor:pointer}
+body.flower-popup-open{position:fixed;width:100%;overflow:hidden;overscroll-behavior:none}
 .flower-bg{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0;opacity:.14}
 .flower-bg span{position:absolute;font-size:42px;animation:floatFlower 12s ease-in-out infinite}
 .flower-bg span:nth-child(1){left:5%;top:18%}.flower-bg span:nth-child(2){left:17%;top:72%;animation-delay:1s}.flower-bg span:nth-child(3){left:78%;top:17%;animation-delay:2s}.flower-bg span:nth-child(4){left:91%;top:70%;animation-delay:3s}.flower-bg span:nth-child(5){left:48%;top:8%;animation-delay:4s}.flower-bg span:nth-child(6){left:62%;top:82%;animation-delay:5s}.flower-bg span:nth-child(7){left:31%;top:27%;animation-delay:1.5s}.flower-bg span:nth-child(8){left:86%;top:42%;animation-delay:2.5s}.flower-bg span:nth-child(9){left:12%;top:45%;animation-delay:3.5s}.flower-bg span:nth-child(10){left:55%;top:58%;animation-delay:4.5s}.flower-bg span:nth-child(11){left:72%;top:62%;animation-delay:5.5s}.flower-bg span:nth-child(12){left:39%;top:88%;animation-delay:6s}
