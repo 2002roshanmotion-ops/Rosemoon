@@ -8,7 +8,7 @@
 </style>
 </head>
 <body>
-<div id="loginScreen" class="login"><div class="login-box"><div class="brand">🌹 ROSEMOON</div><h2>Owner Admin</h2><p>Manage flowers, inventory, photos and music.</p><input id="adminPassword" type="password" placeholder="Admin password"><button class="primary" id="loginBtn">Login</button><div class="error" id="loginMessage"></div></div></div>
+<div id="loginScreen" class="login"><div class="login-box"><div class="brand">🌹 ROSEMOON</div><h2>Owner Admin</h2><p>Manage flowers, inventory, photos and music.</p><input id="adminPassword" type="password" placeholder="Admin password"><button type="button" class="primary" id="loginBtn">Login</button><div class="error" id="loginMessage"></div></div></div>
 
 <div id="adminPanel" style="display:none"><div class="shell">
   <div class="top"><div><h1>🌹 Rosemoon Owner Dashboard</h1><small>Everything you add here can automatically appear on the customer website.</small></div><button class="logout" id="logoutBtn">Logout</button></div>
@@ -47,8 +47,26 @@ async function waitForMusic(title,beforeCount){for(let i=0;i<12;i++){await new P
 async function waitForProduct(name,beforeCount){for(let i=0;i<12;i++){await new Promise(r=>setTimeout(r,1000));try{const d=await api('products');const list=d.products||[];if(list.length>beforeCount&&list.some(x=>x.name===name))return list}catch(e){}}throw new Error('Product upload was sent, but the server did not confirm it. Check the Products sheet and try again if needed.')}
 function setTab(name){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===name));if(name==='inventory'||name==='dashboard')loadProducts();if(name==='music')loadMusic();if(name==='orders')loadOrders()}
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));document.querySelectorAll('[data-jump]').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.jump)));
-function showAdmin(){ $('loginScreen').style.display='none';$('adminPanel').style.display='block';setTab('dashboard');loadProducts();loadMusic();loadOrders() }
-$('loginBtn').addEventListener('click',()=>{if($('adminPassword').value===ADMIN_KEY){sessionStorage.setItem('rosemoonAdmin','true');showAdmin()}else $('loginMessage').textContent='❌ Wrong password.'});$('adminPassword').addEventListener('keydown',e=>{if(e.key==='Enter')$('loginBtn').click()});$('logoutBtn').addEventListener('click',()=>{sessionStorage.removeItem('rosemoonAdmin');location.reload()});
+function showAdmin(){
+  $('loginScreen').style.display='none';
+  $('adminPanel').style.display='block';
+  $('loginMessage').textContent='';
+  try{setTab('dashboard')}catch(e){console.error('Dashboard startup:',e)}
+  try{loadProducts()}catch(e){console.error('Products startup:',e)}
+  try{loadMusic()}catch(e){console.error('Music startup:',e)}
+  if(typeof loadOrders==='function'){try{loadOrders()}catch(e){console.error('Orders startup:',e)}}
+}
+function rosemoonLogin(){
+  const password=String($('adminPassword').value||'').trim();
+  if(password!==ADMIN_KEY){
+    $('loginMessage').textContent='❌ Wrong password.';
+    return false;
+  }
+  sessionStorage.setItem('rosemoonAdmin','true');
+  showAdmin();
+  return false;
+}
+$('loginBtn').addEventListener('click',rosemoonLogin);$('adminPassword').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();rosemoonLogin()}});$('logoutBtn').addEventListener('click',()=>{sessionStorage.removeItem('rosemoonAdmin');location.reload()});
 async function loadProducts(){try{const d=await api('products');products=d.products||[];populateEditProducts();renderInventory();renderDashboardInventory();updateStats()}catch(e){console.error(e)}}
 function renderDashboardInventory(){const t=$('dashboardInventoryTable');if(!t)return;t.innerHTML=products.slice(0,12).map(p=>`<tr><td>${esc(p.name)}</td><td>${esc(p.category)}</td><td>${money(p.price)}</td><td class="${p.stock===0?'status-out':p.stock<=2?'status-low':'status-ok'}">${p.stock}</td></tr>`).join('')||'<tr><td colspan="4" class="empty">No products yet.</td></tr>'}
 function renderInventory(){const t=$('inventoryTable');t.innerHTML=products.map(p=>`<tr><td>${p.imageUrl?`<img src="${esc(p.imageUrl)}" alt="">`:'🌸'}</td><td>${esc(p.category)}</td><td>${esc(p.name)}</td><td>${money(p.price)}</td><td class="${p.stock===0?'status-out':p.stock<=2?'status-low':'status-ok'}">${p.stock}</td><td><input id="stock-${esc(p.id)}" type="number" min="0" value="${p.stock}" style="width:90px;padding:8px;border:1px solid #e2cbd4;border-radius:8px"></td><td><button class="secondary" onclick="saveStock('${esc(p.id)}')">Save</button> <button class="secondary" onclick="editProductPhoto('${esc(p.id)}')">🖼️ Edit Picture</button> <button class="danger" onclick="deleteProduct('${esc(p.id)}')">Delete</button><input id="photo-${esc(p.id)}" type="file" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none" onchange="uploadEditedPhoto('${esc(p.id)}',this)"></td></tr>`).join('')||'<tr><td colspan="7" class="empty">No products yet.</td></tr>'}
