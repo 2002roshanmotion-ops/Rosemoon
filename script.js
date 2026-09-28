@@ -141,12 +141,12 @@
   let lockedScrollY=0;
   function lockBackgroundScroll(){
     lockedScrollY=window.scrollY||window.pageYOffset||0;
+    document.documentElement.classList.add("flower-popup-open");
     document.body.classList.add("flower-popup-open");
-    document.body.style.top="-"+lockedScrollY+"px";
   }
   function unlockBackgroundScroll(){
+    document.documentElement.classList.remove("flower-popup-open");
     document.body.classList.remove("flower-popup-open");
-    document.body.style.top="";
     window.scrollTo(0,lockedScrollY);
   }
   function closeFlowerPopup(){popup.classList.remove("open");popup.setAttribute("aria-hidden","true");unlockBackgroundScroll()}
