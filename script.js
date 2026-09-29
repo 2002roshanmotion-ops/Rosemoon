@@ -78,7 +78,8 @@
     return products.filter(p=>{
       if(p.active===false)return false;
       if(!q)return false;
-      const flowerNames=["Flower 1","Flower 2","Flower 3","Flower 4","Flower 5"];
+      let flowerNames=[];
+      try{const d=JSON.parse(String(p.description||''));if(d&&Array.isArray(d.options))flowerNames=d.options.map(o=>o?.type).filter(Boolean)}catch(e){}
       return [p.name,p.category,p.price,"rs. "+p.price,...flowerNames].some(v=>String(v??'').toLowerCase().includes(q));
     });
   }
@@ -116,7 +117,7 @@
         <div class="product-top"><span class="price-badge">${money(p.price)}</span></div>
         <div class="bouquet-preview"><div class="flower-art">${art}</div></div>
         <div style="font-weight:800;margin:10px 0 3px;color:#3b202b">${escapeHtml(p.name)}</div>
-        <div style="font-size:12px;font-weight:800;color:${stock===0?'#c13b4b':stock<=2?'#bd7a28':'#3c8b62'}">${stock===0?'Sold out':stock+' in stock'}</div>
+        
       </article>`;
     }).join("");
     grid.querySelectorAll(".product[data-id]").forEach(card=>{card.addEventListener("click",()=>openFlowerPopup(card.dataset.id));card.addEventListener("keydown",e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openFlowerPopup(card.dataset.id)}})});
@@ -149,7 +150,8 @@
     grid.innerHTML=options.map(o=>{
       const type=String(o.type||'Flower 1'),emoji=String(o.emoji||'🌸'),stock=Math.max(0,Number(o.stock)||0),imageUrl=String(o.imageUrl||'');
       const art=imageUrl?`<img src="${escapeAttr(imageUrl)}" alt="${escapeAttr(type)}" style="width:100%;height:100%;object-fit:cover;border-radius:18px">`:emoji;
-      return `<article class="flower-popup-card"><div class="flower-popup-art">${art}</div><h3>${escapeHtml(type)}</h3><div class="flower-popup-price">${money(popupProduct.price)}</div><button type="button" data-popup-buy data-type="${escapeAttr(type)}" data-emoji="${escapeAttr(emoji)}" ${stock===0?'disabled':''}>🛒 Add to Cart</button></article>`;
+      const stockClass=stock===0?"out":stock<=2?"low":"";
+      return `<article class="flower-popup-card"><div class="flower-popup-art">${art}</div><h3>${escapeHtml(type)}</h3><div class="flower-popup-price">${money(popupProduct.price)}</div><div class="flower-popup-stock ${stockClass}">${stock===0?"Sold out":stock+" in stock"}</div><button type="button" data-popup-buy data-type="${escapeAttr(type)}" data-emoji="${escapeAttr(emoji)}" ${stock===0?'disabled':''}>🛒 Add to Cart</button></article>`;
     }).join("");
     popup.classList.add("open"); popup.setAttribute("aria-hidden","false"); lockBackgroundScroll();
   }
