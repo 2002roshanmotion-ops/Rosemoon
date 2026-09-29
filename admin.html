@@ -209,24 +209,39 @@ async function createCategory(){
   finally{btn.disabled=false}
 }
 async function ensureOthersCategory(){
-  if(products.some(p=>String(p?.category||p?.name||'').trim().toLowerCase()==='others')) return;
+  const others=products.filter(p=>String(p?.category||p?.name||'').trim().toLowerCase()==='others');
   try{
-    const d=await api('addProduct',{
-      category:'Others',
-      name:'Others',
-      price:0,
-      stock:0,
-      imageUrl:'',
-      description:JSON.stringify({
-        rosemoonCategory:true,
-        options:[
-          {type:'Key Ring',emoji:'🔑',stock:0,imageUrl:''},
-          {type:'Decoration',emoji:'🎀',stock:0,imageUrl:''},
-          {type:'Clips',emoji:'📎',stock:0,imageUrl:''}
-        ]
-      })
-    });
-    if(Array.isArray(d.products)) products=d.products;
+    if(!others.length){
+      const d=await api('addProduct',{
+        category:'Others',
+        name:'Others',
+        price:0,
+        stock:0,
+        imageUrl:'',
+        description:JSON.stringify({
+          rosemoonCategory:true,
+          options:[
+            {type:'Key Ring',emoji:'🔑',stock:0,imageUrl:''},
+            {type:'Decoration',emoji:'🎀',stock:0,imageUrl:''},
+            {type:'Clips',emoji:'📎',stock:0,imageUrl:''}
+          ]
+        })
+      });
+      if(Array.isArray(d.products)) products=d.products;
+      return;
+    }
+    // Keep exactly one Others category in Admin; its three items stay inside that category.
+    if(others.length>1){
+      const keep=others.find(p=>{
+        try{return Array.isArray(JSON.parse(String(p.description||'')).options)}catch(e){return false}
+      })||others[0];
+      for(const p of others){
+        if(p.id===keep.id)continue;
+        try{await api('deleteProduct',{id:p.id})}catch(e){console.error('Could not remove duplicate Others',e)}
+      }
+      const d=await api('products');
+      if(Array.isArray(d.products)) products=d.products;
+    }
   }catch(e){console.error('Others category setup failed',e)}
 }
 async function loadProducts(){
