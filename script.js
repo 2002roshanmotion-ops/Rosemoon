@@ -21,7 +21,7 @@
   const loaderPercent = document.getElementById("rosemoonLoaderPercent");
   function setLoading(percent,text){
     const n=Math.max(0,Math.min(100,Math.round(percent)));
-    if(loaderFill){loaderFill.style.width=n+"%";loaderFill.style.setProperty("--loader-progress",n+"%");}
+    if(loaderFill){loaderFill.style.width=n+"%";loaderFill.style.setProperty("--loader-progress",n+"%");loaderFill.parentElement?.style.setProperty("--loader-progress",n+"%");}
     if(loaderPercent)loaderPercent.textContent=n+"%";
   }
   function finishLoading(){
