@@ -540,3 +540,13 @@ body::after{
 @keyframes rosemoonRoyalSky{from{filter:saturate(.9) brightness(.96)}to{filter:saturate(1.12) brightness(1.07)}}
 @keyframes royalTwinkle{from{opacity:.3;transform:scale(.75) rotate(0)}to{opacity:1;transform:scale(1.25) rotate(18deg)}}
 @keyframes royalOrnament{from{transform:translateY(0);opacity:.25}to{transform:translateY(-9px);opacity:.65}}
+
+
+/* Category bouquet preview — slightly taller for a clearer product view */
+.products .bouquet-preview{height:285px}
+@media (max-width:900px){
+  .products .bouquet-preview{height:205px}
+}
+@media (max-width:600px) and (orientation:portrait){
+  .products .bouquet-preview{height:175px}
+}
