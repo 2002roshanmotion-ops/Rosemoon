@@ -605,6 +605,7 @@ $('addMusicBtn').addEventListener('click',async()=>{
 });
 </script>
 
+<script>
 // ===== ROSEMOON SETTINGS =====
 const ROSEMOON_SETTINGS_NAME='__ROSEMOON_SETTINGS__';
 const DEFAULT_ROSEMOON_SETTINGS={
@@ -659,6 +660,7 @@ async function saveSettings(){
 }
 $('saveSettingsBtn')?.addEventListener('click',saveSettings);
 $('resetSettingsBtn')?.addEventListener('click',()=>{rosemoonSettings={...DEFAULT_ROSEMOON_SETTINGS};renderSettings();$('settingsMessage').textContent='Defaults loaded. Press Save All Settings to apply them.'});
+</script>
 
 <script src="crop-editor.js?v=2"></script>
 </body></html>
