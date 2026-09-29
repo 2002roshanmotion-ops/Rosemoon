@@ -208,10 +208,32 @@ async function createCategory(){
   }catch(e){msg.textContent='❌ '+e.message}
   finally{btn.disabled=false}
 }
+async function ensureOthersCategory(){
+  if(products.some(p=>String(p?.category||p?.name||'').trim().toLowerCase()==='others')) return;
+  try{
+    const d=await api('addProduct',{
+      category:'Others',
+      name:'Others',
+      price:0,
+      stock:0,
+      imageUrl:'',
+      description:JSON.stringify({
+        rosemoonCategory:true,
+        options:[
+          {type:'Key Ring',emoji:'🔑',stock:0,imageUrl:''},
+          {type:'Decoration',emoji:'🎀',stock:0,imageUrl:''},
+          {type:'Clips',emoji:'📎',stock:0,imageUrl:''}
+        ]
+      })
+    });
+    if(Array.isArray(d.products)) products=d.products;
+  }catch(e){console.error('Others category setup failed',e)}
+}
 async function loadProducts(){
   try{
     const d=await api('products');
     products=d.products||[];
+    await ensureOthersCategory();
     renderInventory();
     renderDashboardInventory();
     updateStats();
