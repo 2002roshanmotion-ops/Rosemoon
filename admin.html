@@ -346,8 +346,37 @@ function openCategoryEditor(id){
 async function saveInventory(id){try{const price=Math.max(0,Math.floor(Number($('price-'+id).value)||0));const stock=Math.max(0,Math.floor(Number($('stock-'+id).value)||0));const d=await api('updateProduct',{id,price,stock});products=d.products||products;renderInventory();renderDashboardInventory();updateStats()}catch(e){alert(e.message)}}
 async function saveStock(id){try{const v=Math.max(0,Math.floor(Number($('stock-'+id).value)||0));const d=await api('updateStock',{productId:id,stock:v});products=d.products||products;renderInventory();updateStats()}catch(e){alert(e.message)}}
 async function deleteProduct(id){if(!confirm('Delete this product?'))return;try{const d=await api('deleteProduct',{id});products=d.products||[];renderInventory();renderDashboardInventory();updateStats()}catch(e){alert(e.message)}}
-function updateStats(){const active=products.filter(p=>p.active!==false),total=active.reduce((s,p)=>s+Number(p.stock||0),0);$('statProducts').textContent=active.length;$('statStock').textContent=total;$('statLow').textContent=active.filter(p=>p.stock<=2).length;$('statOrders').textContent=Number($('ordersTable')?.children?.length||0);renderStockPie(active,total)}
-function renderStockPie(items,total){const pie=$('stockPie'),legend=$('stockLegend'),center=$('pieTotal');if(!pie||!legend)return;if(center)center.innerHTML=String(total)+'<small>units</small>';if(!items.length){pie.style.background='#ead2dc';legend.innerHTML='<div class="empty">No inventory yet.</div>';return}const palette=['#d94f70','#f58aa5','#f7b4c5','#ead2dc'];let angle=0;const top=items.slice().sort((a,b)=>Number(b.stock||0)-Number(a.stock||0)).slice(0,4);const stops=top.map((p,i)=>{const start=angle;angle+=total?(Number(p.stock||0)/total)*360:0;return palette[i]+' '+start+'deg '+angle+'deg'});if(angle<360)stops.push('#f7edf1 '+angle+'deg 360deg');pie.style.background='conic-gradient('+stops.join(',')+')';legend.innerHTML=top.map((p,i)=>'<div class="legend-row"><div class="legend-left"><i class="legend-dot" style="background:'+palette[i]+'"></i>'+esc(p.name||p.category)+'</div><b>'+Number(p.stock||0)+'</b></div>').join('')}
+function categoryStockTotal(p){
+  const opts=categoryData(p).options||[];
+  if(opts.length)return opts.reduce((sum,o)=>sum+Math.max(0,Number(o.stock)||0),0);
+  return Math.max(0,Number(p.stock)||0);
+}
+function updateStats(){
+  const active=products.filter(p=>p.active!==false),total=active.reduce((s,p)=>s+categoryStockTotal(p),0);
+  const low=active.reduce((s,p)=>{
+    const opts=categoryData(p).options||[];
+    return s+(opts.length?opts.filter(o=>Number(o.stock||0)<=2).length:(Number(p.stock||0)<=2?1:0));
+  },0);
+  $('statProducts').textContent=active.length;
+  $('statStock').textContent=total;
+  $('statLow').textContent=low;
+  $('statOrders').textContent=Number($('ordersTable')?.children?.length||0);
+  renderStockPie(active,total);
+}
+function renderStockPie(items,total){
+  const pie=$('stockPie'),legend=$('stockLegend'),center=$('pieTotal');if(!pie||!legend)return;
+  if(center)center.innerHTML=String(total)+'<small>units</small>';
+  if(!items.length){pie.style.background='#ead2dc';legend.innerHTML='<div class="empty">No inventory yet.</div>';return}
+  const palette=['#d94f70','#f58aa5','#f7b4c5','#ead2dc'];
+  const categoryTotals=items.map(p=>({name:p.name||p.category,total:categoryStockTotal(p)})).filter(x=>x.total>0).sort((a,b)=>b.total-a.total);
+  if(!categoryTotals.length){pie.style.background='#ead2dc';legend.innerHTML='<div class="empty">No stock available.</div>';return}
+  let angle=0;
+  const top=categoryTotals.slice(0,4);
+  const stops=top.map((p,i)=>{const start=angle;angle+=total?(p.total/total)*360:0;return palette[i]+' '+start+'deg '+angle+'deg'});
+  if(angle<360)stops.push('#f7edf1 '+angle+'deg 360deg');
+  pie.style.background='conic-gradient('+stops.join(',')+')';
+  legend.innerHTML=top.map((p,i)=>'<div class="legend-row"><div class="legend-left"><i class="legend-dot" style="background:'+palette[i]+'"></i>'+esc(p.name)+'</div><b>'+p.total+'</b></div>').join('');
+}
 $('refreshProducts').addEventListener('click',loadProducts);
 function readDataUrl(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(file)})}
 async function loadMusic(){try{const d=await api('music');music=(d.music||[]).sort((a,b)=>a.sort-b.sort);renderMusic()}catch(e){console.error(e)}}
