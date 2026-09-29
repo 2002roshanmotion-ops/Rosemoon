@@ -4,7 +4,7 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Rosemoon Owner Admin</title>
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#fff7f9;color:#33232b}button,input,select{font:inherit}button{cursor:pointer}.login{min-height:100vh;display:grid;place-items:center;padding:24px}.login-box{width:min(390px,100%);background:#fff;padding:34px;border-radius:24px;box-shadow:0 20px 60px #5d304012;text-align:center}.brand{font-size:30px;font-weight:900;color:#d94f70}.login-box input{width:100%;padding:14px;border:1px solid #e6cdd7;border-radius:12px;margin:20px 0 12px}.primary{border:0;border-radius:12px;padding:13px 18px;background:#d94f70;color:white;font-weight:800}.error{color:#c13b4b;min-height:20px}.shell{max-width:1250px;margin:auto;padding:24px}.top{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap;margin-bottom:20px}.top h1{margin:0;color:#d94f70}.top small{color:#80636e}.logout{border:1px solid #e7cbd5;background:white;border-radius:10px;padding:10px 14px}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}.tab{border:1px solid #e5ccd5;background:#fff;border-radius:999px;padding:10px 15px;font-weight:800;color:#694451}.tab.active{background:#3b202b;color:#fff}.panel{display:none}.panel.active{display:block}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}.stat{background:#fff;border:1px solid #efdbe2;border-radius:18px;padding:20px}.stat b{font-size:30px;display:block;color:#3b202b}.stat span{color:#80636e;font-size:13px}.card{background:#fff;border:1px solid #efdbe2;border-radius:20px;padding:20px;margin-bottom:18px}.card h2{margin:0 0 15px}.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.field label{display:block;font-size:12px;font-weight:800;color:#745462;margin-bottom:6px}.field input,.field select{width:100%;padding:12px;border:1px solid #e2cbd4;border-radius:10px;background:#fff}.full{grid-column:1/-1}.hint{font-size:12px;color:#80636e}.actions{display:flex;gap:8px;flex-wrap:wrap}.secondary{border:1px solid #e1c8d2;background:#fff;border-radius:10px;padding:9px 12px}.danger{border:0;background:#fff0f2;color:#b72e42;border-radius:10px;padding:9px 12px}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:11px;border-bottom:1px solid #f0e2e7;white-space:nowrap}th{font-size:12px;color:#80636e}td img{width:55px;height:55px;object-fit:cover;border-radius:10px}.status-low{color:#bd7a28;font-weight:800}.status-out{color:#c13b4b;font-weight:800}.status-ok{color:#3c8b62;font-weight:800}.music-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f0e2e7}.music-row:last-child{border-bottom:0}.music-row .grow{flex:1;min-width:0}.music-row strong{display:block}.music-row small{color:#80636e}.preview{width:100%;max-height:180px;object-fit:cover;border-radius:14px;margin-top:10px;display:none}.empty{color:#80636e;padding:15px 0}.dashboard-stack{display:grid;grid-template-columns:1fr;gap:18px;margin-top:15px}.dashboard-pane{background:#fff;border:1px solid #efdbe2;border-radius:20px;padding:20px;min-width:0;animation:paneIn .7s ease both}.dashboard-pane:nth-child(2){animation-delay:.08s}.dashboard-pane h3{margin:0 0 10px;color:#3b202b}.dashboard-pane .table-wrap{max-height:330px;overflow:auto}.dashboard-pane table{font-size:13px}.dashboard-pane th,.dashboard-pane td{padding:8px}.upload-list{margin-top:12px;display:grid;gap:7px}.upload-item{display:flex;align-items:center;gap:10px;padding:9px 11px;background:#fff8fa;border:1px solid #efdbe2;border-radius:10px;font-size:13px}.upload-item .upload-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.upload-item .upload-state{font-weight:800;white-space:nowrap}.upload-ok{color:#3c8b62}.upload-error{color:#c13b4b}.upload-working{color:#bd7a28}.dashboard-refresh{margin-top:12px}.category-builder{border:2px solid #efd3dc;background:linear-gradient(180deg,#fff,#fff8fa)}.option-field{padding:12px;border:1px solid #efdbe2;border-radius:14px;background:#fff8fa}@keyframes dashIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}@keyframes paneIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}@media(max-width:800px){.grid{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:1fr}}@media(max-width:500px){.shell{padding:14px}.grid{grid-template-columns:1fr}.top h1{font-size:24px}}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#fff7f9;color:#33232b}button,input,select{font:inherit}button{cursor:pointer}.login{min-height:100vh;display:grid;place-items:center;padding:24px}.login-box{width:min(390px,100%);background:#fff;padding:34px;border-radius:24px;box-shadow:0 20px 60px #5d304012;text-align:center}.brand{font-size:30px;font-weight:900;color:#d94f70}.login-box input{width:100%;padding:14px;border:1px solid #e6cdd7;border-radius:12px;margin:20px 0 12px}.primary{border:0;border-radius:12px;padding:13px 18px;background:#d94f70;color:white;font-weight:800}.error{color:#c13b4b;min-height:20px}.shell{max-width:1250px;margin:auto;padding:24px}.top{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap;margin-bottom:20px}.top h1{margin:0;color:#d94f70}.top small{color:#80636e}.logout{border:1px solid #e7cbd5;background:white;border-radius:10px;padding:10px 14px}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}.tab{border:1px solid #e5ccd5;background:#fff;border-radius:999px;padding:10px 15px;font-weight:800;color:#694451}.tab.active{background:#3b202b;color:#fff}.panel{display:none}.panel.active{display:block}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}.stat{background:#fff;border:1px solid #efdbe2;border-radius:18px;padding:20px}.stat b{font-size:30px;display:block;color:#3b202b}.stat span{color:#80636e;font-size:13px}.card{background:#fff;border:1px solid #efdbe2;border-radius:20px;padding:20px;margin-bottom:18px}.card h2{margin:0 0 15px}.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.field label{display:block;font-size:12px;font-weight:800;color:#745462;margin-bottom:6px}.field input,.field select{width:100%;padding:12px;border:1px solid #e2cbd4;border-radius:10px;background:#fff}.full{grid-column:1/-1}.hint{font-size:12px;color:#80636e}.actions{display:flex;gap:8px;flex-wrap:wrap}.secondary{border:1px solid #e1c8d2;background:#fff;border-radius:10px;padding:9px 12px}.danger{border:0;background:#fff0f2;color:#b72e42;border-radius:10px;padding:9px 12px}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:11px;border-bottom:1px solid #f0e2e7;white-space:nowrap}th{font-size:12px;color:#80636e}td img{width:55px;height:55px;object-fit:cover;border-radius:10px}.status-low{color:#bd7a28;font-weight:800}.status-out{color:#c13b4b;font-weight:800}.status-ok{color:#3c8b62;font-weight:800}.music-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f0e2e7}.music-row:last-child{border-bottom:0}.music-row .grow{flex:1;min-width:0}.music-row strong{display:block}.music-row small{color:#80636e}.preview{width:100%;max-height:180px;object-fit:cover;border-radius:14px;margin-top:10px;display:none}.empty{color:#80636e;padding:15px 0}.dashboard-stack{display:grid;grid-template-columns:1fr;gap:18px;margin-top:15px}.dashboard-pane{background:#fff;border:1px solid #efdbe2;border-radius:20px;padding:20px;min-width:0;animation:paneIn .7s ease both}.dashboard-pane:nth-child(2){animation-delay:.08s}.dashboard-pane h3{margin:0 0 10px;color:#3b202b}.dashboard-pane .table-wrap{max-height:330px;overflow:auto}.dashboard-pane table{font-size:13px}.dashboard-pane th,.dashboard-pane td{padding:8px}.upload-list{margin-top:12px;display:grid;gap:7px}.upload-item{display:flex;align-items:center;gap:10px;padding:9px 11px;background:#fff8fa;border:1px solid #efdbe2;border-radius:10px;font-size:13px}.upload-item .upload-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.upload-item .upload-state{font-weight:800;white-space:nowrap}.upload-ok{color:#3c8b62}.upload-error{color:#c13b4b}.upload-working{color:#bd7a28}.dashboard-refresh{margin-top:12px}.category-builder{border:2px solid #efd3dc;background:linear-gradient(180deg,#fff,#fff8fa)}.option-field{padding:12px;border:1px solid #efdbe2;border-radius:14px;background:#fff8fa}.flower-manager-row{display:grid;grid-template-columns:72px minmax(180px,1fr) 130px auto;gap:10px;align-items:center;padding:12px;border:1px solid #efdbe2;border-radius:14px;background:#fff8fa}.flower-manager-row img{width:64px;height:64px;object-fit:cover;border-radius:12px}.flower-manager-row .remove-flower{white-space:nowrap}@media(max-width:650px){.flower-manager-row{grid-template-columns:60px 1fr;}.flower-manager-row .stock-field,.flower-manager-row .remove-flower{grid-column:2}}@keyframes dashIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}@keyframes paneIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}@media(max-width:800px){.grid{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:1fr}}@media(max-width:500px){.shell{padding:14px}.grid{grid-template-columns:1fr}.top h1{font-size:24px}}
 </style>
 </head>
 <body>
@@ -48,15 +48,16 @@
   <section class="panel" id="photos">
   <div class="card category-builder">
     <h2>🌸 Add New Flower Category</h2>
-    <p class="hint">Create a complete category. Add the category photo, then up to 5 flower options with their own photos and stock.</p>
+    <p class="hint">Add one category with its own price, total category stock, and any number of individual flowers. Each flower has its own stock.</p>
     <div class="form-grid">
       <div class="field"><label>CATEGORY NAME</label><input id="categoryName" placeholder="e.g. Premium Bouquet"></div>
       <div class="field"><label>PRICE (Rs.)</label><input id="categoryPrice" type="number" min="0" step="1" placeholder="2500"></div>
       <div class="field full"><label>CATEGORY / MAIN PHOTO</label><input id="categoryPhoto" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></div>
-      <div class="field full"><label>TOTAL CATEGORY STOCK</label><input id="categoryStock" type="number" min="0" step="1" placeholder="10"></div>
-      <div class="field full"><h3 style="margin:4px 0">Flower Options</h3><div class="hint">Each option can have its own photo and stock.</div></div>
-      <div class="field option-field"><label>FLOWER 1 PHOTO</label><input id="categoryFlower1" type="file" accept="image/png,image/jpeg,image/webp,image/gif"><input id="categoryFlower1Stock" type="number" min="0" step="1" placeholder="Flower 1 stock" style="margin-top:7px"></div><div class="field option-field"><label>FLOWER 2 PHOTO</label><input id="categoryFlower2" type="file" accept="image/png,image/jpeg,image/webp,image/gif"><input id="categoryFlower2Stock" type="number" min="0" step="1" placeholder="Flower 2 stock" style="margin-top:7px"></div><div class="field option-field"><label>FLOWER 3 PHOTO</label><input id="categoryFlower3" type="file" accept="image/png,image/jpeg,image/webp,image/gif"><input id="categoryFlower3Stock" type="number" min="0" step="1" placeholder="Flower 3 stock" style="margin-top:7px"></div><div class="field option-field"><label>FLOWER 4 PHOTO</label><input id="categoryFlower4" type="file" accept="image/png,image/jpeg,image/webp,image/gif"><input id="categoryFlower4Stock" type="number" min="0" step="1" placeholder="Flower 4 stock" style="margin-top:7px"></div><div class="field option-field"><label>FLOWER 5 PHOTO</label><input id="categoryFlower5" type="file" accept="image/png,image/jpeg,image/webp,image/gif"><input id="categoryFlower5Stock" type="number" min="0" step="1" placeholder="Flower 5 stock" style="margin-top:7px"></div>
-      <div class="field full"><button class="primary" id="addCategoryBtn" type="button">🌸 Create Category</button><span class="hint" id="categoryMessage" style="margin-left:10px"></span><div id="categoryUploadList" class="upload-list"></div></div>
+      <div class="field full"><label>TOTAL CATEGORY STOCK</label><input id="categoryStock" type="number" min="0" step="1" placeholder="25"></div>
+      <div class="field full"><h3 style="margin:4px 0">Flowers in this category</h3><div class="hint">Every flower below has independent stock. Add or remove rows as needed.</div></div>
+      <div class="field full" id="newCategoryFlowers"></div>
+      <div class="field full actions"><button class="secondary" id="addCategoryFlowerRow" type="button">＋ Add Flower</button><button class="primary" id="addCategoryBtn" type="button">🌸 Create Category</button><span class="hint" id="categoryMessage"></span></div>
+      <div class="field full"><div id="categoryUploadList" class="upload-list"></div></div>
     </div>
   </div>
 
@@ -107,30 +108,52 @@ $('addCategoryBtn')?.addEventListener('click',createCategory);
 $('loginBtn').addEventListener('click',rosemoonLogin);$('adminPassword').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();rosemoonLogin()}});$('logoutBtn').addEventListener('click',()=>{sessionStorage.removeItem('rosemoonAdmin');location.reload()});
 async function fileData(file){if(!file)return '';return await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(file)})}
 async function uploadCategoryPhoto(file,label){if(!file)return '';const dataUrl=await fileData(file);const d=await api('uploadPhoto',{dataUrl,fileName:file.name});if(!d.url)throw new Error(label+' photo upload failed.');return d.url}
+let newCategoryFlowerCount=0;
+function newFlowerRowHtml(i){
+  return '<div class="flower-manager-row" data-new-flower="'+i+'"><div class="flower-photo-preview" id="newFlowerPreview'+i+'">🌸</div><div><label>FLOWER NAME</label><input id="newFlowerName'+i+'" type="text" placeholder="e.g. Pink Lily"><input id="newFlowerPhoto'+i+'" type="file" accept="image/png,image/jpeg,image/webp,image/gif" style="margin-top:7px"></div><div class="stock-field"><label>INDIVIDUAL STOCK</label><input id="newFlowerStock'+i+'" type="number" min="0" step="1" value="0"></div><button class="danger remove-flower" type="button" onclick="removeNewFlowerRow('+i+')">Remove</button></div>';
+}
+function addNewFlowerRow(prefill){
+  const box=$('newCategoryFlowers');if(!box)return;
+  const i=++newCategoryFlowerCount;
+  box.insertAdjacentHTML('beforeend',newFlowerRowHtml(i));
+  const row=box.querySelector('[data-new-flower="'+i+'"]');
+  if(prefill){
+    $('newFlowerName'+i).value=prefill.type||'';
+    $('newFlowerStock'+i).value=Number(prefill.stock||0);
+  }
+}
+function removeNewFlowerRow(i){const row=document.querySelector('[data-new-flower="'+i+'"]');if(row)row.remove()}
+function resetNewCategoryFlowers(){newCategoryFlowerCount=0;$('newCategoryFlowers').innerHTML='';addNewFlowerRow()}
+function prepareNewCategory(){['categoryName','categoryPrice','categoryStock'].forEach(id=>$(id).value='');$('categoryPhoto').value='';$('categoryMessage').textContent='';resetNewCategoryFlowers();setTab('photos')}
 async function createCategory(){
   const msg=$('categoryMessage'),btn=$('addCategoryBtn');
   try{
     const name=String($('categoryName').value||'').trim(),price=Number($('categoryPrice').value),stock=Number($('categoryStock').value);
     if(!name)throw new Error('Category name is required.');
     if(!Number.isFinite(price)||price<0)throw new Error('Enter a valid price.');
-    if(!Number.isFinite(stock)||stock<0)throw new Error('Enter category stock.');
+    if(!Number.isFinite(stock)||stock<0)throw new Error('Enter category total stock.');
+    const rows=[...document.querySelectorAll('#newCategoryFlowers .flower-manager-row')];
+    if(!rows.length)throw new Error('Add at least one flower.');
     btn.disabled=true;msg.textContent='Uploading category photos…';
     const mainUrl=await uploadCategoryPhoto($('categoryPhoto').files[0],'Category');
     const options=[];
-    for(let n=1;n<=5;n++){
-      const file=$('categoryFlower'+n).files[0], qty=Number($('categoryFlower'+n+'Stock').value||0);
-      let url='';
-      if(file)url=await uploadCategoryPhoto(file,'Flower '+n);
-      if(!file)continue;
-      options.push({type:'Flower '+n,stock:Math.max(0,Math.floor(qty)),imageUrl:url});
+    for(const row of rows){
+      const i=row.dataset.newFlower,type=String($('newFlowerName'+i)?.value||'').trim();
+      const qty=Math.max(0,Math.floor(Number($('newFlowerStock'+i)?.value)||0));
+      const file=$('newFlowerPhoto'+i)?.files?.[0];
+      if(!type&&!file)continue;
+      if(!type)throw new Error('Every added flower needs a name.');
+      if(!file)throw new Error(type+' needs a photo.');
+      msg.textContent='Uploading '+type+'…';
+      const url=await uploadCategoryPhoto(file,type);
+      options.push({type,stock:qty,imageUrl:url});
     }
-    const description=JSON.stringify({rosemoonCategory:true,options});
+    if(!options.length)throw new Error('Add at least one flower with a photo.');
     msg.textContent='Saving category…';
-    const d=await api('addProduct',{category:name,name,price,stock,imageUrl:mainUrl,description});
-    products=d.products||products;renderInventory();renderDashboardInventory();updateStats();
+    const d=await api('addProduct',{category:name,name,price,stock,imageUrl:mainUrl,description:JSON.stringify({rosemoonCategory:true,options})});
+    products=d.products||products;loadProducts();
     msg.textContent='✅ Category created.';
-    ['categoryName','categoryPrice','categoryStock'].forEach(id=>$(id).value='');
-    for(let n=1;n<=5;n++){ $('categoryFlower'+n).value='';$('categoryFlower'+n+'Stock').value=''; }
+    prepareNewCategory();
   }catch(e){msg.textContent='❌ '+e.message}
   finally{btn.disabled=false}
 }
@@ -171,35 +194,34 @@ function renderCategoryManager(){
   if(!s||!box)return;
   const p=products.find(x=>String(x.id)===String(s.value));
   if(!p){
-    $('manageCategoryName').value='';
-    $('manageCategoryPrice').value='';
-    $('manageCategoryStock').value='';
-    $('manageCategoryPhoto').value='';
-    box.innerHTML='<div class="empty">Choose a category to manage its flowers.</div>';
-    return;
+    $('manageCategoryName').value='';$('manageCategoryPrice').value='';$('manageCategoryStock').value='';$('manageCategoryPhoto').value='';
+    box.innerHTML='<div class="empty">Choose a category to manage its flowers.</div>';return;
   }
   $('manageCategoryName').value=p.name||p.category||'';
   $('manageCategoryPrice').value=Number(p.price||0);
   $('manageCategoryStock').value=Number(p.stock||0);
   $('manageCategoryPhoto').value='';
-  const d=categoryData(p), opts=Array.isArray(d.options)?d.options:[];
+  const d=categoryData(p),opts=Array.isArray(d.options)?d.options:[];
   let html='<div style="display:grid;gap:10px">';
-  for(let i=0;i<5;i++){
-    const o=opts[i]||{};
-    html+=`<div class="option-field" data-manage-option="${i}">
-      <div style="display:grid;grid-template-columns:72px 1fr 130px;gap:10px;align-items:center">
-        <div>${o.imageUrl?'<img src="'+esc(o.imageUrl)+'" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:12px">':'🌸'}</div>
-        <div><label>FLOWER ${i+1} NAME</label><input id="manageFlowerName${i+1}" type="text" value="${esc(o.type||'')}" placeholder="e.g. Pink Lily"><input id="manageFlowerPhoto${i+1}" type="file" accept="image/png,image/jpeg,image/webp,image/gif" style="margin-top:7px"></div>
-        <div><label>STOCK</label><input id="manageFlowerStock${i+1}" type="number" min="0" step="1" value="${Number(o.stock||0)}"></div>
-      </div>
-    </div>`;
-  }
-  html+='</div><div class="hint" style="margin-top:10px">You can use fewer than 5 flowers. Only named flowers are saved and shown to customers.</div>';
+  opts.forEach((o,i)=>{
+    html+='<div class="flower-manager-row" data-manage-flower="'+i+'"><div class="flower-photo-preview">'+(o.imageUrl?'<img src="'+esc(o.imageUrl)+'" alt="">':'🌸')+'</div><div><label>FLOWER NAME</label><input id="manageFlowerName'+i+'" type="text" value="'+esc(o.type||'')+'" placeholder="e.g. Pink Lily"><input id="manageFlowerPhoto'+i+'" type="file" accept="image/png,image/jpeg,image/webp,image/gif" style="margin-top:7px"></div><div class="stock-field"><label>INDIVIDUAL STOCK</label><input id="manageFlowerStock'+i+'" type="number" min="0" step="1" value="'+Number(o.stock||0)+'"></div><button class="danger remove-flower" type="button" onclick="removeManageFlowerRow('+i+')">Remove</button></div>';
+  });
+  html+='</div><button class="secondary" type="button" style="margin-top:10px" onclick="addManageFlowerRow()">＋ Add Flower</button><div class="hint" style="margin-top:10px">Category total stock and every flower stock are independent. You can have different stock numbers for every flower.</div>';
   box.innerHTML=html;
 }
+function addManageFlowerRow(){
+  const box=$('manageFlowerOptions');if(!box)return;
+  const i=box.querySelectorAll('[data-manage-flower]').length;
+  const wrap=document.createElement('div');wrap.className='flower-manager-row';wrap.dataset.manageFlower=i;
+  wrap.innerHTML='<div class="flower-photo-preview">🌸</div><div><label>FLOWER NAME</label><input id="manageFlowerName'+i+'" type="text" placeholder="e.g. Pink Lily"><input id="manageFlowerPhoto'+i+'" type="file" accept="image/png,image/jpeg,image/webp,image/gif" style="margin-top:7px"></div><div class="stock-field"><label>INDIVIDUAL STOCK</label><input id="manageFlowerStock'+i+'" type="number" min="0" step="1" value="0"></div><button class="danger remove-flower" type="button" onclick="removeManageFlowerRow('+i+')">Remove</button>';
+  box.querySelector('div[style*="display:grid"]')?.appendChild(wrap);
+}
+function removeManageFlowerRow(i){const row=document.querySelector('#manageFlowerOptions [data-manage-flower="'+i+'"]');if(row)row.remove()}
 $('manageCategorySelect')?.addEventListener('change',renderCategoryManager);
 $('clearCategoryManager')?.addEventListener('click',()=>{if($('manageCategorySelect'))$('manageCategorySelect').value='';renderCategoryManager()});
-$('newCategoryFromInventory')?.addEventListener('click',()=>setTab('photos'));
+$('newCategoryFromInventory')?.addEventListener('click',prepareNewCategory);
+$('addCategoryFlowerRow')?.addEventListener('click',()=>addNewFlowerRow());
+resetNewCategoryFlowers();
 async function saveCategoryManager(){
   const msg=$('manageCategoryMessage'),btn=$('saveCategoryBtn'),s=$('manageCategorySelect');
   const p=products.find(x=>String(x.id)===String(s?.value));
@@ -210,35 +232,20 @@ async function saveCategoryManager(){
     const stock=Math.max(0,Math.floor(Number($('manageCategoryStock').value)||0));
     if(!name)throw new Error('Category name is required.');
     btn.disabled=true;msg.textContent='Saving category…';
-    const d=categoryData(p), oldOpts=Array.isArray(d.options)?d.options:[];
-    const options=[];
-    for(let i=1;i<=5;i++){
-      const type=String($('manageFlowerName'+i)?.value||'').trim();
-      const qty=Math.max(0,Math.floor(Number($('manageFlowerStock'+i)?.value)||0));
-      const file=$('manageFlowerPhoto'+i)?.files?.[0];
-      const old=oldOpts[i-1]||{};
+    const oldOpts=categoryData(p).options||[],rows=[...document.querySelectorAll('#manageFlowerOptions [data-manage-flower]')],options=[];
+    for(const row of rows){
+      const i=Number(row.dataset.manageFlower),type=String($('manageFlowerName'+i)?.value||'').trim(),qty=Math.max(0,Math.floor(Number($('manageFlowerStock'+i)?.value)||0)),file=$('manageFlowerPhoto'+i)?.files?.[0],old=oldOpts[i]||{};
       if(!type)continue;
       let imageUrl=old.imageUrl||'';
-      if(file){
-        if(file.size>12*1024*1024)throw new Error('Flower '+i+' photo must be 12 MB or smaller.');
-        msg.textContent='Uploading Flower '+i+'…';
-        imageUrl=(await api('uploadPhoto',{dataUrl:await readDataUrl(file),fileName:file.name})).url||'';
-      }
+      if(file){msg.textContent='Uploading '+type+'…';imageUrl=(await api('uploadPhoto',{dataUrl:await readDataUrl(file),fileName:file.name})).url||imageUrl}
+      if(!imageUrl)throw new Error(type+' needs a photo.');
       options.push({type,stock:qty,imageUrl});
     }
-    let imageUrl=p.imageUrl||'';
-    const mainFile=$('manageCategoryPhoto')?.files?.[0];
-    if(mainFile){
-      if(mainFile.size>12*1024*1024)throw new Error('Category photo must be 12 MB or smaller.');
-      msg.textContent='Uploading category photo…';
-      imageUrl=(await api('uploadPhoto',{dataUrl:await readDataUrl(mainFile),fileName:mainFile.name})).url||imageUrl;
-    }
-    const description=JSON.stringify({rosemoonCategory:true,options});
-    const saved=await api('updateProduct',{id:p.id,name,category:name,price,stock,imageUrl,description});
-    products=saved.products||products;
-    populateCategoryManager();s.value=String(p.id);renderCategoryManager();
-    renderInventory();renderDashboardInventory();updateStats();
-    msg.textContent='✅ Category saved.';
+    if(!options.length)throw new Error('Add at least one flower.');
+    let imageUrl=p.imageUrl||'';const mainFile=$('manageCategoryPhoto')?.files?.[0];
+    if(mainFile){msg.textContent='Uploading category photo…';imageUrl=(await api('uploadPhoto',{dataUrl:await readDataUrl(mainFile),fileName:mainFile.name})).url||imageUrl}
+    const saved=await api('updateProduct',{id:p.id,name,category:name,price,stock,imageUrl,description:JSON.stringify({rosemoonCategory:true,options})});
+    products=saved.products||products;populateCategoryManager();s.value=String(p.id);renderCategoryManager();renderInventory();renderDashboardInventory();updateStats();msg.textContent='✅ Category saved.';
   }catch(e){msg.textContent='❌ '+e.message}
   finally{btn.disabled=false}
 }
