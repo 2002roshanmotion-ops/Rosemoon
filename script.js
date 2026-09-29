@@ -37,14 +37,18 @@
     try{
       const d=JSON.parse(String(product?.description||''));
       if(d&&d.rosemoonCategory&&Array.isArray(d.options)&&d.options.length){
-        // Only show flower options that were actually added in Admin.
-        const added=d.options.filter(o=>String(o?.imageUrl||'').trim()||String(o?.type||'').trim()&&Number(o?.stock||0)>0);
-        if(added.length)return added;
+        // Category flower stock is stored independently for each option.
+        // Keep zero-stock options visible so the popup accurately mirrors Admin.
+        return d.options.map((o,i)=>({
+          type:String(o?.type||('Flower '+(i+1))),
+          emoji:String(o?.emoji||choices[i]?.[1]||'🌸'),
+          stock:Math.max(0,Number(o?.stock)||0),
+          imageUrl:String(o?.imageUrl||'')
+        }));
       }
     }catch(e){}
     return choices.map(([type,emoji])=>({type,emoji,stock:stockFor(product?.id),imageUrl:product?.imageUrl||''}));
   }
-
   function enterShop(){
     playUISound('breeze');
     landing.style.display="none";
