@@ -242,7 +242,8 @@ function renderInventory(){
   const cats=products.filter(isCategoryProduct);
   if(!cats.length){box.innerHTML='<div class="empty">No categories yet. Add one from 🖼️ Add Flowers.</div>';return}
   box.innerHTML=cats.map(p=>{
-    const opts=categoryData(p).options||[];
+    const raw=categoryData(p);
+    const opts=Array.isArray(raw.options)?raw.options:[];
     const pid=esc(p.id);
     return '<div class="inventory-category-card">'+
       '<div class="inventory-category-head">'+
