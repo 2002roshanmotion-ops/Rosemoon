@@ -6,7 +6,12 @@
       {id:"small",category:"Small",name:"Small Bouquet",price:500,stock:8,imageUrl:"",active:true},
       {id:"medium",category:"Medium",name:"Medium Bouquet",price:800,stock:5,imageUrl:"",active:true},
       {id:"large",category:"Large",name:"Large Bouquet",price:1500,stock:3,imageUrl:"",active:true},
-      {id:"flower-basket",category:"Flower Basket",name:"Flower Basket",price:1800,stock:6,imageUrl:"",active:true}
+      {id:"flower-basket",category:"Flower Basket",name:"Flower Basket",price:1800,stock:6,imageUrl:"",active:true},
+      {id:"others",category:"Others",name:"Others",price:0,stock:0,imageUrl:"",active:true,description:JSON.stringify({rosemoonCategory:true,options:[
+        {type:"Key Ring",emoji:"🔑",stock:0,imageUrl:""},
+        {type:"Decoration",emoji:"🎀",stock:0,imageUrl:""},
+        {type:"Clips",emoji:"📎",stock:0,imageUrl:""}
+      ]})}
     ],
     music: []
   };
@@ -490,7 +495,13 @@
   });
 
   async function syncProducts(){
-    try{const r=await fetch(`${API_URL}?action=products&_=${Date.now()}`,{cache:"no-store"});const d=await r.json();if(d.success&&Array.isArray(d.products)){products=d.products;window.rosemoonProducts=products;renderProducts()}}
+    try{const r=await fetch(`${API_URL}?action=products&_=${Date.now()}`,{cache:"no-store"});const d=await r.json();if(d.success&&Array.isArray(d.products)){
+        products=d.products;
+        if(!products.some(p=>String(p?.category||"").trim().toLowerCase()==="others")){
+          products.push(localFallback.products.find(p=>p.id==="others"));
+        }
+        window.rosemoonProducts=products;renderProducts()
+      }}
     catch(e){window.rosemoonProducts=products;renderProducts()}
   }
   async function syncMusic(){
