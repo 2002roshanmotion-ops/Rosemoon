@@ -108,10 +108,7 @@
   function renderProducts(){
     const grid=document.getElementById("productsGrid"); if(!grid)return;
     const query=String(document.getElementById("productSearch")?.value||"").trim().toLowerCase();
-    const selectedCategory=window.rosemoonStoreCategory||"bouquets";
-    const selectedSubcategory=window.rosemoonStoreSubcategory||"";
-    const categoryMatches=(p)=>{const cat=String(p.category||"").toLowerCase(); const name=String(p.name||"").toLowerCase(); if(selectedCategory==="others"){ if(selectedSubcategory)return cat.includes(selectedSubcategory)||name.includes(selectedSubcategory); return ["key ring","decoration","clips"].some(k=>cat.includes(k)||name.includes(k)); } return !["key ring","decoration","clips"].some(k=>cat.includes(k)||name.includes(k));};
-    const base=products.filter(p=>p.active!==false&&categoryMatches(p));
+    const base=products.filter(p=>p.active!==false);
     const active=query?base.filter(p=>searchMatches(query).some(m=>m.id===p.id)):base;
     if(!active.length){
       grid.innerHTML='<div class="product" style="grid-column:1/-1;text-align:center;padding:35px"><div style="font-size:38px;margin-bottom:8px">🌸</div>No bouquets found.<br><small style="color:#9b7d88">Try another name, category or price.</small></div>';
@@ -133,17 +130,6 @@
   function escapeHtml(v){return String(v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
   function escapeAttr(v){return escapeHtml(v)}
 
-  window.rosemoonStoreCategory="bouquets"; window.rosemoonStoreSubcategory="";
-  document.querySelectorAll("[data-store-category]").forEach(btn=>btn.addEventListener("click",()=>{
-    window.rosemoonStoreCategory=btn.dataset.storeCategory; window.rosemoonStoreSubcategory="";
-    document.querySelectorAll("[data-store-category]").forEach(x=>x.classList.toggle("active",x===btn));
-    document.querySelectorAll("[data-store-subcategory]").forEach(x=>x.classList.remove("active")); renderProducts();
-  }));
-  document.querySelectorAll("[data-store-subcategory]").forEach(btn=>btn.addEventListener("click",()=>{
-    window.rosemoonStoreCategory="others"; window.rosemoonStoreSubcategory=btn.dataset.storeSubcategory;
-    document.querySelectorAll("[data-store-category]").forEach(x=>x.classList.toggle("active",x.dataset.storeCategory==="others"));
-    document.querySelectorAll("[data-store-subcategory]").forEach(x=>x.classList.toggle("active",x===btn)); renderProducts();
-  }));
   const productSearch=document.getElementById("productSearch");
   const clearProductSearch=document.getElementById("clearProductSearch");
   productSearch?.addEventListener("input",()=>{renderProducts();renderSearchRecommendations()});
