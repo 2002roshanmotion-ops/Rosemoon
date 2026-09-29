@@ -316,3 +316,7 @@ body.flower-popup-open{
 @keyframes loadingFlowerFloat{0%,100%{transform:translate(-50%,-50%) translateY(1px) rotate(-5deg)}50%{transform:translate(-50%,-50%) translateY(-4px) rotate(5deg)}}
 35%{opacity:.9;transform:scale(1.08) translateY(-4px)}52%{opacity:.18;transform:scale(.94) translateY(1px)}70%{opacity:.75;transform:scale(1) translateY(-2px)}}
 
+
+
+/* Store category navigation */
+.store-categories{display:flex;align-items:flex-start;justify-content:center;gap:10px;flex-wrap:wrap;margin:22px auto 28px}.store-category,.store-subcategory{border:1px solid #ead5de;background:#fff;color:#54333f;border-radius:999px;padding:11px 18px;font-weight:800;cursor:pointer;transition:.2s}.store-category.active,.store-category:hover,.store-subcategory:hover{background:#3b202b;color:#fff;border-color:#3b202b}.store-category-group{display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap;justify-content:center}.store-subcategories{display:flex;gap:7px;flex-wrap:wrap}.store-subcategory{font-size:13px;padding:9px 13px;background:#fff8fa}.store-subcategory.active{background:#7e3e58;color:#fff;border-color:#7e3e58}
