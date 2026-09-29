@@ -34,12 +34,12 @@
   <section class="panel" id="photos">
   <div class="card category-builder">
     <h2>🌸 Add New Flower Category</h2>
-    <p class="hint">Add one category with its own price, total category stock, and any number of individual flowers. Each flower has its own stock.</p>
+    <p class="hint">Add a category, price, photo, and as many flowers as you need. Each flower has its own stock.</p>
     <div class="form-grid">
       <div class="field"><label>CATEGORY NAME</label><input id="categoryName" placeholder="e.g. Premium Bouquet"></div>
       <div class="field"><label>PRICE (Rs.)</label><input id="categoryPrice" type="number" min="0" step="1" placeholder="2500"></div>
       <div class="field full"><label>CATEGORY / MAIN PHOTO</label><input id="categoryPhoto" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></div>
-      <div class="field full"><label>TOTAL CATEGORY STOCK</label><input id="categoryStock" type="number" min="0" step="1" placeholder="25"></div>
+      
       <div class="field full"><h3 style="margin:4px 0">Flowers in this category</h3><div class="hint">Every flower below has independent stock. Add or remove rows as needed.</div></div>
       <div class="field full" id="newCategoryFlowers"></div>
       <div class="field full actions"><button class="secondary" id="addCategoryFlowerRow" type="button">＋ Add Flower</button><button class="primary" id="addCategoryBtn" type="button">🌸 Create Category</button><span class="hint" id="categoryMessage"></span></div>
@@ -48,7 +48,7 @@
   </div>
 
 
-  <div class="card"><h2>🖼️ Add Flower / Product</h2><p class="hint">Choose the photo, category, name, price and stock. Press Add Product once. The photo is uploaded and the product is saved automatically.</p><div class="form-grid"><div class="field"><label>FLOWER PHOTO</label><input id="productPhoto" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></div><div class="field"><label>CATEGORY</label><input id="productCategory" placeholder="e.g. Roses, Small, Wedding"></div><div class="field"><label>FLOWER / PRODUCT NAME</label><input id="productName" placeholder="e.g. Pink Rose Bouquet"></div><div class="field"><label>PRICE (Rs.)</label><input id="productPrice" type="number" min="0" step="1" placeholder="800"></div><div class="field"><label>STOCK</label><input id="productStock" type="number" min="0" step="1" placeholder="10"></div><div class="field full"><img id="photoPreview" class="preview" alt="Selected flower preview"></div><div class="field full"><button class="primary" id="addProductBtn">🌸 Add Product</button><span class="hint" id="productMessage" style="margin-left:10px"></span></div></div></div>
+  
 
 
   </section>
@@ -110,14 +110,13 @@ function addNewFlowerRow(prefill){
 }
 function removeNewFlowerRow(i){const row=document.querySelector('[data-new-flower="'+i+'"]');if(row)row.remove()}
 function resetNewCategoryFlowers(){newCategoryFlowerCount=0;$('newCategoryFlowers').innerHTML='';addNewFlowerRow()}
-function prepareNewCategory(){['categoryName','categoryPrice','categoryStock'].forEach(id=>$(id).value='');$('categoryPhoto').value='';$('categoryMessage').textContent='';resetNewCategoryFlowers();setTab('photos')}
+function prepareNewCategory(){['categoryName','categoryPrice'].forEach(id=>$(id).value='');$('categoryPhoto').value='';$('categoryMessage').textContent='';resetNewCategoryFlowers();setTab('photos')}
 async function createCategory(){
   const msg=$('categoryMessage'),btn=$('addCategoryBtn');
   try{
-    const name=String($('categoryName').value||'').trim(),price=Number($('categoryPrice').value),stock=Number($('categoryStock').value);
+    const name=String($('categoryName').value||'').trim(),price=Number($('categoryPrice').value);
     if(!name)throw new Error('Category name is required.');
     if(!Number.isFinite(price)||price<0)throw new Error('Enter a valid price.');
-    if(!Number.isFinite(stock)||stock<0)throw new Error('Enter category total stock.');
     const rows=[...document.querySelectorAll('#newCategoryFlowers .flower-manager-row')];
     if(!rows.length)throw new Error('Add at least one flower.');
     btn.disabled=true;msg.textContent='Uploading category photos…';
