@@ -28,7 +28,7 @@ body{background:radial-gradient(circle at 10% 0%,#ffe8f0 0,#fff7f9 32%,#f8f2f5 1
 </style>
 </head>
 <body>
-<div id="loginScreen" class="login" style="display:none"></div>
+<div id="loginScreen" class="login"><div class="login-box"><div class="brand">🌹 ROSEMOON</div><h2>Owner Admin</h2><p>Manage flowers, inventory, photos and music.</p><input id="adminPassword" type="password" placeholder="Admin password"><button type="button" class="primary" id="loginBtn">Login</button><div class="error" id="loginMessage"></div></div></div>
 
 <div id="adminPanel" style="display:none"><div class="admin-layout">
   <aside class="admin-sidebar">
@@ -127,6 +127,7 @@ document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>setT
 function showAdmin(){
   $('loginScreen').style.display='none';
   $('adminPanel').style.display='block';
+  $('loginMessage').textContent='';
   try{setTab('dashboard')}catch(e){console.error('Dashboard startup:',e)}
   try{loadProducts()}catch(e){console.error('Products startup:',e)}
   try{loadMusic()}catch(e){console.error('Music startup:',e)}
@@ -138,18 +139,12 @@ function rosemoonLogin(){
     $('loginMessage').textContent='❌ Wrong password.';
     return false;
   }
-  try{sessionStorage.setItem('rosemoonAdmin','true')}catch(e){console.warn('Session storage unavailable:',e)}
+  sessionStorage.setItem('rosemoonAdmin','true');
   showAdmin();
   return false;
 }
-function restoreAdminSession(){
-  showAdmin();
-}
 $('addCategoryBtn')?.addEventListener('click',createCategory);
-$('loginBtn')?.addEventListener('click',rosemoonLogin);
-$('adminPassword')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();rosemoonLogin()}});
-$('logoutBtn')?.addEventListener('click',()=>{location.reload()});
-restoreAdminSession();
+$('loginBtn').addEventListener('click',rosemoonLogin);$('adminPassword').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();rosemoonLogin()}});$('logoutBtn').addEventListener('click',()=>{sessionStorage.removeItem('rosemoonAdmin');location.reload()});
 async function fileData(file){if(!file)return '';return await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(file)})}
 async function uploadCategoryPhoto(file,label){if(!file)return '';const dataUrl=await fileData(file);const d=await api('uploadPhoto',{dataUrl,fileName:file.name});if(!d.url)throw new Error(label+' photo upload failed.');return d.url}
 let newCategoryFlowerCount=0;
@@ -360,50 +355,27 @@ function renderInventory(){
   const cats=products.filter(isCategoryProduct);
   if(!cats.length){box.innerHTML='<div class="empty">No categories yet. Add one from 🖼️ Add Flowers.</div>';return}
   box.innerHTML=cats.map(p=>{
-    const raw=categoryData(p),opts=Array.isArray(raw.options)?raw.options:[],pid=esc(p.id);
+    const raw=categoryData(p);
+    const opts=Array.isArray(raw.options)?raw.options:[];
+    const pid=esc(p.id);
     return '<div class="inventory-category-card">'+
       '<div class="inventory-category-head">'+
       '<div><div class="inventory-category-title">'+esc(p.name||p.category)+'</div><div class="inventory-category-meta">'+money(p.price)+' · '+opts.length+' flowers</div></div>'+
       '<div><label class="hint">PRICE (Rs.)</label><input id="cat-price-'+pid+'" type="number" min="0" value="'+Number(p.price||0)+'"></div>'+
-      '<div class="inventory-category-actions" style="margin:0;justify-content:flex-end"><button class="secondary inventory-open-btn" type="button" onclick="toggleCategoryInventory(\\''+pid+'\\')">🌸 Open Flowers</button></div>'+
+      '<button class="secondary inventory-open-btn" type="button" onclick="toggleCategoryInventory(\''+pid+'\')">🌸 Open Flowers</button>'+
       '</div>'+
       '<div class="inventory-category-details" id="cat-details-'+pid+'">'+
-      '<div class="inventory-flower-list">'+(opts.length?opts.map((o,i)=>'<div class="inventory-flower-row"><div>'+((o.imageUrl)?'<img src="'+esc(o.imageUrl)+'" alt="">':'🌸')+'</div><div><strong>'+esc(o.type||('Flower '+(i+1)))+'</strong></div><div class="flower-stock"><label class="hint">FLOWER STOCK</label><input id="cat-flower-stock-'+pid+'-'+i+'" type="number" min="0" value="'+Number(o.stock||0)+'"></div><div class="flower-save"><button class="secondary" type="button" onclick="saveCategoryInventory(\\''+pid+'\\')">Save</button></div></div>').join(''):'<div class="empty">No flowers added.</div>')+'</div>'+
-      '<div class="inventory-category-actions"><button class="primary" type="button" onclick="saveCategoryInventory(\\''+pid+'\\')">💾 Save Category</button></div>'+
+      '<div class="inventory-flower-list">'+(opts.length?opts.map((o,i)=>'<div class="inventory-flower-row"><div>'+((o.imageUrl)?'<img src="'+esc(o.imageUrl)+'" alt="">':'🌸')+'</div><div><strong>'+esc(o.type||('Flower '+(i+1)))+'</strong></div><div class="flower-stock"><label class="hint">FLOWER STOCK</label><input id="cat-flower-stock-'+pid+'-'+i+'" type="number" min="0" value="'+Number(o.stock||0)+'"></div><div class="flower-save"><button class="secondary" type="button" onclick="saveCategoryInventory(\''+pid+'\')">Save</button></div></div>').join(''):'<div class="empty">No flowers added.</div>')+'</div>'+
+      '<div class="inventory-category-actions"><button class="primary" type="button" onclick="saveCategoryInventory(\''+pid+'\')">💾 Save Category</button></div>'+
       '</div>'+
     '</div>';
   }).join('');
 }
-
 function toggleCategoryInventory(id){
   const details=$('cat-details-'+id),btn=document.querySelector('[onclick="toggleCategoryInventory(\''+id+'\')"]');
   if(!details)return;
   const open=details.classList.toggle('open');
   if(btn)btn.textContent=open?'✕ Close Flowers':'🌸 Open Flowers';
-}
-async function deleteInventoryCategory(id){
-  const p=products.find(x=>String(x.id)===String(id));if(!p)return;
-  if(!confirm('Delete the entire category "'+(p.name||p.category)+'"?'))return;
-  if(!confirm('⚠️ FINAL CONFIRMATION: This will delete the category and all flower types inside it. Continue?'))return;
-  try{
-    const d=await api('deleteProduct',{id:p.id});
-    products=d.products||[];
-    await ensureOthersCategory();
-    renderInventory();renderDashboardInventory();updateStats();
-  }catch(e){alert(e.message)}
-}
-async function deleteInventoryFlower(categoryId,index){
-  const p=products.find(x=>String(x.id)===String(categoryId));if(!p)return;
-  const opts=categoryData(p).options||[],flower=opts[index];if(!flower)return;
-  const name=String(flower.type||('Flower '+(index+1)));
-  if(!confirm('Delete flower type "'+name+'"?'))return;
-  if(!confirm('⚠️ FINAL CONFIRMATION: Delete "'+name+'" permanently from this category?'))return;
-  try{
-    const next=opts.filter((_,i)=>i!==index);
-    const d=await api('updateProduct',{id:p.id,name:p.name,category:p.category,price:p.price,stock:p.stock,imageUrl:p.imageUrl||'',description:JSON.stringify({rosemoonCategory:true,options:next})});
-    products=d.products||products;
-    renderInventory();renderDashboardInventory();updateStats();
-  }catch(e){alert(e.message)}
 }
 async function saveCategoryInventory(id){
   const p=products.find(x=>String(x.id)===String(id));if(!p)return;
