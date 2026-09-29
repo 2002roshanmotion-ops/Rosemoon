@@ -25,7 +25,9 @@ body{background:radial-gradient(circle at 10% 0%,#ffe8f0 0,#fff7f9 32%,#f8f2f5 1
 @keyframes premiumUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}@keyframes premiumFade{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}@keyframes piePop{from{transform:scale(.75) rotate(-25deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
 @media(max-width:900px){.admin-layout{grid-template-columns:1fr}.admin-sidebar{position:relative;height:auto;padding:12px;flex-direction:row;align-items:center;gap:10px;overflow:auto}.side-brand{padding:6px 10px}.side-nav{display:flex;min-width:max-content}.side-nav .tab{white-space:nowrap}.side-bottom{display:none}.admin-main{padding:20px}.premium-stats{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:620px){.admin-main{padding:14px}.premium-top{align-items:flex-start}.premium-top h1{font-size:23px}.premium-user{display:none}.analytics-grid{grid-template-columns:1fr}.pie-wrap{grid-template-columns:150px 1fr}.stock-pie{width:150px;height:150px}.premium-stats{grid-template-columns:1fr 1fr}.premium-stat b{font-size:25px}}
- .logo-manager-grid{display:grid;grid-template-columns:minmax(220px,360px) 1fr;gap:22px;align-items:center}.logo-preview-box{min-height:180px;border:1px dashed #e2cbd4;border-radius:18px;background:#fff8fa;display:grid;place-items:center;padding:18px}.logo-preview-box img{max-width:100%;max-height:170px;object-fit:contain}.logo-manager-controls{display:grid;gap:14px}@media(max-width:650px){.logo-manager-grid{grid-template-columns:1fr}.logo-preview-box{min-height:140px}}</style>
+ .logo-manager-grid{display:grid;grid-template-columns:minmax(220px,360px) 1fr;gap:22px;align-items:center}.logo-preview-box{min-height:180px;border:1px dashed #e2cbd4;border-radius:18px;background:#fff8fa;display:grid;place-items:center;padding:18px}.logo-preview-box img{max-width:100%;max-height:170px;object-fit:contain}.logo-manager-controls{display:grid;gap:14px}@media(max-width:650px){.logo-manager-grid{grid-template-columns:1fr}.logo-preview-box{min-height:140px}}
+.settings-hero-card{background:linear-gradient(135deg,#fff,#fff0f5);border-color:#e9c8d5}.settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.settings-card{margin-bottom:0}.settings-switch-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.switch-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 12px;background:#fff8fa;border:1px solid var(--rm-line);border-radius:12px;font-size:13px;font-weight:700}.switch-row input{width:18px;height:18px;accent-color:var(--rm-pink)}.settings-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:16px 0 24px;padding:16px;background:rgba(255,255,255,.9);border:1px solid var(--rm-line);border-radius:18px;position:sticky;bottom:10px;z-index:5;box-shadow:0 15px 35px #5d304215}.settings-actions .hint{flex:1;min-width:180px}@media(max-width:800px){.settings-grid{grid-template-columns:1fr}}@media(max-width:500px){.settings-switch-grid{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
 <div id="loginScreen" class="login"><div class="login-box"><div class="brand"><img class="admin-logo-login" src="https://d2ol7oe51mr4n9.cloudfront.net/user_3JYbYCHyy3naSeG6RhPtSZPxh49/ec2e63b0-a983-4186-a3da-ad6c75b1acf7.png" alt="RoseMmoon"></div><h2>Owner Admin</h2><p>Manage flowers, inventory, photos and music.</p><input id="adminPassword" type="password" placeholder="Admin password"><button type="button" class="primary" id="loginBtn">Login</button><div class="error" id="loginMessage"></div></div></div>
@@ -40,6 +42,7 @@ body{background:radial-gradient(circle at 10% 0%,#ffe8f0 0,#fff7f9 32%,#f8f2f5 1
       <button class="tab" data-tab="orders">📋 <span>Orders</span></button>
       <button class="tab" data-tab="music">🎵 <span>Music</span></button>
       <button class="tab" data-tab="logo">🖼️ <span>Logo</span></button>
+      <button class="tab" data-tab="settings">⚙️ <span>Settings</span></button>
     </nav>
     <div class="side-bottom">RoseMmoon Admin<br>Live store management</div>
   </aside>
@@ -105,6 +108,90 @@ body{background:radial-gradient(circle at 10% 0%,#ffe8f0 0,#fff7f9 32%,#f8f2f5 1
   
 
 
+  </section>
+
+
+  <section class="panel" id="settings">
+    <div class="card settings-hero-card">
+      <h2>⚙️ Rosemoon Website Settings</h2>
+      <p class="hint">Control the main customer website settings from one place. Changes are saved to Rosemoon settings and can be used by the website.</p>
+    </div>
+    <div class="settings-grid">
+      <div class="card settings-card">
+        <h2>🏪 Store</h2>
+        <div class="form-grid">
+          <div class="field"><label>STORE NAME</label><input id="setStoreName" placeholder="Rosemoon"></div>
+          <div class="field"><label>STORE EMAIL</label><input id="setEmail" type="email" placeholder="Gmail"></div>
+          <div class="field"><label>WHATSAPP / CONTACT NO</label><input id="setPhone" placeholder="Contact No"></div>
+          <div class="field"><label>STORE TAGLINE</label><input id="setTagline" placeholder="Handmade with love"></div>
+          <div class="field full"><label>STORE DESCRIPTION</label><textarea id="setDescription" rows="3" placeholder="A short description of Rosemoon"></textarea></div>
+        </div>
+      </div>
+      <div class="card settings-card">
+        <h2>🏠 Homepage</h2>
+        <div class="form-grid">
+          <div class="field"><label>WELCOME TITLE</label><input id="setHomeTitle" placeholder="Welcome to Rosemoon"></div>
+          <div class="field"><label>START BUTTON TEXT</label><input id="setStartText" placeholder="Start Shopping"></div>
+          <div class="field full"><label>ANNOUNCEMENT / BANNER</label><input id="setAnnouncement" placeholder="New bouquets available ✨"></div>
+          <div class="field full"><label>ANNOUNCEMENT VISIBILITY</label><select id="setAnnouncementEnabled"><option value="true">Show</option><option value="false">Hide</option></select></div>
+        </div>
+      </div>
+      <div class="card settings-card">
+        <h2>🎨 Appearance & Effects</h2>
+        <div class="settings-switch-grid">
+          <label class="switch-row"><span>✨ Sparkles</span><input id="setSparkles" type="checkbox"></label>
+          <label class="switch-row"><span>🌹 Floating petals</span><input id="setPetals" type="checkbox"></label>
+          <label class="switch-row"><span>☁️ Cloud effect</span><input id="setClouds" type="checkbox"></label>
+          <label class="switch-row"><span>🌙 Moon effect</span><input id="setMoon" type="checkbox"></label>
+          <label class="switch-row"><span>🎬 Page animations</span><input id="setAnimations" type="checkbox"></label>
+          <label class="switch-row"><span>🛍️ Product animations</span><input id="setProductAnimations" type="checkbox"></label>
+        </div>
+      </div>
+      <div class="card settings-card">
+        <h2>🎵 Music</h2>
+        <div class="settings-switch-grid">
+          <label class="switch-row"><span>Enable music</span><input id="setMusicEnabled" type="checkbox"></label>
+          <label class="switch-row"><span>Auto-play after Start Shopping</span><input id="setMusicAutoplay" type="checkbox"></label>
+        </div>
+        <div class="field" style="margin-top:12px"><label>MUSIC VOLUME</label><input id="setMusicVolume" type="range" min="0" max="1" step="0.05"></div>
+      </div>
+      <div class="card settings-card">
+        <h2>🛒 Cart & Shopping</h2>
+        <div class="settings-switch-grid">
+          <label class="switch-row"><span>Enable Add to Cart</span><input id="setCartEnabled" type="checkbox"></label>
+          <label class="switch-row"><span>Show stock</span><input id="setShowStock" type="checkbox"></label>
+          <label class="switch-row"><span>Show out-of-stock products</span><input id="setShowOutOfStock" type="checkbox"></label>
+        </div>
+      </div>
+      <div class="card settings-card">
+        <h2>💳 Payment & 🚚 Delivery</h2>
+        <div class="settings-switch-grid">
+          <label class="switch-row"><span>Cash on Delivery</span><input id="setCod" type="checkbox"></label>
+          <label class="switch-row"><span>eSewa</span><input id="setEsewa" type="checkbox"></label>
+          <label class="switch-row"><span>Khalti</span><input id="setKhalti" type="checkbox"></label>
+          <label class="switch-row"><span>Bank Transfer</span><input id="setBank" type="checkbox"></label>
+          <label class="switch-row"><span>Delivery</span><input id="setDelivery" type="checkbox"></label>
+        </div>
+        <div class="form-grid" style="margin-top:12px">
+          <div class="field"><label>DELIVERY CHARGE (Rs.)</label><input id="setDeliveryCharge" type="number" min="0"></div>
+          <div class="field"><label>FREE DELIVERY ABOVE (Rs.)</label><input id="setFreeDelivery" type="number" min="0"></div>
+        </div>
+      </div>
+      <div class="card settings-card">
+        <h2>📲 Social & Contact</h2>
+        <div class="form-grid">
+          <div class="field"><label>TIKTOK</label><input id="setTikTok" placeholder="TikTok profile"></div>
+          <div class="field"><label>INSTAGRAM</label><input id="setInstagram" placeholder="Instagram profile"></div>
+          <div class="field"><label>FACEBOOK</label><input id="setFacebook" placeholder="Facebook profile"></div>
+          <div class="field"><label>ORDER MESSAGE</label><input id="setOrderMessage" placeholder="Hello Rosemoon, I want to order..."></div>
+        </div>
+      </div>
+    </div>
+    <div class="settings-actions">
+      <button class="primary" id="saveSettingsBtn" type="button">💾 Save All Settings</button>
+      <button class="secondary" id="resetSettingsBtn" type="button">↩️ Reset Defaults</button>
+      <span class="hint" id="settingsMessage"></span>
+    </div>
   </section>
 
   <section class="panel" id="logo">
@@ -299,6 +386,7 @@ async function loadProducts(){
     renderDashboardInventory();
     updateStats();
     renderLogoManager();
+    loadSettings();
   }catch(e){console.error(e)}
 }
 function isCategoryProduct(p){
@@ -516,5 +604,61 @@ $('addMusicBtn').addEventListener('click',async()=>{
  }finally{btn.disabled=false}
 });
 </script>
+
+// ===== ROSEMOON SETTINGS =====
+const ROSEMOON_SETTINGS_NAME='__ROSEMOON_SETTINGS__';
+const DEFAULT_ROSEMOON_SETTINGS={
+  storeName:'Rosemoon',email:'',phone:'',tagline:'Handmade with love',description:'',
+  homeTitle:'Welcome to Rosemoon',startText:'Start Shopping',announcement:'',announcementEnabled:true,
+  sparkles:true,petals:true,clouds:true,moon:true,animations:true,productAnimations:true,
+  musicEnabled:true,musicAutoplay:true,musicVolume:0.8,
+  cartEnabled:true,showStock:true,showOutOfStock:false,
+  cod:true,esewa:false,khalti:false,bank:false,delivery:true,deliveryCharge:0,freeDelivery:0,
+  tikTok:'',instagram:'',facebook:'',orderMessage:'Hello Rosemoon, I want to order...'
+};
+let rosemoonSettings={...DEFAULT_ROSEMOON_SETTINGS};
+function getSettingsProduct(){return products.find(p=>String(p?.name||'')===ROSEMOON_SETTINGS_NAME)||null}
+function setField(id,val){const el=$(id);if(el)el.value=val==null?'':String(val)}
+function setCheck(id,val){const el=$(id);if(el)el.checked=!!val}
+function renderSettings(){
+  const s={...DEFAULT_ROSEMOON_SETTINGS,...rosemoonSettings};
+  setField('setStoreName',s.storeName);setField('setEmail',s.email);setField('setPhone',s.phone);setField('setTagline',s.tagline);setField('setDescription',s.description);
+  setField('setHomeTitle',s.homeTitle);setField('setStartText',s.startText);setField('setAnnouncement',s.announcement);setField('setAnnouncementEnabled',s.announcementEnabled?'true':'false');
+  ['sparkles','petals','clouds','moon','animations','productAnimations','musicEnabled','musicAutoplay','cartEnabled','showStock','showOutOfStock','cod','esewa','khalti','bank','delivery'].forEach(k=>setCheck('set'+k.charAt(0).toUpperCase()+k.slice(1),s[k]));
+  setField('setMusicVolume',s.musicVolume);setField('setDeliveryCharge',s.deliveryCharge);setField('setFreeDelivery',s.freeDelivery);
+  setField('setTikTok',s.tikTok);setField('setInstagram',s.instagram);setField('setFacebook',s.facebook);setField('setOrderMessage',s.orderMessage);
+}
+function collectSettings(){
+  const s={};
+  ['storeName','email','phone','tagline','description','homeTitle','startText','announcement','musicVolume','deliveryCharge','freeDelivery','tikTok','instagram','facebook','orderMessage'].forEach(k=>{
+    const id='set'+k.charAt(0).toUpperCase()+k.slice(1);s[k]=$(id)?.value??'';
+  });
+  s.announcementEnabled=$('setAnnouncementEnabled')?.value==='true';
+  ['sparkles','petals','clouds','moon','animations','productAnimations','musicEnabled','musicAutoplay','cartEnabled','showStock','showOutOfStock','cod','esewa','khalti','khalti','bank','delivery'].forEach(k=>s[k]=!!$('set'+k.charAt(0).toUpperCase()+k.slice(1))?.checked);
+  s.musicVolume=Math.max(0,Math.min(1,Number(s.musicVolume)||0));
+  s.deliveryCharge=Math.max(0,Number(s.deliveryCharge)||0);s.freeDelivery=Math.max(0,Number(s.freeDelivery)||0);
+  return {...DEFAULT_ROSEMOON_SETTINGS,...s};
+}
+async function loadSettings(){
+  const p=getSettingsProduct();
+  if(p){try{rosemoonSettings={...DEFAULT_ROSEMOON_SETTINGS,...JSON.parse(String(p.description||'{}'))}}catch(e){rosemoonSettings={...DEFAULT_ROSEMOON_SETTINGS}}}
+  else rosemoonSettings={...DEFAULT_ROSEMOON_SETTINGS};
+  renderSettings();
+}
+async function saveSettings(){
+  const msg=$('settingsMessage'),btn=$('saveSettingsBtn');
+  try{
+    btn.disabled=true;msg.textContent='Saving settings…';
+    const data=collectSettings(),existing=getSettingsProduct();
+    const payload={id:existing?.id,name:ROSEMOON_SETTINGS_NAME,category:'__SETTINGS__',price:0,stock:0,imageUrl:'',active:false,description:JSON.stringify(data)};
+    const d=existing?await api('updateProduct',payload):await api('addProduct',payload);
+    products=d.products||products;rosemoonSettings=data;renderSettings();
+    msg.textContent='✅ All settings saved.';
+  }catch(e){msg.textContent='❌ '+e.message}
+  finally{btn.disabled=false}
+}
+$('saveSettingsBtn')?.addEventListener('click',saveSettings);
+$('resetSettingsBtn')?.addEventListener('click',()=>{rosemoonSettings={...DEFAULT_ROSEMOON_SETTINGS};renderSettings();$('settingsMessage').textContent='Defaults loaded. Press Save All Settings to apply them.'});
+
 <script src="crop-editor.js?v=2"></script>
 </body></html>
