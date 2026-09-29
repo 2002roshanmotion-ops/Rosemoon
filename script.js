@@ -34,7 +34,14 @@
   function saveCart(){ localStorage.setItem(CART_KEY,JSON.stringify(cart)); }
   function stockFor(id){ return Math.max(0,Number(products.find(p=>p.id===id)?.stock??0)); }
   function categoryOptions(product){
-    try{const d=JSON.parse(String(product?.description||''));if(d&&d.rosemoonCategory&&Array.isArray(d.options)&&d.options.length)return d.options}catch(e){}
+    try{
+      const d=JSON.parse(String(product?.description||''));
+      if(d&&d.rosemoonCategory&&Array.isArray(d.options)&&d.options.length){
+        // Only show flower options that were actually added in Admin.
+        const added=d.options.filter(o=>String(o?.imageUrl||'').trim()||String(o?.type||'').trim()&&Number(o?.stock||0)>0);
+        if(added.length)return added;
+      }
+    }catch(e){}
     return choices.map(([type,emoji])=>({type,emoji,stock:stockFor(product?.id),imageUrl:product?.imageUrl||''}));
   }
 
@@ -142,7 +149,7 @@
     grid.innerHTML=options.map(o=>{
       const type=String(o.type||'Flower 1'),emoji=String(o.emoji||'🌸'),stock=Math.max(0,Number(o.stock)||0),imageUrl=String(o.imageUrl||'');
       const art=imageUrl?`<img src="${escapeAttr(imageUrl)}" alt="${escapeAttr(type)}" style="width:100%;height:100%;object-fit:cover;border-radius:18px">`:emoji;
-      return `<article class="flower-popup-card"><div class="flower-popup-art">${art}</div><h3>${escapeHtml(type)}</h3><div class="flower-popup-price">${money(popupProduct.price)}</div><div class="flower-popup-stock ${stock===0?'out':stock<=2?'low':''}">${stock===0?'Sold out':stock+' in stock'}</div><button type="button" data-popup-buy data-type="${escapeAttr(type)}" data-emoji="${escapeAttr(emoji)}" ${stock===0?'disabled':''}>🛒 Add to Cart</button></article>`;
+      return `<article class="flower-popup-card"><div class="flower-popup-art">${art}</div><h3>${escapeHtml(type)}</h3><div class="flower-popup-price">${money(popupProduct.price)}</div><button type="button" data-popup-buy data-type="${escapeAttr(type)}" data-emoji="${escapeAttr(emoji)}" ${stock===0?'disabled':''}>🛒 Add to Cart</button></article>`;
     }).join("");
     popup.classList.add("open"); popup.setAttribute("aria-hidden","false"); lockBackgroundScroll();
   }
