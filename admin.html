@@ -155,13 +155,14 @@ async function loadProducts(){
 }
 function isCategoryProduct(p){
   if(!p)return false;
+  const name=String(p.name||'').trim().toLowerCase();
+  const category=String(p.category||'').trim().toLowerCase();
   try{
     const d=JSON.parse(String(p.description||''));
     if(d&&Array.isArray(d.options))return true;
   }catch(e){}
-  // Keep older Rosemoon category products visible in Inventory too.
-  const name=String(p.name||p.category||'').trim().toLowerCase();
-  return ['small','medium','large','flower basket'].includes(name);
+  // Rosemoon category products are the main bouquet/basket price categories.
+  return ['small','medium','large','flower basket','small bouquet','medium bouquet','large bouquet'].some(k=>name===k||category===k);
 }
 function categoryData(p){
   try{
