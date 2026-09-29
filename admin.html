@@ -139,12 +139,20 @@ function rosemoonLogin(){
     $('loginMessage').textContent='❌ Wrong password.';
     return false;
   }
-  sessionStorage.setItem('rosemoonAdmin','true');
+  try{sessionStorage.setItem('rosemoonAdmin','true')}catch(e){console.warn('Session storage unavailable:',e)}
   showAdmin();
   return false;
 }
+function restoreAdminSession(){
+  try{
+    if(sessionStorage.getItem('rosemoonAdmin')==='true')showAdmin();
+  }catch(e){console.warn('Session restore unavailable:',e)}
+}
 $('addCategoryBtn')?.addEventListener('click',createCategory);
-$('loginBtn').addEventListener('click',rosemoonLogin);$('adminPassword').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();rosemoonLogin()}});$('logoutBtn').addEventListener('click',()=>{sessionStorage.removeItem('rosemoonAdmin');location.reload()});
+$('loginBtn')?.addEventListener('click',rosemoonLogin);
+$('adminPassword')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();rosemoonLogin()}});
+$('logoutBtn')?.addEventListener('click',()=>{try{sessionStorage.removeItem('rosemoonAdmin')}catch(e){} location.reload()});
+restoreAdminSession();
 async function fileData(file){if(!file)return '';return await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(file)})}
 async function uploadCategoryPhoto(file,label){if(!file)return '';const dataUrl=await fileData(file);const d=await api('uploadPhoto',{dataUrl,fileName:file.name});if(!d.url)throw new Error(label+' photo upload failed.');return d.url}
 let newCategoryFlowerCount=0;
