@@ -39,6 +39,7 @@ body{background:radial-gradient(circle at 10% 0%,#ffe8f0 0,#fff7f9 32%,#f8f2f5 1
       <button class="tab" data-tab="photos">🌸 <span>Add Flowers</span></button>
       <button class="tab" data-tab="orders">📋 <span>Orders</span></button>
       <button class="tab" data-tab="music">🎵 <span>Music</span></button>
+      <button class="tab" data-tab="logo">🖼️ <span>Logo</span></button>
     </nav>
     <div class="side-bottom">RoseMmoon Admin<br>Live store management</div>
   </aside>
@@ -106,6 +107,21 @@ body{background:radial-gradient(circle at 10% 0%,#ffe8f0 0,#fff7f9 32%,#f8f2f5 1
 
   </section>
 
+  <section class="panel" id="logo">
+    <div class="card logo-manager-card">
+      <h2>🖼️ Replace Website Logo</h2>
+      <p class="hint">Upload a new Rosemoon logo. This replaces the logo used across the customer website and admin.</p>
+      <div class="logo-manager-grid">
+        <div class="logo-preview-box"><img id="logoManagerPreview" alt="Current Rosemoon logo"></div>
+        <div class="logo-manager-controls">
+          <div class="field"><label>NEW LOGO</label><input id="logoManagerFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></div>
+          <div class="actions"><button class="primary" id="replaceLogoBtn" type="button">🖼️ Replace Logo</button><span class="hint" id="logoManagerMessage"></span></div>
+          <div class="hint">Recommended: transparent PNG/WebP with the Rosemoon logo centered.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section class="panel" id="music"><div class="card"><h2>🎵 Add Music</h2><div class="form-grid"><div class="field"><label>SONG NAME (OPTIONAL)</label><input id="musicTitle" placeholder="Leave blank to use MP3 filename"></div><div class="field"><label>AUDIO FILES (MP3)</label><input id="musicFile" type="file" accept=".mp3,audio/mpeg" multiple><div class="hint" style="margin-top:6px">Select one MP3 or multiple MP3 files. Title is optional; blank uses the filename.</div></div><div class="field full"><button class="primary" id="addMusicBtn">🎵 Add Music</button><span class="hint" id="musicMessage" style="margin-left:10px"></span><div id="musicUploadList" class="upload-list" aria-live="polite"></div></div></div></div><div class="card"><h2>Playlist order</h2><p class="hint">Use ↑ and ↓ to arrange the order. The customer website follows this order automatically.</p><div id="musicList"></div></div></section>
 
   <section class="panel" id="orders"><div class="card"><h2>📋 Orders</h2><button class="secondary" id="refreshOrders">🔄 Refresh</button><div class="table-wrap"><table><thead><tr><th>Order</th><th>Date</th><th>Customer</th><th>Phone</th><th>Items</th><th>Total</th><th>Status</th></tr></thead><tbody id="ordersTable"></tbody></table></div></div></section>
@@ -122,6 +138,36 @@ async function api(action,body){const r=await fetch(API_URL+(body?'':`?action=${
 function submitViaForm(payload,timeoutMs=120000){return new Promise((resolve,reject)=>{const iframe=document.createElement('iframe');iframe.name='rosemoonUploadFrame_'+Date.now()+'_'+Math.random().toString(36).slice(2);iframe.style.display='none';document.body.appendChild(iframe);const form=document.createElement('form');form.method='POST';form.action=API_URL;form.target=iframe.name;form.style.display='none';const input=document.createElement('input');input.type='hidden';input.name='payload';input.value=JSON.stringify(payload);form.appendChild(input);document.body.appendChild(form);let settled=false;const cleanup=()=>{clearTimeout(timer);form.remove();iframe.remove()};const timer=setTimeout(()=>{if(settled)return;settled=true;cleanup();reject(new Error('Upload timed out. Check the Apps Script deployment and try again.'))},timeoutMs);iframe.onload=()=>{if(settled)return;settled=true;cleanup();resolve(true)};iframe.onerror=()=>{if(settled)return;settled=true;cleanup();reject(new Error('Upload connection failed.'))};form.submit()})}
 async function waitForMusic(title,beforeCount){for(let i=0;i<12;i++){await new Promise(r=>setTimeout(r,1000));try{const d=await api('music');const list=d.music||[];if(list.length>beforeCount&&list.some(x=>x.title===title))return list}catch(e){}}throw new Error('Upload was sent, but the server did not confirm it. Check the Music sheet and try again if needed.')}
 async function waitForProduct(name,beforeCount){for(let i=0;i<12;i++){await new Promise(r=>setTimeout(r,1000));try{const d=await api('products');const list=d.products||[];if(list.length>beforeCount&&list.some(x=>x.name===name))return list}catch(e){}}throw new Error('Product upload was sent, but the server did not confirm it. Check the Products sheet and try again if needed.')}
+
+const ROSEMOON_LOGO_SETTING='__ROSEMOON_LOGO__';
+const DEFAULT_ROSEMOON_LOGO='https://d2ol7oe51mr4n9.cloudfront.net/user_3JYbYCHyy3naSeG6RhPtSZPxh49/ec2e63b0-a983-4186-a3da-ad6c75b1acf7.png';
+function getRosemoonLogoProduct(){return products.find(p=>String(p?.name||'')===ROSEMOON_LOGO_SETTING)||null}
+function currentRosemoonLogo(){return getRosemoonLogoProduct()?.imageUrl||DEFAULT_ROSEMOON_LOGO}
+function renderLogoManager(){const img=$('logoManagerPreview');if(img)img.src=currentRosemoonLogo()}
+async function replaceRosemoonLogo(){
+  const file=$('logoManagerFile')?.files?.[0],msg=$('logoManagerMessage'),btn=$('replaceLogoBtn');
+  if(!file){msg.textContent='❌ Choose a logo image first.';return}
+  try{
+    btn.disabled=true;msg.textContent='Uploading logo…';
+    const uploaded=await api('uploadPhoto',{dataUrl:await fileData(file),fileName:file.name});
+    if(!uploaded.url)throw new Error('Logo upload failed.');
+    const existing=getRosemoonLogoProduct();
+    msg.textContent='Saving logo…';
+    let d;
+    if(existing){
+      d=await api('updateProduct',{id:existing.id,name:ROSEMOON_LOGO_SETTING,category:'__SETTINGS__',price:0,stock:0,imageUrl:uploaded.url,active:false,description:'Rosemoon website logo setting'});
+    }else{
+      d=await api('addProduct',{category:'__SETTINGS__',name:ROSEMOON_LOGO_SETTING,price:0,stock:0,imageUrl:uploaded.url,active:false,description:'Rosemoon website logo setting'});
+    }
+    products=d.products||products;
+    renderLogoManager();
+    $('logoManagerFile').value='';
+    msg.textContent='✅ Logo replaced successfully.';
+  }catch(e){msg.textContent='❌ '+e.message}
+  finally{btn.disabled=false}
+}
+$('replaceLogoBtn')?.addEventListener('click',replaceRosemoonLogo);
+
 function setTab(name){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===name));if(name==='inventory'||name==='dashboard')loadProducts();if(name==='music')loadMusic();if(name==='orders')loadOrders()}
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));document.querySelectorAll('[data-jump]').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.jump)));
 function showAdmin(){
@@ -252,6 +298,7 @@ async function loadProducts(){
     renderInventory();
     renderDashboardInventory();
     updateStats();
+    renderLogoManager();
   }catch(e){console.error(e)}
 }
 function isCategoryProduct(p){
