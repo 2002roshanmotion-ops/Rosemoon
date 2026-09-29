@@ -164,6 +164,19 @@ function addNewFlowerRow(prefill){
 function removeNewFlowerRow(i){const row=document.querySelector('[data-new-flower="'+i+'"]');if(row)row.remove()}
 function resetNewCategoryFlowers(){newCategoryFlowerCount=0;$('newCategoryFlowers').innerHTML='';addNewFlowerRow()}
 function prepareNewCategory(){['categoryName','categoryPrice'].forEach(id=>$(id).value='');$('categoryPhoto').value='';$('categoryMessage').textContent='';resetNewCategoryFlowers();setTab('photos')}
+function setupOthersPreset(){
+  const name=$('categoryName');
+  if(String(name?.value||'').trim().toLowerCase()!=='others')return;
+  const box=$('newCategoryFlowers');
+  if(!box)return;
+  const existing=[...box.querySelectorAll('input[id^="newFlowerName"]')].map(x=>String(x.value||'').trim().toLowerCase());
+  [['Key Ring',0],['Decoration',0],['Clips',0]].forEach(([type,stock])=>{
+    if(existing.includes(type.toLowerCase()))return;
+    addNewFlowerRow({type,stock});
+  });
+}
+$('categoryName')?.addEventListener('change',setupOthersPreset);
+$('categoryName')?.addEventListener('input',()=>{if(String($('categoryName').value||'').trim().toLowerCase()==='others')setupOthersPreset()});
 async function createCategory(){
   const msg=$('categoryMessage'),btn=$('addCategoryBtn');
   try{
