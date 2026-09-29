@@ -28,7 +28,7 @@ body{background:radial-gradient(circle at 10% 0%,#ffe8f0 0,#fff7f9 32%,#f8f2f5 1
 </style>
 </head>
 <body>
-<div id="loginScreen" class="login"><div class="login-box"><div class="brand">🌹 ROSEMOON</div><h2>Owner Admin</h2><p>Manage flowers, inventory, photos and music.</p><input id="adminPassword" type="password" placeholder="Admin password"><button type="button" class="primary" id="loginBtn">Login</button><div class="error" id="loginMessage"></div></div></div>
+<div id="loginScreen" class="login" style="display:none"></div>
 
 <div id="adminPanel" style="display:none"><div class="admin-layout">
   <aside class="admin-sidebar">
@@ -144,14 +144,12 @@ function rosemoonLogin(){
   return false;
 }
 function restoreAdminSession(){
-  try{
-    if(sessionStorage.getItem('rosemoonAdmin')==='true')showAdmin();
-  }catch(e){console.warn('Session restore unavailable:',e)}
+  showAdmin();
 }
 $('addCategoryBtn')?.addEventListener('click',createCategory);
 $('loginBtn')?.addEventListener('click',rosemoonLogin);
 $('adminPassword')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();rosemoonLogin()}});
-$('logoutBtn')?.addEventListener('click',()=>{try{sessionStorage.removeItem('rosemoonAdmin')}catch(e){} location.reload()});
+$('logoutBtn')?.addEventListener('click',()=>{location.reload()});
 restoreAdminSession();
 async function fileData(file){if(!file)return '';return await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(file)})}
 async function uploadCategoryPhoto(file,label){if(!file)return '';const dataUrl=await fileData(file);const d=await api('uploadPhoto',{dataUrl,fileName:file.name});if(!d.url)throw new Error(label+' photo upload failed.');return d.url}
