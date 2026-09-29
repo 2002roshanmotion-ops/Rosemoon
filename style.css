@@ -314,3 +314,5 @@ body.flower-popup-open{
 }
 
 @keyframes loadingFlowerFloat{0%,100%{transform:translate(-50%,-50%) translateY(1px) rotate(-5deg)}50%{transform:translate(-50%,-50%) translateY(-4px) rotate(5deg)}}
+
+.loader-moon{position:absolute;right:12%;top:12%;font-size:28px;z-index:4;filter:drop-shadow(0 0 8px rgba(255,220,235,.75));animation:moonBlink 2.8s ease-in-out infinite}.loader-rose{position:absolute;z-index:4;font-size:22px;filter:drop-shadow(0 3px 6px rgba(126,62,88,.25));animation:roseBlink 2.2s ease-in-out infinite}.rose-a{left:9%;top:25%;animation-delay:-.4s}.rose-b{right:9%;bottom:22%;font-size:19px;animation-delay:-1.2s}.rose-c{left:16%;bottom:12%;font-size:17px;animation-delay:-1.7s}@keyframes moonBlink{0%,100%{opacity:.72;transform:scale(.96) rotate(-4deg)}45%{opacity:1;transform:scale(1.08) rotate(3deg)}55%{opacity:.45;transform:scale(.98) rotate(0deg)}65%{opacity:1}}@keyframes roseBlink{0%,100%{opacity:.55;transform:scale(.92) rotate(-4deg)}35%{opacity:1;transform:scale(1.08) rotate(4deg)}50%{opacity:.35}70%{opacity:1;transform:scale(1) rotate(0)}}
