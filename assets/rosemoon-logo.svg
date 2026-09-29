@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 500">
+<defs>
+ <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff7fa"/><stop offset=".55" stop-color="#fbe1ea"/><stop offset="1" stop-color="#f7ccd9"/></linearGradient>
+ <linearGradient id="pink" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#7d173f"/><stop offset=".5" stop-color="#d52d67"/><stop offset="1" stop-color="#f27a9f"/></linearGradient>
+ <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#b87825"/><stop offset=".5" stop-color="#ffd77b"/><stop offset="1" stop-color="#d99b3c"/></linearGradient>
+ <filter id="shadow"><feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#7d173f" flood-opacity=".15"/></filter>
+</defs>
+<rect width="1400" height="500" rx="34" fill="url(#bg)"/>
+<g opacity=".55" fill="#ef6f99"><ellipse cx="105" cy="90" rx="9" ry="25" transform="rotate(-35 105 90)"/><ellipse cx="1280" cy="110" rx="8" ry="24" transform="rotate(35 1280 110)"/><ellipse cx="1180" cy="420" rx="9" ry="27" transform="rotate(55 1180 420)"/><ellipse cx="210" cy="410" rx="8" ry="25" transform="rotate(-55 210 410)"/></g>
+<path d="M810 70 A145 145 0 1 1 810 360 A115 115 0 1 0 810 70Z" fill="url(#gold)" opacity=".9"/>
+<g transform="translate(700 42)" filter="url(#shadow)">
+ <path d="M0 190 C-58 115 -105 135 -150 180 C-100 172 -60 200 -25 250Z" fill="url(#pink)"/>
+ <path d="M0 190 C58 115 105 135 150 180 C100 172 60 200 25 250Z" fill="url(#pink)"/>
+ <path d="M0 200 C-28 135 -18 90 0 55 C18 90 28 135 0 200Z" fill="url(#pink)"/>
+ <g transform="translate(0 12)">
+  <ellipse cx="0" cy="0" rx="55" ry="38" fill="#c9225d"/>
+  <g fill="#e94279">
+   <ellipse cx="0" cy="-18" rx="42" ry="22"/><ellipse cx="-25" cy="-2" rx="35" ry="20"/><ellipse cx="25" cy="-2" rx="35" ry="20"/>
+   <ellipse cx="-14" cy="18" rx="30" ry="17"/><ellipse cx="14" cy="18" rx="30" ry="17"/>
+  </g>
+  <path d="M0-3 C-12-22 15-27 19-8 C23 10 -7 22 -19 8 C-28-4 -13-13 0-3Z" fill="#8f1745"/>
+ </g>
+ <g fill="#527046"><path d="M-35 72 C-85 45 -105 65 -80 90 C-58 102 -35 92 -35 72Z"/><path d="M38 72 C88 45 108 65 83 90 C60 102 38 92 38 72Z"/></g>
+</g>
+<text x="95" y="310" font-family="Georgia,serif" font-size="150" font-style="italic" font-weight="600" fill="url(#pink)">Rose</text>
+<text x="560" y="310" font-family="Georgia,serif" font-size="150" font-style="italic" font-weight="600" fill="url(#pink)">M</text>
+<text x="800" y="310" font-family="Georgia,serif" font-size="150" font-style="italic" font-weight="600" fill="url(#pink)">moon</text>
+<path d="M625 350 C670 385 710 385 755 350" fill="none" stroke="url(#gold)" stroke-width="5"/>
+<path d="M540 400 H650 M750 400 H860" stroke="#b82c60" stroke-width="3"/>
+<g transform="translate(705 400)"><path d="M0 0 C-22-28 -48-18 -42 3 C-36 20 -14 20 0 4 C14 20 36 20 42 3 C48-18 22-28 0 0Z" fill="#c92a61"/></g>
+</svg>
