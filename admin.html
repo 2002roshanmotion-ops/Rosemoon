@@ -154,17 +154,32 @@ async function loadProducts(){
   }catch(e){console.error(e)}
 }
 function isCategoryProduct(p){
+  if(!p)return false;
   try{
     const d=JSON.parse(String(p.description||''));
-    return !!(d&&d.rosemoonCategory&&Array.isArray(d.options));
-  }catch(e){return false}
+    if(d&&Array.isArray(d.options))return true;
+  }catch(e){}
+  // Keep older Rosemoon category products visible in Inventory too.
+  const name=String(p.name||p.category||'').trim().toLowerCase();
+  return ['small','medium','large','flower basket'].includes(name);
 }
 function categoryData(p){
   try{
     const d=JSON.parse(String(p?.description||''));
-    if(d&&d.rosemoonCategory&&Array.isArray(d.options))return d;
+    if(d&&Array.isArray(d.options))return d;
   }catch(e){}
-  return {rosemoonCategory:true,options:[]};
+  // Legacy categories did not store per-flower options.
+  // Mirror the website's legacy five-flower display using the category stock.
+  const emojis=['🌹','🌸','🌼','🌷','🌻'];
+  return {
+    rosemoonCategory:true,
+    options:emojis.map((emoji,i)=>({
+      type:'Flower '+(i+1),
+      emoji,
+      stock:Math.max(0,Number(p?.stock)||0),
+      imageUrl:p?.imageUrl||''
+    }))
+  };
 }
 function populateCategoryManager(){
   const s=$('manageCategorySelect');
