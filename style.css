@@ -550,3 +550,22 @@ body::after{
 @media (max-width:600px) and (orientation:portrait){
   .products .bouquet-preview{height:235px}
 }
+
+
+/* Rosemoon — interactive How to Order guide */
+.guide-card{overflow:hidden;background:radial-gradient(circle at 50% 0%,rgba(255,255,255,.98),rgba(255,243,248,.96) 48%,rgba(243,226,238,.98));border:1px solid rgba(188,126,153,.28);box-shadow:0 35px 100px rgba(55,24,41,.34);padding:30px 26px 24px}
+.guide-card::before{content:"";position:absolute;width:230px;height:230px;left:-90px;top:-105px;border-radius:50%;background:radial-gradient(circle,rgba(255,210,228,.6),rgba(255,210,228,0));pointer-events:none}
+.guide-bloom{position:relative;width:58px;height:58px;margin:0 auto 8px;border-radius:50%;display:grid;place-items:center;font-size:31px;background:linear-gradient(145deg,#fff,#ffe5ef);box-shadow:0 10px 25px rgba(151,77,108,.18);animation:guideBloom 2.4s ease-in-out infinite}
+.guide-intro{margin:0 auto;color:#80636e;font-size:14px;max-width:320px;line-height:1.5}
+.guide-steps{margin-top:20px;gap:10px}
+.guide-step{position:relative;padding:13px 14px!important;border:1px solid rgba(194,142,164,.2);background:rgba(255,255,255,.76)!important;box-shadow:0 7px 20px rgba(77,35,53,.06);transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease}
+.guide-step:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(77,35,53,.12);border-color:rgba(194,126,155,.45)}
+.guide-step>b{width:29px;height:29px;display:grid;place-items:center;flex:0 0 29px;border-radius:50%;background:#3b202b;color:#fff;font-size:11px}
+.guide-icon{font-size:25px;flex:0 0 30px;text-align:center}
+.guide-step div:last-child{display:grid;gap:2px;text-align:left}
+.guide-step strong{font-size:13px;color:#432633}
+.guide-step small{font-size:11px;color:#80636e;line-height:1.35}
+.guide-note{margin:15px 0 13px;padding:10px 12px;border-radius:999px;background:rgba(255,229,239,.72);color:#795264;font-size:11px;font-weight:700}
+.guide-start{border:0;width:100%;padding:13px 18px;border-radius:14px;background:linear-gradient(135deg,#3b202b,#7b4660);color:#fff;font-weight:800;box-shadow:0 10px 25px rgba(59,32,43,.2);transition:transform .2s ease,box-shadow .2s ease}
+.guide-start:hover{transform:translateY(-2px);box-shadow:0 14px 30px rgba(59,32,43,.28)}
+@keyframes guideBloom{0%,100%{transform:rotate(-4deg) scale(1)}50%{transform:rotate(5deg) scale(1.08)}}
