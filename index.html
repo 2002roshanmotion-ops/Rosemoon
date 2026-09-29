@@ -68,6 +68,18 @@
     </div>
     <div class="search-recommendations" id="searchRecommendations" aria-live="polite"></div>
 
+    <div class="store-categories" aria-label="Product categories">
+      <button type="button" class="store-category active" data-store-category="bouquets">Bouquets</button>
+      <div class="store-category-group">
+        <button type="button" class="store-category" data-store-category="others">Others</button>
+        <div class="store-subcategories" aria-label="Others categories">
+          <button type="button" class="store-subcategory" data-store-subcategory="key ring">Key Ring</button>
+          <button type="button" class="store-subcategory" data-store-subcategory="decoration">Decoration</button>
+          <button type="button" class="store-subcategory" data-store-subcategory="clips">Clips</button>
+        </div>
+      </div>
+    </div>
+
     <div class="products" id="productsGrid">
       <div class="product" style="grid-column:1/-1;text-align:center;padding:30px">Loading flowers…</div>
     </div>
