@@ -73,10 +73,16 @@
     large:"assets/large.webp",
     "flower basket":"assets/basket.webp"
   };
+  const categoryOrder=["Small","Medium","Large","Flower Basket","Others"];
   function categoryImageFor(p){
     const key=String(p?.category||p?.name||'').trim().toLowerCase();
     return categoryImages[key]||categoryImages[String(p?.name||'').trim().toLowerCase()]||"";
   }
+  function categoryLabel(p){
+    const c=String(p?.category||p?.name||'').trim();
+    return c.toLowerCase()==="others" ? "Others" : c;
+  }
+  function isOthers(p){return String(p?.category||p?.name||'').trim().toLowerCase()==="others";}
   function searchMatches(query){
     const q=String(query||'').trim().toLowerCase();
     return products.filter(p=>{
@@ -114,18 +120,24 @@
       grid.innerHTML='<div class="product" style="grid-column:1/-1;text-align:center;padding:35px"><div style="font-size:38px;margin-bottom:8px">🌸</div>No bouquets found.<br><small style="color:#9b7d88">Try another name, category or price.</small></div>';
       return;
     }
+    const order=categoryOrder.map(x=>x.toLowerCase());
+    active.sort((a,b)=>{
+      const ai=order.indexOf(String(a.category||a.name||"").toLowerCase()), bi=order.indexOf(String(b.category||b.name||"").toLowerCase());
+      return (ai<0?99:ai)-(bi<0?99:bi);
+    });
     grid.innerHTML=active.map(p=>{
       const fixedImage=categoryImageFor(p);
-      const art=fixedImage?`<img class="category-flower-image" src="${fixedImage}" alt="${escapeAttr(p.name)}">`:p.imageUrl?`<img src="${escapeAttr(p.imageUrl)}" alt="${escapeAttr(p.name)}" style="width:100%;height:100%;object-fit:cover;border-radius:18px">`:(p.category.toLowerCase().includes("basket")?'🧺🌸':'🌹');
-      const stock=p.stock;
-      return `<article class="product" data-id="${escapeAttr(p.id)}" data-size="${escapeAttr(p.category)}" data-price="${p.price}" role="button" tabindex="0" aria-label="Open ${escapeAttr(p.name)} flower shop" style="cursor:pointer">
-        <div class="product-top"><span class="price-badge">${money(p.price)}</span></div>
-        <div class="bouquet-preview"><div class="flower-art">${art}</div></div>
-        <div style="font-weight:800;margin:10px 0 3px;color:#3b202b">${escapeHtml(p.name)}</div>
-        
-      </article>`;
+      const art=fixedImage?'<img class="category-flower-image" src="'+fixedImage+'" alt="'+escapeAttr(p.name)+'">':p.imageUrl?'<img src="'+escapeAttr(p.imageUrl)+'" alt="'+escapeAttr(p.name)+'" style="width:100%;height:100%;object-fit:cover;border-radius:18px">':(isOthers(p)?'🔑🎀📎':(String(p.category||'').toLowerCase().includes("basket")?'🧺🌸':'🌹'));
+      return '<article class="product" data-id="'+escapeAttr(p.id)+'" data-size="'+escapeAttr(p.category)+'" data-price="'+p.price+'" role="button" tabindex="0" aria-label="Open '+escapeAttr(categoryLabel(p))+' flower shop" style="cursor:pointer">'+
+        '<div class="product-top"><span class="price-badge">'+money(p.price)+'</span></div>'+
+        '<div class="bouquet-preview"><div class="flower-art">'+art+'</div></div>'+
+        '<div style="font-weight:800;margin:10px 0 3px;color:#3b202b">'+escapeHtml(categoryLabel(p))+'</div>'+
+      '</article>';
     }).join("");
-    grid.querySelectorAll(".product[data-id]").forEach(card=>{card.addEventListener("click",()=>openFlowerPopup(card.dataset.id));card.addEventListener("keydown",e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openFlowerPopup(card.dataset.id)}})});
+    grid.querySelectorAll(".product[data-id]").forEach(card=>{
+      card.addEventListener("click",()=>openFlowerPopup(card.dataset.id));
+      card.addEventListener("keydown",e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openFlowerPopup(card.dataset.id)}});
+    });
   }
   function escapeHtml(v){return String(v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
   function escapeAttr(v){return escapeHtml(v)}
