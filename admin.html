@@ -140,12 +140,14 @@ function showAdmin(){
   adminLoading(92,'Finishing…');finishAdminLoading();
 }
 function rosemoonLogin(){
+  adminLoading(8,'Signing in…');
   const password=String($('adminPassword').value||'').trim();
   if(password!==ADMIN_KEY){
     $('loginMessage').textContent='❌ Wrong password.';
     return false;
   }
   sessionStorage.setItem('rosemoonAdmin','true');
+  adminLoading(15,'Opening dashboard…');
   showAdmin();
   return false;
 }
