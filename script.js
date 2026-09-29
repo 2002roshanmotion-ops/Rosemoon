@@ -1,6 +1,14 @@
 (() => {
   const API_URL = "https://script.google.com/macros/s/AKfycbw3ovS6hIwHLhp50Xrs-6ejMxZkI_q-AhB-Mz6JXbsIRKSphJcMoqBELVY4nUogRR__/exec";
   const CART_KEY = "rosemoonCartV4";
+  const ROSEMOON_LOGO_SETTING="__ROSEMOON_LOGO__";
+  const DEFAULT_ROSEMOON_LOGO="https://d2ol7oe51mr4n9.cloudfront.net/user_3JYbYCHyy3naSeG6RhPtSZPxh49/ec2e63b0-a983-4186-a3da-ad6c75b1acf7.png";
+  function applyRosemoonLogo(url){
+    const logo=String(url||DEFAULT_ROSEMOON_LOGO);
+    document.querySelectorAll('.landing-logo img,.logo img,.rosemoon-loader-title img,.admin-logo-login,.admin-side-logo').forEach(img=>{img.src=logo});
+    window.rosemoonLogo=logo;
+  }
+
   const localFallback = {
     products: [
       {id:"small",category:"Small",name:"Small Bouquet",price:500,stock:8,imageUrl:"",active:true},
@@ -507,7 +515,9 @@
 
   async function syncProducts(){
     try{const r=await fetch(`${API_URL}?action=products&_=${Date.now()}`,{cache:"no-store"});const d=await r.json();if(d.success&&Array.isArray(d.products)){
-        products=d.products;
+        const logoSetting=d.products.find(p=>String(p?.name||"")===ROSEMOON_LOGO_SETTING);
+        applyRosemoonLogo(logoSetting?.imageUrl||DEFAULT_ROSEMOON_LOGO);
+        products=d.products.filter(p=>String(p?.name||"")!==ROSEMOON_LOGO_SETTING);
         if(!products.some(p=>String(p?.category||"").trim().toLowerCase()==="others")){
           products.push(localFallback.products.find(p=>p.id==="others"));
         }
