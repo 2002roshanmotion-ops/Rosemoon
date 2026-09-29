@@ -100,6 +100,7 @@ async function createCategory(){
       const file=$('categoryFlower'+n).files[0], qty=Number($('categoryFlower'+n+'Stock').value||0);
       let url='';
       if(file)url=await uploadCategoryPhoto(file,'Flower '+n);
+      if(!file)continue;
       options.push({type:'Flower '+n,stock:Math.max(0,Math.floor(qty)),imageUrl:url});
     }
     const description=JSON.stringify({rosemoonCategory:true,options});
