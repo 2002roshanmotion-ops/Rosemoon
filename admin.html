@@ -10,7 +10,7 @@
 body{background:radial-gradient(circle at 10% 0%,#ffe8f0 0,#fff7f9 32%,#f8f2f5 100%);color:var(--rm-ink)}
 .admin-layout{display:grid;grid-template-columns:245px minmax(0,1fr);min-height:100vh}
 .admin-sidebar{position:sticky;top:0;height:100vh;padding:22px 15px;background:rgba(255,255,255,.84);backdrop-filter:blur(18px);border-right:1px solid var(--rm-line);display:flex;flex-direction:column;z-index:20}
-.side-brand{padding:8px 10px 22px}.side-brand strong{display:block;font-size:22px;color:var(--rm-pink)}.side-brand span{font-size:11px;color:var(--rm-muted);letter-spacing:1.4px}
+.side-brand{padding:8px 10px 22px}.side-brand strong{display:block;font-size:22px;color:var(--rm-pink)}.side-brand span{font-size:11px;color:var(--rm-muted);letter-spacing:1.4px}.admin-side-logo{width:170px;max-width:100%;height:auto;display:block;margin-bottom:10px}.admin-logo-login{width:min(320px,80%);height:auto;display:block;margin:0 auto 12px}
 .side-nav{display:grid;gap:7px}.side-nav .tab{border:0;border-radius:14px;background:transparent;text-align:left;padding:13px 14px;color:#705361;transition:.25s;position:relative}.side-nav .tab:hover{background:var(--rm-soft);transform:translateX(3px)}.side-nav .tab.active{background:linear-gradient(135deg,#3b202b,#59303f);color:#fff;box-shadow:0 10px 25px #3b202b20}
 .side-nav .tab.active:before{content:"";position:absolute;left:-15px;top:9px;bottom:9px;width:4px;border-radius:4px;background:var(--rm-pink)}
 .side-bottom{margin-top:auto;padding:14px 8px;color:var(--rm-muted);font-size:11px}
@@ -28,11 +28,11 @@ body{background:radial-gradient(circle at 10% 0%,#ffe8f0 0,#fff7f9 32%,#f8f2f5 1
 </style>
 </head>
 <body>
-<div id="loginScreen" class="login"><div class="login-box"><div class="brand">🌹 ROSEMOON</div><h2>Owner Admin</h2><p>Manage flowers, inventory, photos and music.</p><input id="adminPassword" type="password" placeholder="Admin password"><button type="button" class="primary" id="loginBtn">Login</button><div class="error" id="loginMessage"></div></div></div>
+<div id="loginScreen" class="login"><div class="login-box"><div class="brand"><img class="admin-logo-login" src="assets/rosemoon-logo.svg" alt="RoseMmoon"></div><h2>Owner Admin</h2><p>Manage flowers, inventory, photos and music.</p><input id="adminPassword" type="password" placeholder="Admin password"><button type="button" class="primary" id="loginBtn">Login</button><div class="error" id="loginMessage"></div></div></div>
 
 <div id="adminPanel" style="display:none"><div class="admin-layout">
   <aside class="admin-sidebar">
-    <div class="side-brand"><strong>🌹 ROSEMOON</strong><span>OWNER CONTROL CENTER</span></div>
+    <div class="side-brand"><img class="admin-side-logo" src="assets/rosemoon-logo.svg" alt="RoseMmoon"><span>OWNER CONTROL CENTER</span></div>
     <nav class="side-nav">
       <button class="tab active" data-tab="dashboard">📊 <span>Dashboard</span></button>
       <button class="tab" data-tab="inventory">📦 <span>Inventory</span></button>
