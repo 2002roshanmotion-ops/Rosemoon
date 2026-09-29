@@ -548,5 +548,5 @@ body::after{
   .products .bouquet-preview{height:205px}
 }
 @media (max-width:600px) and (orientation:portrait){
-  .products .bouquet-preview{height:175px}
+  .products .bouquet-preview{height:235px}
 }
