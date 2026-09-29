@@ -127,7 +127,6 @@ document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>setT
 function showAdmin(){
   $('loginScreen').style.display='none';
   $('adminPanel').style.display='block';
-  $('loginMessage').textContent='';
   try{setTab('dashboard')}catch(e){console.error('Dashboard startup:',e)}
   try{loadProducts()}catch(e){console.error('Products startup:',e)}
   try{loadMusic()}catch(e){console.error('Music startup:',e)}
