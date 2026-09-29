@@ -320,3 +320,6 @@ body.flower-popup-open{
 
 /* Store category navigation */
 .store-categories{display:flex;align-items:flex-start;justify-content:center;gap:10px;flex-wrap:wrap;margin:22px auto 28px}.store-category,.store-subcategory{border:1px solid #ead5de;background:#fff;color:#54333f;border-radius:999px;padding:11px 18px;font-weight:800;cursor:pointer;transition:.2s}.store-category.active,.store-category:hover,.store-subcategory:hover{background:#3b202b;color:#fff;border-color:#3b202b}.store-category-group{display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap;justify-content:center}.store-subcategories{display:flex;gap:7px;flex-wrap:wrap}.store-subcategory{font-size:13px;padding:9px 13px;background:#fff8fa}.store-subcategory.active{background:#7e3e58;color:#fff;border-color:#7e3e58}
+
+/* Updated RoseMmoon logo */
+.landing-logo{display:flex;justify-content:center;align-items:center}.landing-logo img{width:min(760px,82vw);height:auto;display:block;filter:drop-shadow(0 12px 28px rgba(125,48,78,.12))}.logo{display:flex;align-items:center}.logo img{width:170px;height:auto;display:block}.logo small{display:none}
