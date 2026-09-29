@@ -2,6 +2,24 @@
   const API_URL = "https://script.google.com/macros/s/AKfycbw3ovS6hIwHLhp50Xrs-6ejMxZkI_q-AhB-Mz6JXbsIRKSphJcMoqBELVY4nUogRR__/exec";
   const CART_KEY = "rosemoonCartV4";
   const ROSEMOON_LOGO_SETTING="__ROSEMOON_LOGO__";
+  const ROSEMOON_SETTINGS_NAME="__ROSEMOON_SETTINGS__";
+  const DEFAULT_ROSEMOON_SETTINGS={storeName:"Rosemoon",email:"",phone:"",tagline:"Handmade with love",description:"",homeTitle:"Welcome to Rosemoon",startText:"Start Shopping",announcement:"",announcementEnabled:true,sparkles:true,petals:true,clouds:true,moon:true,animations:true,productAnimations:true,musicEnabled:true,musicAutoplay:true,musicVolume:0.8,cartEnabled:true,showStock:true,showOutOfStock:false,cod:true,esewa:false,khalti:false,bank:false,delivery:true,deliveryCharge:0,freeDelivery:0,tikTok:"",instagram:"",facebook:"",orderMessage:"Hello Rosemoon, I want to order..."};
+  let rosemoonSettings={...DEFAULT_ROSEMOON_SETTINGS};
+  function applyRosemoonSettings(raw){
+    rosemoonSettings={...DEFAULT_ROSEMOON_SETTINGS,...(raw||{})};
+    document.title=rosemoonSettings.storeName||"Rosemoon";
+    const startLabel=document.querySelector("#startShopping span"); if(startLabel)startLabel.textContent=String(rosemoonSettings.startText||"Start Shopping").toUpperCase();
+    const homeTitle=document.querySelector(".shop-heading h1"); if(homeTitle&&rosemoonSettings.homeTitle)homeTitle.textContent=rosemoonSettings.homeTitle;
+    const eyebrow=document.querySelector(".shop-heading .eyebrow"); if(eyebrow)eyebrow.textContent=rosemoonSettings.storeName||"Rosemoon";
+    const cartBtn=document.querySelector("#openCartBtn"); if(cartBtn)cartBtn.style.display=rosemoonSettings.cartEnabled===false?"none":"";
+    document.body.classList.toggle("rm-no-sparkles",rosemoonSettings.sparkles===false);
+    document.body.classList.toggle("rm-no-petals",rosemoonSettings.petals===false);
+    document.body.classList.toggle("rm-no-clouds",rosemoonSettings.clouds===false);
+    document.body.classList.toggle("rm-no-moon",rosemoonSettings.moon===false);
+    document.body.classList.toggle("rm-no-animations",rosemoonSettings.animations===false);
+    document.body.classList.toggle("rm-no-product-animations",rosemoonSettings.productAnimations===false);
+    if(window.music?.audio)window.music.audio.volume=Number(rosemoonSettings.musicVolume??0.8);
+  }
   const DEFAULT_ROSEMOON_LOGO="https://d2ol7oe51mr4n9.cloudfront.net/user_3JYbYCHyy3naSeG6RhPtSZPxh49/ec2e63b0-a983-4186-a3da-ad6c75b1acf7.png";
   function applyRosemoonLogo(url){
     const logo=String(url||DEFAULT_ROSEMOON_LOGO);
@@ -72,8 +90,10 @@
     music.userRequested=true;
     music.index=0;
     music.loadTitle();
-    // Start playback directly from the Start Shopping user gesture. Never wait for an async fetch here.
-    music.startFromUserGesture();
+    if(rosemoonSettings.musicEnabled!==false && rosemoonSettings.musicAutoplay!==false){
+      // Start playback directly from the Start Shopping user gesture.
+      music.startFromUserGesture();
+    }
   }
   start?.addEventListener("click",enterShop);
   if(start)start.disabled=true;
@@ -516,8 +536,10 @@
   async function syncProducts(){
     try{const r=await fetch(`${API_URL}?action=products&_=${Date.now()}`,{cache:"no-store"});const d=await r.json();if(d.success&&Array.isArray(d.products)){
         const logoSetting=d.products.find(p=>String(p?.name||"")===ROSEMOON_LOGO_SETTING);
+        const settingsSetting=d.products.find(p=>String(p?.name||"")===ROSEMOON_SETTINGS_NAME);
         applyRosemoonLogo(logoSetting?.imageUrl||DEFAULT_ROSEMOON_LOGO);
-        products=d.products.filter(p=>String(p?.name||"")!==ROSEMOON_LOGO_SETTING);
+        if(settingsSetting){try{applyRosemoonSettings(JSON.parse(String(settingsSetting.description||"{}")))}catch(e){applyRosemoonSettings(DEFAULT_ROSEMOON_SETTINGS)}}else applyRosemoonSettings(DEFAULT_ROSEMOON_SETTINGS);
+        products=d.products.filter(p=>String(p?.name||"")!==ROSEMOON_LOGO_SETTING&&String(p?.name||"")!==ROSEMOON_SETTINGS_NAME);
         if(!products.some(p=>String(p?.category||"").trim().toLowerCase()==="others")){
           products.push(localFallback.products.find(p=>p.id==="others"));
         }
