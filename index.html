@@ -53,6 +53,25 @@
   const start = document.getElementById("startShopping");
   let n = 0;
 
+  // Start music preloading while the loading screen is visible.
+  // Playback still requires the user's Start Shopping gesture.
+  const ROSEMOON_API = "https://script.google.com/macros/s/AKfycbw3ovS6hIwHLhp50Xrs-6ejMxZkI_q-AhB-Mz6JXbsIRKSphJcMoqBELVY4nUogRR__/exec";
+  (async()=>{
+    try{
+      const r=await fetch(ROSEMOON_API+"?action=music&_="+Date.now(),{cache:"no-store"});
+      const d=await r.json();
+      const first=(d.music||[]).filter(x=>x&&x.active!==false).sort((a,b)=>(Number(a.sort)||0)-(Number(b.sort)||0))[0];
+      if(first?.url){
+        const audio=document.createElement("audio");
+        audio.preload="auto";
+        audio.src=first.url;
+        audio.load();
+        audio.style.display="none";
+        document.body.appendChild(audio);
+      }
+    }catch(e){}
+  })();
+
   const timer = setInterval(() => {
     n = Math.min(100, n + 8);
     if (fill) fill.style.width = n + "%";
