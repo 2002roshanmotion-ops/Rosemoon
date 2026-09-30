@@ -156,39 +156,44 @@
   let musicReady = false;
   let musicPromise = null;
 
-  // Use the loading screen to preload ALL active music tracks in parallel.
-  // The screen reaches 100% only after the tracks have had a chance to buffer.
+  // Preload ALL active music tracks and drive the loading bar from real track completion.
   musicPromise = (async()=>{
     try{
       const r=await fetch(ROSEMOON_API+"?action=music&_="+Date.now(),{cache:"no-store"});
       const d=await r.json();
-      const tracks=(d.music||[]).filter(x=>x&&x.active!==false).sort((a,b)=>(Number(a.sort)||0)-(Number(b.sort)||0));
+      const tracks=(d.music||[]).filter(x=>x&&x.active!==false&&x.url).sort((a,b)=>(Number(a.sort)||0)-(Number(b.sort)||0));
       if(!tracks.length){musicReady=true;return;}
-      const jobs=tracks.filter(x=>x.url).map(track=>new Promise(resolve=>{
+      let finished=0;
+      const total=tracks.length;
+      const update=()=>{
+        n=Math.min(99,Math.round((finished/total)*100));
+        if(fill)fill.style.width=n+"%";
+        if(percent)percent.textContent=n+"%";
+      };
+      update();
+      await Promise.all(tracks.map(track=>new Promise(resolve=>{
         const audio=document.createElement("audio");
-        audio.preload="auto";
-        audio.src=track.url;
-        audio.style.display="none";
-        audio.dataset.rosemoonPreload="1";
-        document.body.appendChild(audio);
+        audio.preload="auto"; audio.src=track.url; audio.style.display="none";
+        audio.dataset.rosemoonPreload="1"; document.body.appendChild(audio);
         let done=false;
-        const finish=()=>{if(done)return;done=true;resolve()};
+        const finish=()=>{if(done)return;done=true;finished++;update();resolve()};
         audio.addEventListener("canplaythrough",finish,{once:true});
         audio.addEventListener("loadeddata",finish,{once:true});
         audio.addEventListener("error",finish,{once:true});
-        audio.load();
-        setTimeout(finish,8000);
-      }));
-      await Promise.all(jobs);
+        audio.load(); setTimeout(finish,8000);
+      }))));
       musicReady=true;
     }catch(e){musicReady=true;}
   })();
 
-  const timer = setInterval(() => {
-    n = Math.min(92, n + 4);
-    if (fill) fill.style.width = n + "%";
-    if (percent) percent.textContent = n + "%";
-  }, 45);
+  // Safety fallback; normally the real preload progress reaches the end first.
+  const timer = setTimeout(() => {
+    if(!musicReady){
+      n=99;
+      if(fill)fill.style.width="99%";
+      if(percent)percent.textContent="99%";
+    }
+  },12000);
 
   (async()=>{
     await musicPromise;
