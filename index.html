@@ -70,6 +70,7 @@
       <a href="#shopPage">Bouquets</a>
       <button id="openGuide" type="button">How to Order</button>
     </nav>
+    <button class="cart-btn" id="openCartBtn" type="button">🛒 Cart <b id="headerCartCount">0</b></button>
   </header>
 
   <main class="shop-main" id="shop">
@@ -143,8 +144,7 @@
     <div class="cart-total"><span>Subtotal</span><strong id="cartSubtotal">Rs. 0</strong></div><div class="cart-total"><span>Delivery</span><strong id="deliveryCharge">Rs. 0</strong></div><div class="cart-total"><span>Total</span><strong id="cartTotal">Rs. 0</strong></div>
     <form id="orderForm">
       <label>Name<input id="name" required placeholder="Your name"></label>
-      <label>Phone<input id="phone" required placeholder="Phone number"></label>
-      <label>Delivery Location<select id="deliveryLocation" required><option value="">Choose location</option><option value="Pokhara">Pokhara — Rs. 150</option><option value="Kathmandu" disabled>Kathmandu — Coming Soon</option><option value="Other" disabled>Other locations — Coming Soon</option></select></label><label>Delivery details<textarea id="note" rows="3" placeholder="Delivery area / special note"></textarea></label>
+      <label>Phone<input id="phone" required placeholder="Phone number"></label><label>Delivery details<textarea id="note" rows="3" placeholder="Delivery area / special note"></textarea></label>
       <label>Payment
         <select id="payment" required>
           <option value="">Choose payment method</option>
