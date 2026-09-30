@@ -80,19 +80,7 @@
     }catch(e){}
     return choices.map(([type,emoji])=>({type,emoji,stock:stockFor(product?.id),imageUrl:product?.imageUrl||''}));
   }
-  function enterShop(){
-    playUISound('breeze');
-    shop.classList.add("active");
-    shop.setAttribute("aria-hidden","false");
-    window.scrollTo(0,0);
-    music.init();
-    music.userRequested=true;
-    music.index=0;
-    music.loadTitle();
-    if(rosemoonSettings.musicEnabled!==false && rosemoonSettings.musicAutoplay!==false){
-      music.startFromUserGesture();
-    }
-  }
+  function enterShop(){ window.location.href="shop.html"; }
   start?.addEventListener("click",enterShop);
   if(start)start.disabled=false;
   if(new URLSearchParams(location.search).get("returnShop")==="1") { enterShop(); history.replaceState(null,"",location.pathname+"#shopPage"); }
