@@ -559,27 +559,12 @@
     return music.songs.length;
   }
 
-  async function prepareFirstMusic(){
-    if(!music.songs.length){setLoading(76,"No music yet");return;}
-    setLoading(60,"Preparing first song…");
-    await music.prepare(0);
-    setLoading(78,"Getting music ready…");
-    // Start preparing the remaining tracks in the background; do not block the shop.
-    for(let i=1;i<music.songs.length;i++){
-      music.prepare(i).catch(()=>{});
-    }
-  }
-
-
   renderProducts();renderCart();window.rosemoonProducts=products;
 
-  // index.html owns the loader so it can wait for the music preload.
-  // Do not finish the loader here; only enable Start Shopping.
-  setLoading(35,"Rosemoon is ready");
+  // index.html owns the loading screen and the single music-preload flow.
+  // Do not change the visible percentage here and do not start a second preload.
   if(start)start.disabled=false;
-  // Load live inventory/music in the background.
   syncProducts().then(()=>syncMusic()).catch(()=>{});
-  setTimeout(()=>prepareFirstMusic().catch(()=>{}),0);
   setInterval(syncProducts,30000);setInterval(syncMusic,30000);
   document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeFlowerPopup();document.getElementById("guideModal").classList.remove("open");closeCart()}});
 })();
