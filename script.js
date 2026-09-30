@@ -451,6 +451,7 @@
       return this.loading[key];
     },
     startFromUserGesture(){
+      this.userRequested=true;
       this.init();
       if(!this.songs.length){this.userRequested=true;document.getElementById("songStatus").textContent="Music loading…";return false;}
       const s=this.songs[this.index];
@@ -548,11 +549,13 @@
         window.rosemoonMusic=d.music.filter(x=>x.active!==false).sort((a,b)=>a.sort-b.sort).map(x=>[x.title||"",x.url,x.fileId]);
         music.init();
         music.loadMusic();
+        if(music.userRequested && music.songs.length){ music.play().catch(()=>{}); }
         return music.songs.length;
       }
     }catch(e){}
     music.init();
     music.loadMusic();
+    if(music.userRequested && music.songs.length){ music.play().catch(()=>{}); }
     return music.songs.length;
   }
 
