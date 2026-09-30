@@ -80,11 +80,8 @@
     }catch(e){}
     return choices.map(([type,emoji])=>({type,emoji,stock:stockFor(product?.id),imageUrl:product?.imageUrl||''}));
   }
-  document.body.classList.add("rm-landing-lock");
-
   function enterShop(){
     playUISound('breeze');
-    document.body.classList.remove("rm-landing-lock");
     shop.classList.add("active");
     shop.setAttribute("aria-hidden","false");
     window.scrollTo(0,0);
@@ -97,7 +94,7 @@
     }
   }
   start?.addEventListener("click",enterShop);
-  if(start)start.disabled=false;
+  if(start)start.disabled=true;
   if(new URLSearchParams(location.search).get("returnShop")==="1") { enterShop(); history.replaceState(null,"",location.pathname+"#shopPage"); }
   document.getElementById("homeLogo")?.addEventListener("click",e=>{e.preventDefault();shop.classList.remove("active");shop.setAttribute("aria-hidden","true");landing.style.display="grid";window.scrollTo(0,0)});
 
