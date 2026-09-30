@@ -82,7 +82,31 @@
   }
   function enterShop(){
     playUISound('breeze');
-    landing.style.display="none";
+    const locationScreen=document.getElementById("locationScreen");
+    if(locationScreen){
+      landing.style.display="none";
+      locationScreen.classList.add("active");
+      locationScreen.setAttribute("aria-hidden","false");
+      window.scrollTo(0,0);
+      return;
+    }
+    openShopAfterLocation();
+  }
+  function openShopAfterLocation(){
+    const locationScreen=document.getElementById("locationScreen");
+    const selected=document.getElementById("deliveryLocation")?.value||"";
+    const other=document.getElementById("deliveryLocationOther")?.value.trim()||"";
+    const deliveryLocation=selected==="Other"?other:selected;
+    if(!deliveryLocation){
+      playUISound('error');
+      document.getElementById("deliveryLocation")?.focus();
+      return;
+    }
+    localStorage.setItem("rosemoonDeliveryLocation",deliveryLocation);
+    if(locationScreen){
+      locationScreen.classList.remove("active");
+      locationScreen.setAttribute("aria-hidden","true");
+    }
     shop.classList.add("active");
     shop.setAttribute("aria-hidden","false");
     window.scrollTo(0,0);
@@ -95,6 +119,18 @@
     }
   }
   start?.addEventListener("click",enterShop);
+  document.getElementById("continueLocation")?.addEventListener("click",openShopAfterLocation);
+  document.getElementById("backToStart")?.addEventListener("click",()=>{
+    const locationScreen=document.getElementById("locationScreen");
+    locationScreen?.classList.remove("active");
+    locationScreen?.setAttribute("aria-hidden","true");
+    landing.style.display="grid";
+    window.scrollTo(0,0);
+  });
+  document.getElementById("deliveryLocation")?.addEventListener("change",e=>{
+    const other=document.getElementById("deliveryLocationOther");
+    if(other){other.hidden=e.target.value!=="Other";if(e.target.value!=="Other")other.value="";else other.focus();}
+  });
   if(start)start.disabled=true;
   if(new URLSearchParams(location.search).get("returnShop")==="1") { enterShop(); history.replaceState(null,"",location.pathname+"#shopPage"); }
   document.getElementById("homeLogo")?.addEventListener("click",e=>{e.preventDefault();shop.classList.remove("active");shop.setAttribute("aria-hidden","true");landing.style.display="grid";window.scrollTo(0,0)});
