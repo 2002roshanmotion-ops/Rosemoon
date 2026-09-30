@@ -80,8 +80,11 @@
     }catch(e){}
     return choices.map(([type,emoji])=>({type,emoji,stock:stockFor(product?.id),imageUrl:product?.imageUrl||''}));
   }
+  document.body.classList.add("rm-landing-lock");
+
   function enterShop(){
     playUISound('breeze');
+    document.body.classList.remove("rm-landing-lock");
     shop.classList.add("active");
     shop.setAttribute("aria-hidden","false");
     window.scrollTo(0,0);
