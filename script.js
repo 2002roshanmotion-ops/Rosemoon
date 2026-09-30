@@ -90,7 +90,7 @@
   }
   start?.addEventListener("click",enterShop);
   if(start)start.disabled=false;
-  if(new URLSearchParams(location.search).get("returnShop")==="1") { enterShop(); history.replaceState(null,"",location.pathname+"#shopPage"); }
+  if(new URLSearchParams(location.search).get("returnShop")==="1") { history.replaceState(null,"",location.pathname); }
   document.getElementById("homeLogo")?.addEventListener("click",e=>{e.preventDefault();shop.classList.remove("active");shop.setAttribute("aria-hidden","true");landing.style.display="grid";window.scrollTo(0,0)});
 
   const categoryImages={
