@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Rosemoon</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="rm-shop-page">
+
+<section class="shop-page" id="shopPage" aria-hidden="true">
+  <header class="header">
+    <a class="logo" href="#" id="homeLogo"><img src="https://d2ol7oe51mr4n9.cloudfront.net/user_3JYbYCHyy3naSeG6RhPtSZPxh49/ec2e63b0-a983-4186-a3da-ad6c75b1acf7.png" alt="RoseMmoon"></a>
+    <nav class="nav">
+      <a href="#shopPage">Bouquets</a>
+      <button id="openGuide" type="button">How to Order</button>
+    </nav>
+    <button class="cart-btn" id="openCartBtn" type="button">🛒 Cart <b id="headerCartCount">0</b></button>
+  </header>
+
+  <main class="shop-main" id="shop">
+    <div class="shop-heading">
+      <p class="eyebrow">RoseMmoon</p>
+      <h1>Choose Your Bouquets</h1>
+      <p>Choose a price and then select your flower.</p>
+    </div>
+
+    <div class="rosemoon-search" role="search">
+      <span class="rosemoon-search-icon" aria-hidden="true">🔎</span>
+      <input id="productSearch" type="search" placeholder="Search bouquets..." aria-label="Search bouquets">
+      <button id="clearProductSearch" type="button" aria-label="Clear search">×</button>
+    </div>
+    <div class="search-recommendations" id="searchRecommendations" aria-live="polite"></div>
+
+    <div class="products" id="productsGrid">
+      <div class="product" style="grid-column:1/-1;text-align:center;padding:30px">Loading flowers…</div>
+    </div>
+  </main>
+
+  <!-- MUSIC BOTTOM BAR -->
+  <div class="music-bar" id="musicBar">
+    <div class="music-now">
+      <div class="music-disc" id="musicDisc"><span>♪</span></div>
+      <div class="music-info">
+        <strong id="songTitle">RoseMmoon Music</strong>
+        <small id="songStatus">Ready</small>
+      </div>
+    </div>
+    <div class="music-wave" id="musicWave" aria-hidden="true">
+      <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+    </div>
+    <div class="music-controls">
+      <button id="prevSong" type="button" aria-label="Previous song">⏮</button>
+      <button class="music-play" id="toggleMusic" type="button" aria-label="Play music">▶</button>
+      <button id="nextSong" type="button" aria-label="Next song">⏭</button>
+      <button id="muteMusic" type="button" aria-label="Mute music">🔊</button>
+    </div>
+    <audio id="rosemoonAudio" preload="auto"></audio>
+  </div>
+
+  <!-- GUIDE -->
+  <div class="guide-modal" id="guideModal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-guide></div>
+    <div class="guide-card">
+      <button class="modal-close" id="closeGuide" type="button" aria-label="Close">×</button>
+      <div class="guide-bloom">🌹</div>
+      <p class="eyebrow">YOUR ROSEMOON JOURNEY</p>
+      <h2>Pick. Bloom. Order. 💕</h2>
+      <p class="guide-intro">Your perfect bouquet is only a few little clicks away.</p>
+      <div class="guide-steps">
+        <div class="guide-step"><b>01</b><span class="guide-icon">💐</span><div><strong>Pick your price</strong><small>Choose the bouquet price that feels right for you.</small></div></div>
+        <div class="guide-step"><b>02</b><span class="guide-icon">🌸</span><div><strong>Choose your flower</strong><small>Open the category and select Flower 1, 2 or 3.</small></div></div>
+        <div class="guide-step"><b>03</b><span class="guide-icon">🛒</span><div><strong>Add it to your cart</strong><small>Build your bouquet list and check your total.</small></div></div>
+        <div class="guide-step"><b>04</b><span class="guide-icon">💌</span><div><strong>Send your order</strong><small>Enter your details and complete the checkout step.</small></div></div>
+      </div>
+      <div class="guide-note">✨ Ready-made flowers • Real stock • Made with love</div>
+      <button class="guide-start" type="button" data-close-guide>Let's Pick a Bouquet →</button>
+    </div>
+  </div>
+
+  <!-- CART -->
+  <div class="cart-backdrop" id="cartBackdrop"></div>
+  <aside class="cart-panel" id="cartPanel" aria-hidden="true">
+    <div class="cart-heading">
+      <div><p class="eyebrow">YOUR CART</p><h2>Selected Bouquets</h2></div>
+      <button id="closeCart" type="button">×</button>
+    </div>
+    <div id="cartItems" class="cart-items"></div>
+    <div class="cart-total"><span>Subtotal</span><strong id="cartSubtotal">Rs. 0</strong></div><div class="cart-total"><span>Delivery</span><strong id="deliveryCharge">Rs. 0</strong></div><div class="cart-total"><span>Total</span><strong id="cartTotal">Rs. 0</strong></div>
+    <form id="orderForm">
+      <label>Name<input id="name" required placeholder="Your name"></label>
+      <label>Phone<input id="phone" required placeholder="Phone number"></label>
+    <label>Delivery Location<select id="deliveryLocation" required><option value="">Choose location</option><option value="Pokhara">Pokhara — Rs. 150</option><option value="Kathmandu" disabled>Kathmandu — Coming Soon</option><option value="Other" disabled>Other locations — Coming Soon</option></select></label><label>Delivery details<textarea id="note" rows="3" placeholder="Delivery area / special note"></textarea></label>
+      <label>Payment
+        <select id="payment" required>
+          <option value="">Choose payment method</option>
+          <option>Cash on Delivery</option><option>eSewa</option><option>Khalti</option><option>Bank Transfer</option>
+        </select>
+      </label>
+      <button class="checkout-btn" type="submit">Place Order →</button>
+      <p id="formNote"></p>
+    </form>
+  </aside>
+
+  <div class="flower-popup" id="flowerPopup" aria-hidden="true"><div class="flower-popup-panel" role="dialog" aria-modal="true" aria-labelledby="flowerPopupTitle"><div class="flower-popup-head"><div><div class="flower-popup-kicker">RoseMmoon · Flower Shop</div><h2 class="flower-popup-title" id="flowerPopupTitle">Choose Your Flower</h2><p class="flower-popup-sub" id="flowerPopupSub">Choose a flower for Rs. 500.</p></div><button class="flower-popup-close" id="closeFlowerPopup" type="button" aria-label="Close">×</button></div><div class="flower-popup-grid" id="flowerPopupGrid"></div><div class="flower-popup-note">Your flower is added directly to the RoseMmoon cart. This shop stays on the same page.</div></div></div>
+  <div class="toast" id="toast"></div>
+</section>
+
+
+<script src="script.js?v=flowerstock3"></script>
+</body>
+</html>
+
+<script src="script.js"></script>
+</body>
+</html>
