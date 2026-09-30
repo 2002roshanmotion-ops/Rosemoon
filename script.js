@@ -94,9 +94,6 @@
   }
   function openShopAfterLocation(){
     const locationScreen=document.getElementById("locationScreen");
-    const selected=document.getElementById("deliveryLocation")?.value||"";
-    const other=document.getElementById("deliveryLocationOther")?.value.trim()||"";
-    const deliveryLocation=selected==="Other"?other:selected;
     if(!deliveryLocation){
       playUISound('error');
       document.getElementById("deliveryLocation")?.focus();
