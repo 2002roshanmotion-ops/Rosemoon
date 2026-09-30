@@ -181,10 +181,30 @@
       await Promise.all(tracks.map(track=>new Promise(resolve=>{
         const audio=document.createElement("audio");
         audio.preload="auto";
-        audio.src=track.url;
         audio.style.display="none";
         audio.dataset.rosemoonPreload="1";
         document.body.appendChild(audio);
+
+        // Use the same music-file source the player uses, so there is no
+        // second download after Start Shopping.
+        const sourcePromise=(async()=>{
+          if(track.fileId){
+            const fr=await fetch(ROSEMOON_API+"?action=musicFile&fileId="+encodeURIComponent(track.fileId)+"&_="+Date.now(),{cache:"no-store"});
+            const fd=await fr.json();
+            if(fd.success&&fd.base64){
+              const src="data:audio/mpeg;base64,"+fd.base64;
+              window.rosemoonPreloadedMusic=window.rosemoonPreloadedMusic||{};
+              window.rosemoonPreloadedMusic[track.fileId]=src;
+              return src;
+            }
+          }
+          return track.url;
+        })();
+
+        sourcePromise.then(src=>{
+          audio.src=src;
+          audio.load();
+        }).catch(()=>finish());
         let done=false;
         const finish=()=>{
           if(done)return;
