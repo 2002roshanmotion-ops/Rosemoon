@@ -563,15 +563,13 @@
 
   renderProducts();renderCart();window.rosemoonProducts=products;
 
-  (async()=>{
-    setLoading(8,"Loading Rosemoon…");
-    await syncProducts();
-    setLoading(42,"Loading music…");
-    await syncMusic();
-    await prepareFirstMusic();
-    if(start)start.disabled=false;
-    finishLoading();
-  })();
+  // Never block the website on Google Sheets or music. The local shop is usable immediately.
+  setLoading(35,"Rosemoon is ready");
+  if(start)start.disabled=false;
+  finishLoading();
+  // Load live inventory/music in the background only.
+  syncProducts().then(()=>syncMusic()).catch(()=>{});
+  setTimeout(()=>prepareFirstMusic().catch(()=>{}),0);
   setInterval(syncProducts,30000);setInterval(syncMusic,30000);
   document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeFlowerPopup();document.getElementById("guideModal").classList.remove("open");closeCart()}});
 })();
