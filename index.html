@@ -44,3 +44,31 @@
 </section>
 
 
+
+<script>
+(() => {
+  const loader = document.getElementById("rosemoonLoader");
+  const fill = document.getElementById("rosemoonLoaderFill");
+  const percent = document.getElementById("rosemoonLoaderPercent");
+  const start = document.getElementById("startShopping");
+  let n = 0;
+
+  const timer = setInterval(() => {
+    n = Math.min(100, n + 8);
+    if (fill) fill.style.width = n + "%";
+    if (percent) percent.textContent = n + "%";
+    if (n >= 100) {
+      clearInterval(timer);
+      setTimeout(() => loader && loader.classList.add("done"), 180);
+    }
+  }, 45);
+
+  if (start) {
+    start.addEventListener("click", () => {
+      window.location.href = "shop.html";
+    });
+  }
+})();
+</script>
+</body>
+</html>
