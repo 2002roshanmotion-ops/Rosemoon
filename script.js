@@ -437,6 +437,10 @@
       const s=this.songs[index];if(!s)return null;
       const key=s[2]||s[1];
       if(this.cache[key])return this.cache[key];
+      if(window.rosemoonPreloadedMusic && window.rosemoonPreloadedMusic[key]){
+        this.cache[key]=window.rosemoonPreloadedMusic[key];
+        return this.cache[key];
+      }
       if(this.loading[key])return this.loading[key];
       this.loading[key]=(async()=>{
         try{
