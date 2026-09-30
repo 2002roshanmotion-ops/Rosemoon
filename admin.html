@@ -731,7 +731,7 @@ $('resetSettingsBtn')?.addEventListener('click',()=>{rosemoonSettings={...DEFAUL
   function renderRepoAssets(){
     const q=(search?.value||'').toLowerCase();
     const rows=assets.filter(a=>a.name.toLowerCase().includes(q));
-    grid.innerHTML=rows.length?rows.map(a=>'<div class="asset-card"><div class="asset-preview"><img loading="lazy" src="'+a.download_url+'" alt="'+a.name+'"></div><div class="asset-name">'+a.name+'</div><div class="asset-url">assets/'+a.name+'</div><div class="asset-actions"><button class="secondary" type="button" data-copy="'+a.download_url+'">Copy URL</button><a class="secondary" href="'+a.html_url+'" target="_blank" rel="noopener">Open</a></div></div>').join(''):'<div class="empty">No image assets found.</div>';
+    grid.innerHTML=rows.length?rows.map(a=>'<div class="asset-card"><div class="asset-preview"><img loading="lazy" src="'+a.download_url+'" alt="'+a.name+'"></div><div class="asset-name">'+a.name+'</div><div class="asset-url">assets/'+a.name+'</div><div class="asset-actions"><button class="secondary asset-edit-btn" type="button">✏️ Edit</button><button class="secondary" type="button" data-copy="'+a.download_url+'">Copy URL</button><a class="secondary" href="'+a.html_url+'" target="_blank" rel="noopener">Open</a></div></div>').join(''):'<div class="empty">No image assets found.</div>';
     grid.querySelectorAll('[data-copy]').forEach(b=>b.onclick=()=>navigator.clipboard?.writeText(b.dataset.copy));
   }
   refresh?.addEventListener('click',loadRepoAssets);
