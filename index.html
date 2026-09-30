@@ -84,6 +84,7 @@
 
   if (start) {
     start.addEventListener("click", () => {
+      try { sessionStorage.setItem("rosemoonEnteredShop", "1"); } catch(e) {}
       window.location.href = "shop.html";
     });
   }
