@@ -152,6 +152,17 @@
   const fill = document.getElementById("rosemoonLoaderFill");
   const percent = document.getElementById("rosemoonLoaderPercent");
   const start = document.getElementById("startShopping");
+  const track = document.querySelector(".rosemoon-loader-track");
+  const loaderFlower = document.querySelector(".rosemoon-loader-flower");
+  const syncLoaderFlower = () => {
+    if (!track || !fill || !loaderFlower) return;
+    const value = parseFloat(fill.style.width) || 0;
+    track.style.setProperty("--loader-progress", value + "%");
+  };
+  syncLoaderFlower();
+  if (fill && window.MutationObserver) {
+    new MutationObserver(syncLoaderFlower).observe(fill, {attributes:true, attributeFilter:["style"]});
+  }
   let n = 0;
   let musicReady = false;
   let musicPromise = null;
