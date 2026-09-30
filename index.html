@@ -157,26 +157,24 @@
   let musicPromise = null;
   const ROSEMOON_API = "https://script.google.com/macros/s/AKfycbw3ovS6hIwHLhp50Xrs-6ejMxZkI_q-AhB-Mz6JXbsIRKSphJcMoqBELVY4nUogRR__/exec";
 
-  // Preload every active music track while the loader visibly moves forward.
-  musicPromise = (async()=>{
-    let progressTimer=null;
+  // Single music preload: the loading bar represents this process.
+  musicPromise=(async()=>{
     try{
       const r=await fetch(ROSEMOON_API+"?action=music&_="+Date.now(),{cache:"no-store"});
       const d=await r.json();
       const tracks=(d.music||[]).filter(x=>x&&x.active!==false&&x.url).sort((a,b)=>(Number(a.sort)||0)-(Number(b.sort)||0));
-
       if(!tracks.length){musicReady=true;return;}
 
-      // Give the user a smooth 0→90% feeling while the real downloads happen.
-      n=0;
-      progressTimer=setInterval(()=>{
-        if(n<90){
-          n+=n<30?1:(n<65?0.7:0.35);
-          n=Math.min(90,n);
-          if(fill)fill.style.width=n+"%";
-          if(percent)percent.textContent=Math.floor(n)+"%";
-        }
-      },120);
+      let completed=0;
+      const total=tracks.length;
+
+      const animate=()=>{
+        const target=completed===total?99:Math.min(94,Math.floor((completed/total)*94)+1);
+        if(n<target)n+=Math.max(.15,(target-n)*.08);
+        if(fill)fill.style.width=n+"%";
+        if(percent)percent.textContent=Math.floor(n)+"%";
+      };
+      const visual=setInterval(animate,50);
 
       await Promise.all(tracks.map(track=>new Promise(resolve=>{
         const audio=document.createElement("audio");
@@ -185,14 +183,14 @@
         audio.dataset.rosemoonPreload="1";
         document.body.appendChild(audio);
 
-        // Use the same music-file source the player uses, so there is no
-        // second download after Start Shopping.
         let done=false;
         const finish=()=>{
           if(done)return;
           done=true;
+          completed++;
           resolve();
         };
+
         audio.addEventListener("canplaythrough",finish,{once:true});
         audio.addEventListener("loadeddata",finish,{once:true});
         audio.addEventListener("error",finish,{once:true});
@@ -213,26 +211,29 @@
             audio.load();
           }catch(e){finish();}
         })();
-        setTimeout(finish,8000);
+
+        setTimeout(finish,10000);
       })));
 
+      clearInterval(visual);
       musicReady=true;
+
+      // Smooth final movement from the real completed state to 100%.
+      await new Promise(resolve=>{
+        const finishBar=setInterval(()=>{
+          n=Math.min(100,n+1.5);
+          if(fill)fill.style.width=n+"%";
+          if(percent)percent.textContent=Math.floor(n)+"%";
+          if(n>=100){clearInterval(finishBar);resolve();}
+        },35);
+      });
     }catch(e){
       musicReady=true;
-    }finally{
-      if(progressTimer)clearInterval(progressTimer);
+      n=100;
+      if(fill)fill.style.width="100%";
+      if(percent)percent.textContent="100%";
     }
   })();
-
-  // Once all tracks are ready, finish the final 10% smoothly.
-  const timer = setInterval(()=>{
-    if(musicReady){
-      n=Math.min(100,n+2);
-      if(fill)fill.style.width=n+"%";
-      if(percent)percent.textContent=Math.floor(n)+"%";
-      if(n>=100)clearInterval(timer);
-    }
-  },45);
 
   (async()=>{
     await musicPromise;
