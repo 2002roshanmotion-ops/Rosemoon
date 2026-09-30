@@ -32,7 +32,7 @@ body{background:radial-gradient(circle at 10% 0%,#ffe8f0 0,#fff7f9 32%,#f8f2f5 1
 .low-stock-alert{margin-top:16px;background:linear-gradient(135deg,#fff7e8,#fff);border:1px solid #f0d7aa;border-radius:20px;padding:18px;box-shadow:0 12px 30px #8a5b1a10}.low-stock-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}.low-stock-head h3{margin:0;color:#5d4022}.low-stock-list{display:grid;gap:8px}.low-stock-item{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:10px 12px;background:#fff;border:1px solid #f1e3c9;border-radius:12px}.low-stock-item strong{display:block}.low-stock-item small{color:#80636e}.low-stock-number{font-weight:900;color:#bd7a28}.quick-stock{display:flex;gap:5px;align-items:center;justify-content:flex-end}.quick-stock button{min-width:34px;height:32px;border:1px solid #e4cbd4;background:#fff;border-radius:9px;font-weight:900;color:#3b202b}.quick-stock button:hover{background:#fff0f5}.quick-stock .stock-value{min-width:32px;text-align:center;font-weight:900}.order-tools{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.order-tools input,.order-tools select{padding:10px 12px;border:1px solid #e2cbd4;border-radius:10px;background:#fff}.order-summary{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.order-pill{padding:8px 11px;border-radius:999px;background:#fff7fa;border:1px solid #efdbe2;font-size:12px;font-weight:800}.order-status{font-weight:800}.order-status.new{color:#bd7a28}.order-status.confirmed{color:#4774a8}.order-status.completed{color:#3c8b62}.order-status.cancelled{color:#c13b4b}
 
 .asset-tools{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}.asset-tools input,.asset-tools select{padding:10px 12px;border:1px solid #e2cbd4;border-radius:10px;background:#fff}.asset-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}.asset-card{border:1px solid #ead9df;background:#fff;border-radius:16px;padding:12px;overflow:hidden}.asset-preview{height:150px;border-radius:12px;background:#fff7fa;display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:10px}.asset-preview img{width:100%;height:100%;object-fit:cover}.asset-preview audio{width:100%}.asset-name{font-weight:800;word-break:break-word}.asset-url{font-size:11px;color:#80636e;word-break:break-all;margin:5px 0 10px}.asset-actions{display:flex;gap:6px}.asset-actions button{flex:1}
-</style>
+.asset-editor{display:grid;grid-template-columns:minmax(260px,1fr) 260px;gap:18px;margin-top:14px}.asset-stage{min-height:320px;border:1px solid #ead9df;border-radius:16px;background:#fff7fa;display:flex;align-items:center;justify-content:center;overflow:hidden}.asset-stage img{max-width:100%;max-height:320px;object-fit:contain;transform:translate(var(--ax,0px),var(--ay,0px)) scale(var(--az,1));transition:transform .12s ease}.asset-controls{display:grid;gap:10px;align-content:start}.asset-controls label{font-size:12px;font-weight:800;color:#745462}.asset-controls input[type=range]{width:100%}.asset-controls button{width:100%}@media(max-width:700px){.asset-editor{grid-template-columns:1fr}}</style>
 </head>
 <body>
 <div id="loginScreen" class="login"><div class="login-box"><div class="brand"><img class="admin-logo-login" src="https://d2ol7oe51mr4n9.cloudfront.net/user_3JYbYCHyy3naSeG6RhPtSZPxh49/ec2e63b0-a983-4186-a3da-ad6c75b1acf7.png" alt="RoseMmoon"></div><h2>Owner Admin</h2><p>Manage flowers, inventory, photos and music.</p><input id="adminPassword" type="password" placeholder="Admin password"><button type="button" class="primary" id="loginBtn">Login</button><div class="error" id="loginMessage"></div></div></div>
@@ -739,4 +739,28 @@ $('resetSettingsBtn')?.addEventListener('click',()=>{rosemoonSettings={...DEFAUL
   window.loadRepoAssets=loadRepoAssets;
   loadRepoAssets();
 })();
+</script><script>
+(function(){
+ window.openAssetPositionEditor=function(url,name){
+  const old=document.getElementById("assetPositionEditor");if(old)old.remove();
+  const el=document.createElement("div");el.id="assetPositionEditor";el.className="card";
+  el.innerHTML='<div class="section-head"><div><h2>🎯 Adjust Image Position</h2><p class="muted"></p></div><button class="secondary" type="button" id="closeAssetEditor">Close</button></div><div class="asset-editor"><div class="asset-stage"><img id="assetEditImage" alt=""></div><div class="asset-controls"><label>Left / Right</label><input id="assetX" type="range" min="-200" max="200" value="0"><label>Up / Down</label><input id="assetY" type="range" min="-200" max="200" value="0"><label>Zoom</label><input id="assetZoom" type="range" min="0.5" max="2.5" step="0.01" value="1"><button class="secondary" type="button" id="assetReset">Reset</button><button class="primary" type="button" id="assetSave">Save Position</button><p class="hint">Saves display positioning without changing the original image.</p></div></div>';
+  el.querySelector("p").textContent=name;el.querySelector("#assetEditImage").src=url;
+  const grid=document.getElementById("assetGrid");grid.parentNode.insertBefore(el,grid);
+  const img=el.querySelector("#assetEditImage"),x=el.querySelector("#assetX"),y=el.querySelector("#assetY"),z=el.querySelector("#assetZoom");
+  const key="rosemoonAssetPosition:"+url;
+  try{const p=JSON.parse(localStorage.getItem(key)||"null");if(p){x.value=p.x;y.value=p.y;z.value=p.zoom}}catch(e){}
+  function draw(){img.style.setProperty("--ax",x.value+"px");img.style.setProperty("--ay",y.value+"px");img.style.setProperty("--az",z.value)}
+  [x,y,z].forEach(q=>q.addEventListener("input",draw));draw();
+  el.querySelector("#closeAssetEditor").onclick=()=>el.remove();
+  el.querySelector("#assetReset").onclick=()=>{x.value=0;y.value=0;z.value=1;draw()};
+  el.querySelector("#assetSave").onclick=()=>{localStorage.setItem(key,JSON.stringify({x:+x.value,y:+y.value,zoom:+z.value}));alert("Image position saved.")};
+ };
+})();
+</script><script>
+document.addEventListener("click",function(e){
+ const card=e.target.closest(".asset-card");if(!card)return;
+ const actions=e.target.closest(".asset-actions");if(!actions||e.target.dataset.copy)return;
+ const img=card.querySelector(".asset-preview img");if(img)openAssetPositionEditor(img.src,card.querySelector(".asset-name")?.textContent||"Image");
+});
 </script></body></html>
