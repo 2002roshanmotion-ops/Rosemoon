@@ -94,7 +94,7 @@
     }
   }
   start?.addEventListener("click",enterShop);
-  if(start)start.disabled=true;
+  if(start)start.disabled=false;
   if(new URLSearchParams(location.search).get("returnShop")==="1") { enterShop(); history.replaceState(null,"",location.pathname+"#shopPage"); }
   document.getElementById("homeLogo")?.addEventListener("click",e=>{e.preventDefault();shop.classList.remove("active");shop.setAttribute("aria-hidden","true");landing.style.display="grid";window.scrollTo(0,0)});
 
