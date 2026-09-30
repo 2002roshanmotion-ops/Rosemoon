@@ -153,11 +153,12 @@
   const percent = document.getElementById("rosemoonLoaderPercent");
   const start = document.getElementById("startShopping");
   let n = 0;
+  let musicReady = false;
+  let musicPromise = null;
 
-  // Start music preloading while the loading screen is visible.
-  // Playback still requires the user's Start Shopping gesture.
-  const ROSEMOON_API = "https://script.google.com/macros/s/AKfycbw3ovS6hIwHLhp50Xrs-6ejMxZkI_q-AhB-Mz6JXbsIRKSphJcMoqBELVY4nUogRR__/exec";
-  (async()=>{
+  // Use the loading screen to preload the first song. The loading screen
+  // finishes only after the first music file is ready (or after a safe timeout).
+  musicPromise = (async()=>{
     try{
       const r=await fetch(ROSEMOON_API+"?action=music&_="+Date.now(),{cache:"no-store"});
       const d=await r.json();
@@ -166,22 +167,35 @@
         const audio=document.createElement("audio");
         audio.preload="auto";
         audio.src=first.url;
-        audio.load();
         audio.style.display="none";
         document.body.appendChild(audio);
+        await new Promise(resolve=>{
+          let done=false;
+          const finish=()=>{if(done)return;done=true;resolve()};
+          audio.addEventListener("canplaythrough",()=>{musicReady=true;finish()},{once:true});
+          audio.addEventListener("loadeddata",()=>{musicReady=true;finish()},{once:true});
+          audio.addEventListener("error",finish,{once:true});
+          audio.load();
+          setTimeout(finish,7000);
+        });
       }
     }catch(e){}
   })();
 
   const timer = setInterval(() => {
-    n = Math.min(100, n + 8);
+    n = Math.min(92, n + 4);
     if (fill) fill.style.width = n + "%";
     if (percent) percent.textContent = n + "%";
-    if (n >= 100) {
-      clearInterval(timer);
-      setTimeout(() => loader && loader.classList.add("done"), 180);
-    }
   }, 45);
+
+  (async()=>{
+    await musicPromise;
+    clearInterval(timer);
+    n=100;
+    if (fill) fill.style.width="100%";
+    if (percent) percent.textContent="100%";
+    setTimeout(() => loader && loader.classList.add("done"), 180);
+  })();
 
   if (start) {
     start.addEventListener("click", () => {
