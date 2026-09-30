@@ -102,7 +102,7 @@ body{background:radial-gradient(circle at 10% 0%,#ffe8f0 0,#fff7f9 32%,#f8f2f5 1
     <div class="form-grid">
       <div class="field"><label>CATEGORY NAME</label><input id="categoryName" placeholder="e.g. Premium Bouquet"></div>
       <div class="field"><label>PRICE (Rs.)</label><input id="categoryPrice" type="number" min="0" step="1" placeholder="2500"></div>
-      <div class="field full"><label>CATEGORY / MAIN PHOTO</label><input id="categoryPhoto" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></div>
+      <div class="field full"><label>CATEGORY / MAIN PHOTO</label><input id="categoryPhoto" type="file" accept="image/png,image/jpeg,image/webp,image/gif"><button class="secondary" id="chooseCategoryAsset" type="button" style="margin-top:8px">🗂️ Choose from Assets</button><input id="categoryAssetUrl" type="hidden"></div>
       
       <div class="field full"><h3 style="margin:4px 0">Flowers in this category</h3><div class="hint">Every flower below has independent stock. Add or remove rows as needed.</div></div>
       <div class="field full" id="newCategoryFlowers"></div>
@@ -285,6 +285,7 @@ function rosemoonLogin(){
   return false;
 }
 $('addCategoryBtn')?.addEventListener('click',createCategory);
+setupCategoryAssetPicker();
 $('loginBtn').addEventListener('click',rosemoonLogin);$('adminPassword').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();rosemoonLogin()}});$('logoutBtn').addEventListener('click',()=>{sessionStorage.removeItem('rosemoonAdmin');location.reload()});
 async function fileData(file){if(!file)return '';return await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(file)})}
 async function uploadCategoryPhoto(file,label){if(!file)return '';const dataUrl=await fileData(file);const d=await api('uploadPhoto',{dataUrl,fileName:file.name});if(!d.url)throw new Error(label+' photo upload failed.');return d.url}
@@ -304,7 +305,7 @@ function addNewFlowerRow(prefill){
 }
 function removeNewFlowerRow(i){const row=document.querySelector('[data-new-flower="'+i+'"]');if(row)row.remove()}
 function resetNewCategoryFlowers(){newCategoryFlowerCount=0;$('newCategoryFlowers').innerHTML='';addNewFlowerRow()}
-function prepareNewCategory(){['categoryName','categoryPrice'].forEach(id=>$(id).value='');$('categoryPhoto').value='';$('categoryMessage').textContent='';resetNewCategoryFlowers();setTab('photos')}
+function prepareNewCategory(){['categoryName','categoryPrice'].forEach(id=>$(id).value='');$('categoryPhoto').value='';$('categoryAssetUrl').value='';$('categoryMessage').textContent='';resetNewCategoryFlowers();setTab('photos')}
 function setupOthersPreset(){
   const name=$('categoryName');
   if(String(name?.value||'').trim().toLowerCase()!=='others')return;
@@ -318,6 +319,24 @@ function setupOthersPreset(){
 }
 $('categoryName')?.addEventListener('change',setupOthersPreset);
 $('categoryName')?.addEventListener('input',()=>{if(String($('categoryName').value||'').trim().toLowerCase()==='others')setupOthersPreset()});
+function setupCategoryAssetPicker(){
+ const btn=$('chooseCategoryAsset');if(!btn)return;
+ btn.onclick=async()=>{
+  try{
+   const r=await fetch('https://api.github.com/repos/2002roshanmotion-ops/Rosemoon/contents/assets?ref=main',{cache:'no-store'});
+   const files=await r.json();
+   const imgs=(Array.isArray(files)?files:[]).filter(x=>x.type==='file'&&/\.(png|jpe?g|webp|gif|svg)$/i.test(x.name));
+   if(!imgs.length){alert('No images found in Assets.');return}
+   const names=imgs.map((x,i)=>(i+1)+'. '+x.name).join('\n');
+   const pick=prompt('Choose an asset number:\n\n'+names);
+   const n=Number(pick)-1;
+   if(!Number.isInteger(n)||!imgs[n])return;
+   $('categoryAssetUrl').value=imgs[n].download_url;
+   $('categoryPhoto').value='';
+   $('categoryMessage').textContent='🖼️ Asset selected: '+imgs[n].name;
+  }catch(e){alert('Could not load Assets.')}
+ };
+}
 async function createCategory(){
   const msg=$('categoryMessage'),btn=$('addCategoryBtn');
   try{
@@ -327,7 +346,7 @@ async function createCategory(){
     const rows=[...document.querySelectorAll('#newCategoryFlowers .flower-manager-row')];
     if(!rows.length)throw new Error('Add at least one flower.');
     btn.disabled=true;msg.textContent='Uploading category photos…';
-    const mainUrl=await uploadCategoryPhoto($('categoryPhoto').files[0],'Category');
+    const mainUrl=$('categoryAssetUrl').value||await uploadCategoryPhoto($('categoryPhoto').files[0],'Category');
     const options=[];
     for(const row of rows){
       const i=row.dataset.newFlower,type=String($('newFlowerName'+i)?.value||'').trim();
