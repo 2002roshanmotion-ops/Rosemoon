@@ -156,30 +156,32 @@
   let musicReady = false;
   let musicPromise = null;
 
-  // Use the loading screen to preload the first song. The loading screen
-  // finishes only after the first music file is ready (or after a safe timeout).
+  // Use the loading screen to preload ALL active music tracks in parallel.
+  // The screen reaches 100% only after the tracks have had a chance to buffer.
   musicPromise = (async()=>{
     try{
       const r=await fetch(ROSEMOON_API+"?action=music&_="+Date.now(),{cache:"no-store"});
       const d=await r.json();
-      const first=(d.music||[]).filter(x=>x&&x.active!==false).sort((a,b)=>(Number(a.sort)||0)-(Number(b.sort)||0))[0];
-      if(first?.url){
+      const tracks=(d.music||[]).filter(x=>x&&x.active!==false).sort((a,b)=>(Number(a.sort)||0)-(Number(b.sort)||0));
+      if(!tracks.length){musicReady=true;return;}
+      const jobs=tracks.filter(x=>x.url).map(track=>new Promise(resolve=>{
         const audio=document.createElement("audio");
         audio.preload="auto";
-        audio.src=first.url;
+        audio.src=track.url;
         audio.style.display="none";
+        audio.dataset.rosemoonPreload="1";
         document.body.appendChild(audio);
-        await new Promise(resolve=>{
-          let done=false;
-          const finish=()=>{if(done)return;done=true;resolve()};
-          audio.addEventListener("canplaythrough",()=>{musicReady=true;finish()},{once:true});
-          audio.addEventListener("loadeddata",()=>{musicReady=true;finish()},{once:true});
-          audio.addEventListener("error",finish,{once:true});
-          audio.load();
-          setTimeout(finish,7000);
-        });
-      }
-    }catch(e){}
+        let done=false;
+        const finish=()=>{if(done)return;done=true;resolve()};
+        audio.addEventListener("canplaythrough",finish,{once:true});
+        audio.addEventListener("loadeddata",finish,{once:true});
+        audio.addEventListener("error",finish,{once:true});
+        audio.load();
+        setTimeout(finish,8000);
+      }));
+      await Promise.all(jobs);
+      musicReady=true;
+    }catch(e){musicReady=true;}
   })();
 
   const timer = setInterval(() => {
