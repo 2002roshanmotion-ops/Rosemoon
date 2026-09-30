@@ -43,6 +43,29 @@
   </div>
 </section>
 
+<!-- LOCATION -->
+<div class="location-screen" id="locationScreen" aria-hidden="true">
+  <div class="location-orbit location-orbit-1"></div><div class="location-orbit location-orbit-2"></div>
+  <div class="location-card">
+    <div class="location-bloom">📍</div>
+    <p class="eyebrow">WELCOME TO ROSEMOON</p>
+    <h2>Where should we deliver? 💕</h2>
+    <p class="location-intro">Choose your delivery location first, then we'll take you to the bouquets.</p>
+    <label class="location-label" for="deliveryLocation">DELIVERY LOCATION</label>
+    <select id="deliveryLocation">
+      <option value="">Choose your location</option>
+      <option>Kathmandu</option>
+      <option>Lalitpur</option>
+      <option>Bhaktapur</option>
+      <option>Pokhara</option>
+      <option>Other</option>
+    </select>
+    <input id="deliveryLocationOther" class="location-other" type="text" placeholder="Enter your city / area" aria-label="Other delivery location" hidden>
+    <button class="location-continue" id="continueLocation" type="button">Continue to Bouquets →</button>
+    <button class="location-back" id="backToStart" type="button">← Back</button>
+  </div>
+</div>
+
 <!-- SHOPPING PAGE -->
 <section class="shop-page" id="shopPage" aria-hidden="true">
   <header class="header">
