@@ -759,8 +759,11 @@ $('resetSettingsBtn')?.addEventListener('click',()=>{rosemoonSettings={...DEFAUL
 })();
 </script><script>
 document.addEventListener("click",function(e){
- const card=e.target.closest(".asset-card");if(!card)return;
- const actions=e.target.closest(".asset-actions");if(!actions||e.target.dataset.copy)return;
- const img=card.querySelector(".asset-preview img");if(img)openAssetPositionEditor(img.src,card.querySelector(".asset-name")?.textContent||"Image");
+ const edit=e.target.closest(".asset-edit-btn");
+ if(edit){
+   const card=edit.closest(".asset-card");
+   const img=card?.querySelector(".asset-preview img");
+   if(img)openAssetPositionEditor(img.src,card.querySelector(".asset-name")?.textContent||"Image");
+ }
 });
 </script></body></html>
