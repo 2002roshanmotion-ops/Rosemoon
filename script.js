@@ -573,11 +573,11 @@
 
   renderProducts();renderCart();window.rosemoonProducts=products;
 
-  // Never block the website on Google Sheets or music. The local shop is usable immediately.
+  // index.html owns the loader so it can wait for the music preload.
+  // Do not finish the loader here; only enable Start Shopping.
   setLoading(35,"Rosemoon is ready");
   if(start)start.disabled=false;
-  finishLoading();
-  // Load live inventory/music in the background only.
+  // Load live inventory/music in the background.
   syncProducts().then(()=>syncMusic()).catch(()=>{});
   setTimeout(()=>prepareFirstMusic().catch(()=>{}),0);
   setInterval(syncProducts,30000);setInterval(syncMusic,30000);
