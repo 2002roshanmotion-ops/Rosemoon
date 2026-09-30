@@ -521,6 +521,7 @@ async function saveCategoryInventory(id){
     products=d.products||products;renderInventory();renderDashboardInventory();updateStats();
   }catch(e){alert(e.message)}
 }
+function openCategoryInventory(id){setTab('inventory');setTimeout(()=>toggleCategoryInventory(id),80)}
 function openCategoryEditor(id){
   const s=$('manageCategorySelect');if(!s)return;
   if(!products.some(p=>String(p.id)===String(id)))return;
@@ -574,7 +575,7 @@ function renderLowStock(){
   const box=$('lowStockList');if(!box)return;
   const items=lowStockItems();
   if(!items.length){box.innerHTML='<div class="empty">🌸 Everything has more than 2 in stock.</div>';return}
-  box.innerHTML=items.slice(0,10).map(x=>'<div class="low-stock-item"><div><strong>'+esc(x.name)+'</strong><small>'+esc(x.category)+'</small></div><span class="low-stock-number">'+x.stock+' left</span><button class="secondary" type="button" onclick="openCategoryEditor(\''+esc(x.productId)+'\')">Manage</button></div>').join('');
+  box.innerHTML=items.slice(0,10).map(x=>'<div class="low-stock-item"><div><strong>'+esc(x.name)+'</strong><small>'+esc(x.category)+'</small></div><span class="low-stock-number">'+x.stock+' left</span><button class="secondary" type="button" onclick="openCategoryInventory(\''+esc(x.productId)+'\')">Manage</button></div>').join('');
 }
 async function adjustFlowerStock(id,index,delta){
   const p=products.find(x=>String(x.id)===String(id));if(!p)return;
