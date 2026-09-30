@@ -27,6 +27,9 @@ body{background:radial-gradient(circle at 10% 0%,#ffe8f0 0,#fff7f9 32%,#f8f2f5 1
 @media(max-width:620px){.admin-main{padding:14px}.premium-top{align-items:flex-start}.premium-top h1{font-size:23px}.premium-user{display:none}.analytics-grid{grid-template-columns:1fr}.pie-wrap{grid-template-columns:150px 1fr}.stock-pie{width:150px;height:150px}.premium-stats{grid-template-columns:1fr 1fr}.premium-stat b{font-size:25px}}
  .logo-manager-grid{display:grid;grid-template-columns:minmax(220px,360px) 1fr;gap:22px;align-items:center}.logo-preview-box{min-height:180px;border:1px dashed #e2cbd4;border-radius:18px;background:#fff8fa;display:grid;place-items:center;padding:18px}.logo-preview-box img{max-width:100%;max-height:170px;object-fit:contain}.logo-manager-controls{display:grid;gap:14px}@media(max-width:650px){.logo-manager-grid{grid-template-columns:1fr}.logo-preview-box{min-height:140px}}
 .settings-hero-card{background:linear-gradient(135deg,#fff,#fff0f5);border-color:#e9c8d5}.settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.settings-card{margin-bottom:0}.settings-switch-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.switch-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 12px;background:#fff8fa;border:1px solid var(--rm-line);border-radius:12px;font-size:13px;font-weight:700}.switch-row input{width:18px;height:18px;accent-color:var(--rm-pink)}.settings-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:16px 0 24px;padding:16px;background:rgba(255,255,255,.9);border:1px solid var(--rm-line);border-radius:18px;position:sticky;bottom:10px;z-index:5;box-shadow:0 15px 35px #5d304215}.settings-actions .hint{flex:1;min-width:180px}@media(max-width:800px){.settings-grid{grid-template-columns:1fr}}@media(max-width:500px){.settings-switch-grid{grid-template-columns:1fr}}
+
+/* QUICK STOCK + LOW STOCK + ORDERS */
+.low-stock-alert{margin-top:16px;background:linear-gradient(135deg,#fff7e8,#fff);border:1px solid #f0d7aa;border-radius:20px;padding:18px;box-shadow:0 12px 30px #8a5b1a10}.low-stock-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px}.low-stock-head h3{margin:0;color:#5d4022}.low-stock-list{display:grid;gap:8px}.low-stock-item{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:10px 12px;background:#fff;border:1px solid #f1e3c9;border-radius:12px}.low-stock-item strong{display:block}.low-stock-item small{color:#80636e}.low-stock-number{font-weight:900;color:#bd7a28}.quick-stock{display:flex;gap:5px;align-items:center;justify-content:flex-end}.quick-stock button{min-width:34px;height:32px;border:1px solid #e4cbd4;background:#fff;border-radius:9px;font-weight:900;color:#3b202b}.quick-stock button:hover{background:#fff0f5}.quick-stock .stock-value{min-width:32px;text-align:center;font-weight:900}.order-tools{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.order-tools input,.order-tools select{padding:10px 12px;border:1px solid #e2cbd4;border-radius:10px;background:#fff}.order-summary{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.order-pill{padding:8px 11px;border-radius:999px;background:#fff7fa;border:1px solid #efdbe2;font-size:12px;font-weight:800}.order-status{font-weight:800}.order-status.new{color:#bd7a28}.order-status.confirmed{color:#4774a8}.order-status.completed{color:#3c8b62}.order-status.cancelled{color:#c13b4b}
 </style>
 </head>
 <body>
@@ -74,6 +77,7 @@ body{background:radial-gradient(circle at 10% 0%,#ffe8f0 0,#fff7f9 32%,#f8f2f5 1
       </div>
     </div>
   </div>
+  <div class="low-stock-alert" id="lowStockAlert"><div class="low-stock-head"><h3>⚠️ Low Stock</h3><button class="secondary" type="button" data-jump="inventory">View Inventory →</button></div><div class="low-stock-list" id="lowStockList"><div class="empty">Loading stock…</div></div></div>
   <div class="dashboard-stack">
     <div class="dashboard-pane"><h3>📋 Recent orders</h3><div class="table-wrap"><table><thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th></tr></thead><tbody id="dashboardOrdersTable"></tbody></table></div></div>
   </div>
@@ -211,7 +215,7 @@ body{background:radial-gradient(circle at 10% 0%,#ffe8f0 0,#fff7f9 32%,#f8f2f5 1
 
   <section class="panel" id="music"><div class="card"><h2>🎵 Add Music</h2><div class="form-grid"><div class="field"><label>SONG NAME (OPTIONAL)</label><input id="musicTitle" placeholder="Leave blank to use MP3 filename"></div><div class="field"><label>AUDIO FILES (MP3)</label><input id="musicFile" type="file" accept=".mp3,audio/mpeg" multiple><div class="hint" style="margin-top:6px">Select one MP3 or multiple MP3 files. Title is optional; blank uses the filename.</div></div><div class="field full"><button class="primary" id="addMusicBtn">🎵 Add Music</button><span class="hint" id="musicMessage" style="margin-left:10px"></span><div id="musicUploadList" class="upload-list" aria-live="polite"></div></div></div></div><div class="card"><h2>Playlist order</h2><p class="hint">Use ↑ and ↓ to arrange the order. The customer website follows this order automatically.</p><div id="musicList"></div></div></section>
 
-  <section class="panel" id="orders"><div class="card"><h2>📋 Orders</h2><button class="secondary" id="refreshOrders">🔄 Refresh</button><div class="table-wrap"><table><thead><tr><th>Order</th><th>Date</th><th>Customer</th><th>Phone</th><th>Items</th><th>Total</th><th>Status</th></tr></thead><tbody id="ordersTable"></tbody></table></div></div></section>
+  <section class="panel" id="orders"><div class="card"><h2>📋 Orders</h2><div class="order-tools"><input id="orderSearch" type="search" placeholder="Search customer, phone or order…"><select id="orderStatusFilter"><option value="">All statuses</option><option>New</option><option>Confirmed</option><option>Preparing</option><option>Completed</option><option>Cancelled</option></select><button class="secondary" id="refreshOrders">🔄 Refresh</button></div><div class="order-summary" id="orderSummary"></div><div class="table-wrap"><table><thead><tr><th>Order</th><th>Date</th><th>Customer</th><th>Phone</th><th>Items</th><th>Total</th><th>Status</th></tr></thead><tbody id="ordersTable"></tbody></table></div></div></section>
 </main></div></div>
 
 <script>
@@ -255,7 +259,7 @@ async function replaceRosemoonLogo(){
 }
 $('replaceLogoBtn')?.addEventListener('click',replaceRosemoonLogo);
 
-function setTab(name){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===name));if(name==='inventory'||name==='dashboard')loadProducts();if(name==='music')loadMusic();if(name==='orders')loadOrders()}
+function setTab(name){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===name));if(name==='inventory'||name==='dashboard')loadProducts();if(name==='dashboard'||name==='orders')loadOrders();if(name==='music')loadMusic()}
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));document.querySelectorAll('[data-jump]').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.jump)));
 function showAdmin(){
   $('loginScreen').style.display='none';
@@ -385,6 +389,7 @@ async function loadProducts(){
     renderInventory();
     renderDashboardInventory();
     updateStats();
+    renderLowStock();
     renderLogoManager();
     loadSettings();
   }catch(e){console.error(e)}
@@ -490,20 +495,14 @@ function renderInventory(){
   const cats=products.filter(isCategoryProduct);
   if(!cats.length){box.innerHTML='<div class="empty">No categories yet. Add one from 🖼️ Add Flowers.</div>';return}
   box.innerHTML=cats.map(p=>{
-    const raw=categoryData(p);
-    const opts=Array.isArray(raw.options)?raw.options:[];
-    const pid=esc(p.id);
+    const raw=categoryData(p),opts=Array.isArray(raw.options)?raw.options:[],pid=esc(p.id);
     return '<div class="inventory-category-card">'+
-      '<div class="inventory-category-head">'+
-      '<div><div class="inventory-category-title">'+esc(p.name||p.category)+'</div><div class="inventory-category-meta">'+money(p.price)+' · '+opts.length+' flowers</div></div>'+
+      '<div class="inventory-category-head"><div><div class="inventory-category-title">'+esc(p.name||p.category)+'</div><div class="inventory-category-meta">'+money(p.price)+' · '+opts.length+' flowers</div></div>'+
       '<div><label class="hint">PRICE (Rs.)</label><input id="cat-price-'+pid+'" type="number" min="0" value="'+Number(p.price||0)+'"></div>'+
-      '<button class="secondary inventory-open-btn" type="button" onclick="toggleCategoryInventory(\''+pid+'\')">🌸 Open Flowers</button>'+
-      '</div>'+
-      '<div class="inventory-category-details" id="cat-details-'+pid+'">'+
-      '<div class="inventory-flower-list">'+(opts.length?opts.map((o,i)=>'<div class="inventory-flower-row"><div>'+((o.imageUrl)?'<img src="'+esc(o.imageUrl)+'" alt="">':'🌸')+'</div><div><strong>'+esc(o.type||('Flower '+(i+1)))+'</strong></div><div class="flower-stock"><label class="hint">FLOWER STOCK</label><input id="cat-flower-stock-'+pid+'-'+i+'" type="number" min="0" value="'+Number(o.stock||0)+'"></div><div class="flower-save"><button class="secondary" type="button" onclick="saveCategoryInventory(\''+pid+'\')">Save</button></div></div>').join(''):'<div class="empty">No flowers added.</div>')+'</div>'+
-      '<div class="inventory-category-actions"><button class="primary" type="button" onclick="saveCategoryInventory(\''+pid+'\')">💾 Save Category</button></div>'+
-      '</div>'+
-    '</div>';
+      '<button class="secondary inventory-open-btn" type="button" onclick="toggleCategoryInventory(\''+pid+'\')">🌸 Open Flowers</button></div>'+
+      '<div class="inventory-category-details" id="cat-details-'+pid+'"><div class="inventory-flower-list">'+
+      (opts.length?opts.map((o,i)=>'<div class="inventory-flower-row"><div>'+((o.imageUrl)?'<img src="'+esc(o.imageUrl)+'" alt="">':'🌸')+'</div><div><strong>'+esc(o.type||('Flower '+(i+1)))+'</strong><div class="hint">Quick stock</div></div><div class="flower-stock"><label class="hint">FLOWER STOCK</label><input id="cat-flower-stock-'+pid+'-'+i+'" type="number" min="0" value="'+Number(o.stock||0)+'"></div><div class="flower-save"><div class="quick-stock"><button type="button" title="Remove 1" onclick="adjustFlowerStock(\''+pid+'\','+i+',-1)">−</button><span class="stock-value" id="quick-stock-'+pid+'-'+i+'">'+Number(o.stock||0)+'</span><button type="button" title="Add 1" onclick="adjustFlowerStock(\''+pid+'\','+i+',1)">+</button></div><button class="secondary" type="button" onclick="saveCategoryInventory(\''+pid+'\')">Save</button></div></div>').join(''):'<div class="empty">No flowers added.</div>')+
+      '</div><div class="inventory-category-actions"><button class="primary" type="button" onclick="saveCategoryInventory(\''+pid+'\')">💾 Save Category</button></div></div></div>';
   }).join('');
 }
 function toggleCategoryInventory(id){
@@ -546,6 +545,7 @@ function updateStats(){
   $('statLow').textContent=low;
   $('statOrders').textContent=Number($('ordersTable')?.children?.length||0);
   renderStockPie(active,total);
+  renderLowStock();
 }
 function renderStockPie(items,total){
   const pie=$('stockPie'),legend=$('stockLegend'),center=$('pieTotal');if(!pie||!legend)return;
@@ -561,7 +561,48 @@ function renderStockPie(items,total){
   pie.style.background='conic-gradient('+stops.join(',')+')';
   legend.innerHTML=top.map((p,i)=>'<div class="legend-row"><div class="legend-left"><i class="legend-dot" style="background:'+palette[i]+'"></i>'+esc(p.name)+'</div><b>'+p.total+'</b></div>').join('');
 }
+function lowStockItems(){
+  const items=[];
+  products.filter(p=>p.active!==false).forEach(p=>{
+    const opts=categoryData(p).options||[];
+    if(opts.length){opts.forEach((o,i)=>{const stock=Math.max(0,Number(o.stock)||0);if(stock<=2)items.push({productId:p.id,index:i,category:p.name||p.category,name:o.type||('Flower '+(i+1)),stock})})}
+    else{const stock=Math.max(0,Number(p.stock)||0);if(stock<=2)items.push({productId:p.id,index:null,category:p.name||p.category,name:p.name||p.category,stock})}
+  });
+  return items.sort((a,b)=>a.stock-b.stock);
+}
+function renderLowStock(){
+  const box=$('lowStockList');if(!box)return;
+  const items=lowStockItems();
+  if(!items.length){box.innerHTML='<div class="empty">🌸 Everything has more than 2 in stock.</div>';return}
+  box.innerHTML=items.slice(0,10).map(x=>'<div class="low-stock-item"><div><strong>'+esc(x.name)+'</strong><small>'+esc(x.category)+'</small></div><span class="low-stock-number">'+x.stock+' left</span><button class="secondary" type="button" onclick="openCategoryEditor(\''+esc(x.productId)+'\')">Manage</button></div>').join('');
+}
+async function adjustFlowerStock(id,index,delta){
+  const p=products.find(x=>String(x.id)===String(id));if(!p)return;
+  try{
+    const d=categoryData(p),opts=(d.options||[]).map(o=>({...o}));
+    if(index===null){const stock=Math.max(0,Number(p.stock||0)+delta);const saved=await api('updateStock',{productId:p.id,stock});products=saved.products||products}
+    else{opts[index].stock=Math.max(0,Number(opts[index].stock||0)+delta);const saved=await api('updateProduct',{id:p.id,name:p.name,category:p.category,price:p.price,stock:p.stock,imageUrl:p.imageUrl||'',description:JSON.stringify({rosemoonCategory:true,options:opts})});products=saved.products||products}
+    renderInventory();renderDashboardInventory();updateStats();renderLowStock();
+  }catch(e){alert(e.message)}
+}
 $('refreshProducts').addEventListener('click',loadProducts);
+
+let adminOrders=[];
+function orderStatusClass(status){return String(status||'New').toLowerCase().replace(/\s+/g,'-')}
+function orderStatusText(o){return String(o.status||o.orderStatus||'New')}
+function renderOrders(){
+  const tbody=$('ordersTable');if(!tbody)return;
+  const q=String($('orderSearch')?.value||'').trim().toLowerCase();
+  const filter=String($('orderStatusFilter')?.value||'').trim().toLowerCase();
+  const rows=adminOrders.filter(o=>{const customer=o.customer||{};const hay=[o.orderId,o.id,customer.name,o.name,customer.phone,o.phone,o.date,o.createdAt].join(' ').toLowerCase();const st=orderStatusText(o).toLowerCase();return (!q||hay.includes(q))&&(!filter||st===filter)});
+  const counts={New:0,Confirmed:0,Preparing:0,Completed:0,Cancelled:0};adminOrders.forEach(o=>{const s=orderStatusText(o);if(counts[s]!=null)counts[s]++});
+  const summary=$('orderSummary');if(summary)summary.innerHTML='<span class="order-pill">Total '+adminOrders.length+'</span>'+Object.entries(counts).map(([k,v])=>'<span class="order-pill">'+esc(k)+': '+v+'</span>').join('');
+  tbody.innerHTML=rows.map(o=>{const customer=o.customer||{};const items=Array.isArray(o.items)?o.items.map(i=>esc(i.name||i.type||'Item')+' ×'+Number(i.qty||1)).join(', '):String(o.items||'');const total=o.total??o.amount??0;const status=orderStatusText(o);return '<tr><td><strong>'+esc(o.orderId||o.id||'—')+'</strong></td><td>'+esc(o.date||o.createdAt||'—')+'</td><td>'+esc(customer.name||o.name||'—')+'</td><td>'+esc(customer.phone||o.phone||'—')+'</td><td>'+items+'</td><td>'+money(total)+'</td><td><span class="order-status '+orderStatusClass(status)+'">'+esc(status)+'</span></td></tr>'}).join('')||'<tr><td colspan="7" class="empty">No matching orders.</td></tr>';
+  $('statOrders').textContent=adminOrders.length;
+}
+async function loadOrders(){try{const d=await api('orders');adminOrders=Array.isArray(d.orders)?d.orders:[];renderOrders();renderDashboardOrders()}catch(e){console.error(e);adminOrders=[];renderOrders();renderDashboardOrders()}}
+function renderDashboardOrders(){const t=$('dashboardOrdersTable');if(!t)return;t.innerHTML=adminOrders.slice().sort((a,b)=>String(b.date||b.createdAt||'').localeCompare(String(a.date||a.createdAt||''))).slice(0,8).map(o=>'<tr><td>'+esc(o.orderId||o.id||'—')+'</td><td>'+esc((o.customer||{}).name||o.name||'—')+'</td><td>'+money(o.total??o.amount??0)+'</td><td>'+esc(orderStatusText(o))+'</td></tr>').join('')||'<tr><td colspan="4" class="empty">No orders yet.</td></tr>'}
+
 function readDataUrl(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(file)})}
 async function loadMusic(){try{const d=await api('music');music=(d.music||[]).sort((a,b)=>a.sort-b.sort);renderMusic()}catch(e){console.error(e)}}
 function renderMusic(){const box=$('musicList');box.innerHTML=music.map((m,i)=>`<div class="music-row"><div class="grow"><strong>${i+1}. ${esc(m.title)}</strong><small>${esc(m.url)}</small></div><button class="secondary" onclick="moveMusic(${i},-1)" ${i===0?'disabled':''}>↑</button><button class="secondary" onclick="moveMusic(${i},1)" ${i===music.length-1?'disabled':''}>↓</button><button class="danger" onclick="deleteMusic('${esc(m.id)}')">Delete</button></div>`).join('')||'<div class="empty">No music uploaded yet.</div>'}
