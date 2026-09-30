@@ -187,24 +187,6 @@
 
         // Use the same music-file source the player uses, so there is no
         // second download after Start Shopping.
-        const sourcePromise=(async()=>{
-          if(track.fileId){
-            const fr=await fetch(ROSEMOON_API+"?action=musicFile&fileId="+encodeURIComponent(track.fileId)+"&_="+Date.now(),{cache:"no-store"});
-            const fd=await fr.json();
-            if(fd.success&&fd.base64){
-              const src="data:audio/mpeg;base64,"+fd.base64;
-              window.rosemoonPreloadedMusic=window.rosemoonPreloadedMusic||{};
-              window.rosemoonPreloadedMusic[track.fileId]=src;
-              return src;
-            }
-          }
-          return track.url;
-        })();
-
-        sourcePromise.then(src=>{
-          audio.src=src;
-          audio.load();
-        }).catch(()=>finish());
         let done=false;
         const finish=()=>{
           if(done)return;
@@ -214,7 +196,23 @@
         audio.addEventListener("canplaythrough",finish,{once:true});
         audio.addEventListener("loadeddata",finish,{once:true});
         audio.addEventListener("error",finish,{once:true});
-        audio.load();
+
+        (async()=>{
+          try{
+            let src=track.url;
+            if(track.fileId){
+              const fr=await fetch(ROSEMOON_API+"?action=musicFile&fileId="+encodeURIComponent(track.fileId)+"&_="+Date.now(),{cache:"no-store"});
+              const fd=await fr.json();
+              if(fd.success&&fd.base64){
+                src="data:audio/mpeg;base64,"+fd.base64;
+                window.rosemoonPreloadedMusic=window.rosemoonPreloadedMusic||{};
+                window.rosemoonPreloadedMusic[track.fileId]=src;
+              }
+            }
+            audio.src=src;
+            audio.load();
+          }catch(e){finish();}
+        })();
         setTimeout(finish,8000);
       })));
 
