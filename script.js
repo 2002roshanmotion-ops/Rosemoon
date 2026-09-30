@@ -80,7 +80,14 @@
     }catch(e){}
     return choices.map(([type,emoji])=>({type,emoji,stock:stockFor(product?.id),imageUrl:product?.imageUrl||''}));
   }
-  function enterShop(){ window.location.href="shop.html"; }
+  function enterShop(){
+    if(landing){landing.style.display="none";}
+    if(shop){shop.style.display="block";shop.classList.add("active");shop.setAttribute("aria-hidden","false");}
+    document.body.classList.add("rm-shop-active");
+    try{history.replaceState(null,"","#shopPage");}catch(e){}
+    window.scrollTo(0,0);
+    if(music && typeof music.startFromUserGesture==="function") music.startFromUserGesture();
+  }
   start?.addEventListener("click",enterShop);
   if(start)start.disabled=false;
   if(new URLSearchParams(location.search).get("returnShop")==="1") { enterShop(); history.replaceState(null,"",location.pathname+"#shopPage"); }
