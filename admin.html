@@ -709,4 +709,34 @@ $('resetSettingsBtn')?.addEventListener('click',()=>{rosemoonSettings={...DEFAUL
 </script>
 
 <script src="crop-editor.js?v=2"></script>
-</body></html>
+<script>
+(function(){
+  const grid=document.getElementById('assetGrid');
+  const search=document.getElementById('assetSearch');
+  const refresh=document.getElementById('refreshAssets');
+  let assets=[];
+  async function loadRepoAssets(){
+    if(!grid)return;
+    grid.innerHTML='<div class="empty">Loading image assets…</div>';
+    try{
+      const res=await fetch('https://api.github.com/repos/2002roshanmotion-ops/Rosemoon/contents/assets?ref=main',{cache:'no-store'});
+      if(!res.ok)throw new Error('Assets folder unavailable');
+      const files=await res.json();
+      assets=Array.isArray(files)?files.filter(f=>f.type==='file'&&/\.(png|jpe?g|webp|gif|svg)$/i.test(f.name)): [];
+      renderRepoAssets();
+    }catch(e){
+      grid.innerHTML='<div class="empty">No connected image assets found in the GitHub assets folder yet.</div>';
+    }
+  }
+  function renderRepoAssets(){
+    const q=(search?.value||'').toLowerCase();
+    const rows=assets.filter(a=>a.name.toLowerCase().includes(q));
+    grid.innerHTML=rows.length?rows.map(a=>'<div class="asset-card"><div class="asset-preview"><img loading="lazy" src="'+a.download_url+'" alt="'+a.name+'"></div><div class="asset-name">'+a.name+'</div><div class="asset-url">assets/'+a.name+'</div><div class="asset-actions"><button class="secondary" type="button" data-copy="'+a.download_url+'">Copy URL</button><a class="secondary" href="'+a.html_url+'" target="_blank" rel="noopener">Open</a></div></div>').join(''):'<div class="empty">No image assets found.</div>';
+    grid.querySelectorAll('[data-copy]').forEach(b=>b.onclick=()=>navigator.clipboard?.writeText(b.dataset.copy));
+  }
+  refresh?.addEventListener('click',loadRepoAssets);
+  search?.addEventListener('input',renderRepoAssets);
+  window.loadRepoAssets=loadRepoAssets;
+  loadRepoAssets();
+})();
+</script></body></html>
