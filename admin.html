@@ -102,12 +102,12 @@ body{background:radial-gradient(circle at 10% 0%,#ffe8f0 0,#fff7f9 32%,#f8f2f5 1
     <div class="form-grid">
       <div class="field"><label>CATEGORY NAME</label><input id="categoryName" placeholder="e.g. Premium Bouquet"></div>
       <div class="field"><label>PRICE (Rs.)</label><input id="categoryPrice" type="number" min="0" step="1" placeholder="2500"></div>
-      <div class="field full"><label>CATEGORY / MAIN PHOTO</label><input id="categoryPhoto" type="file" accept="image/png,image/jpeg,image/webp,image/gif"><button class="secondary" id="chooseCategoryAsset" type="button" style="margin-top:8px">🗂️ Choose from Assets</button><input id="categoryAssetUrl" type="hidden"></div>
+      <div class="field full"><label>CATEGORY / MAIN PHOTO</label><div class="asset-choice-box"><button class="secondary" id="chooseCategoryAsset" type="button">🗂️ Choose from Assets</button><span class="hint" id="categoryAssetChosen">No image selected</span><input id="categoryAssetUrl" type="hidden"></div></div>
       
       <div class="field full"><h3 style="margin:4px 0">Flowers in this category</h3><div class="hint">Every flower below has independent stock. Add or remove rows as needed.</div></div>
       <div class="field full" id="newCategoryFlowers"></div>
       <div class="field full actions"><button class="secondary" id="addCategoryFlowerRow" type="button">＋ Add Flower</button><button class="primary" id="addCategoryBtn" type="button">🌸 Create Category</button><span class="hint" id="categoryMessage"></span></div>
-      <div class="field full"><div id="categoryUploadList" class="upload-list"></div></div>
+      
     </div>
   </div>
 
@@ -122,7 +122,7 @@ body{background:radial-gradient(circle at 10% 0%,#ffe8f0 0,#fff7f9 32%,#f8f2f5 1
       <div class="field full"><label>SELECT CATEGORY</label><select id="manageCategorySelect"><option value="">Choose a category</option></select></div>
       <div class="field"><label>CATEGORY NAME</label><input id="manageCategoryName" placeholder="Category name"></div>
       <div class="field"><label>PRICE (Rs.)</label><input id="manageCategoryPrice" type="number" min="0" step="1" placeholder="1500"></div>
-      <div class="field"><label>CATEGORY / MAIN IMAGE</label><input id="manageCategoryPhoto" type="file" accept="image/png,image/jpeg,image/webp,image/gif"><button class="secondary" id="chooseManageCategoryAsset" type="button" style="margin-top:8px">🗂️ Choose from Assets</button><input id="manageCategoryAssetUrl" type="hidden"></div>
+      <div class="field"><label>CATEGORY / MAIN IMAGE</label><div class="asset-choice-box"><button class="secondary" id="chooseManageCategoryAsset" type="button">🗂️ Choose from Assets</button><span class="hint" id="manageCategoryAssetChosen">Keep current image</span><input id="manageCategoryAssetUrl" type="hidden"></div></div>
       <div class="field"><label>CATEGORY STOCK</label><input id="manageCategoryStock" type="number" min="0" step="1" placeholder="0"></div>
       <div class="field full"><div id="manageFlowerOptions"><div class="empty">Choose a category to manage its flowers.</div></div></div>
       <div class="field full actions"><button class="primary" id="saveCategoryBtn" type="button">💾 Save Changes</button><span class="hint" id="manageCategoryMessage"></span></div>
@@ -306,7 +306,7 @@ async function uploadCategoryPhoto(file,label){if(!file)return '';const dataUrl=
 let newCategoryFlowerCount=0;
 function newFlowerRowHtml(i){
   const defaultPrice=Number($('categoryPrice')?.value||0);
-  return '<div class="flower-manager-row" data-new-flower="'+i+'"><div class="flower-photo-preview" id="newFlowerPreview'+i+'">🌸</div><div><label>FLOWER NAME</label><input id="newFlowerName'+i+'" type="text" placeholder="e.g. Pink Lily"><input id="newFlowerPhoto'+i+'" type="file" accept="image/png,image/jpeg,image/webp,image/gif" style="margin-top:7px"></div><div class="stock-field"><label>INDIVIDUAL STOCK</label><input id="newFlowerStock'+i+'" type="number" min="0" step="1" value="0"></div><div class="price-field"><label>FLOWER PRICE (Rs.)</label><input id="newFlowerPrice'+i+'" type="number" min="0" step="1" value="'+defaultPrice+'"></div><button class="danger remove-flower" type="button" onclick="removeNewFlowerRow('+i+')">Remove</button></div>';
+  return '<div class="flower-manager-row" data-new-flower="'+i+'"><div class="flower-photo-preview" id="newFlowerPreview'+i+'">🌸</div><div><label>FLOWER NAME</label><input id="newFlowerName'+i+'" type="text" placeholder="e.g. Pink Lily"><button class="secondary" type="button" style="margin-top:7px" onclick="openAssetPicker(\'newFlowerAssetUrl'+i+'\',\'newFlowerPreview'+i+'\',\'newFlowerAssetChosen'+i+'\')">🗂️ Choose from Assets</button><span class="hint" id="newFlowerAssetChosen'+i+'" style="display:block;margin-top:5px">No image selected</span><input id="newFlowerAssetUrl'+i+'" type="hidden"></div><div class="stock-field"><label>INDIVIDUAL STOCK</label><input id="newFlowerStock'+i+'" type="number" min="0" step="1" value="0"></div><div class="price-field"><label>FLOWER PRICE (Rs.)</label><input id="newFlowerPrice'+i+'" type="number" min="0" step="1" value="'+defaultPrice+'"></div><button class="danger remove-flower" type="button" onclick="removeNewFlowerRow('+i+')">Remove</button></div>';
 }
 function addNewFlowerRow(prefill){
   const box=$('newCategoryFlowers');if(!box)return;
@@ -320,7 +320,7 @@ function addNewFlowerRow(prefill){
 }
 function removeNewFlowerRow(i){const row=document.querySelector('[data-new-flower="'+i+'"]');if(row)row.remove()}
 function resetNewCategoryFlowers(){newCategoryFlowerCount=0;$('newCategoryFlowers').innerHTML='';addNewFlowerRow()}
-function prepareNewCategory(){['categoryName','categoryPrice'].forEach(id=>$(id).value='');$('categoryPhoto').value='';$('categoryAssetUrl').value='';$('categoryMessage').textContent='';resetNewCategoryFlowers();setTab('photos')}
+function prepareNewCategory(){['categoryName','categoryPrice'].forEach(id=>$(id).value='');$('categoryAssetUrl').value='';$('categoryAssetChosen').textContent='No image selected';$('categoryMessage').textContent='';resetNewCategoryFlowers();setTab('photos')}
 function setupOthersPreset(){
   const name=$('categoryName');
   if(String(name?.value||'').trim().toLowerCase()!=='others')return;
@@ -334,28 +334,34 @@ function setupOthersPreset(){
 }
 $('categoryName')?.addEventListener('change',setupOthersPreset);
 $('categoryName')?.addEventListener('input',()=>{if(String($('categoryName').value||'').trim().toLowerCase()==='others')setupOthersPreset()});
-function setupCategoryAssetPicker(){
- const btn=$('chooseCategoryAsset');if(!btn)return;
- btn.onclick=async()=>{
+async function openAssetPicker(targetId,previewId,messageId){
   try{
-   const r=await fetch('https://api.github.com/repos/2002roshanmotion-ops/Rosemoon/contents/assets?ref=main',{cache:'no-store'});
-   const files=await r.json();
-   const imgs=(Array.isArray(files)?files:[]).filter(x=>x.type==='file'&&/\.(png|jpe?g|webp|gif|svg)$/i.test(x.name));
-   if(!imgs.length){alert('No images found in Assets.');return}
-   const old=document.getElementById('assetPickerModal');if(old)old.remove();
-   const modal=document.createElement('div');modal.id='assetPickerModal';modal.style.cssText='position:fixed;inset:0;background:rgba(35,20,28,.62);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px';
-   modal.innerHTML='<div style="background:#fff;border-radius:22px;width:min(900px,100%);max-height:85vh;overflow:auto;padding:20px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div><h2 style="margin:0">🗂️ Select Asset</h2><p class="hint" style="margin:5px 0 0">Click an image to use it for this category.</p></div><button class="secondary" id="closeAssetPicker" type="button">Close</button></div><div id="assetPickerGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px"></div></div>';
-   document.body.appendChild(modal);
-   const grid=modal.querySelector('#assetPickerGrid');
-   imgs.forEach((a)=>{
-    const card=document.createElement('button');card.type='button';card.style.cssText='border:1px solid #ead9df;background:#fff;border-radius:14px;padding:8px;text-align:left;cursor:pointer';
-    card.innerHTML='<img src="'+a.download_url+'" alt="" style="width:100%;height:130px;object-fit:cover;border-radius:10px"><div style="font-weight:800;font-size:12px;margin-top:7px;word-break:break-word">'+a.name+'</div>';
-    card.onclick=()=>{$('categoryAssetUrl').value=a.download_url;$('categoryPhoto').value='';$('categoryMessage').textContent='🖼️ Asset selected: '+a.name;modal.remove()};
-    grid.appendChild(card);
-   });
-   modal.querySelector('#closeAssetPicker').onclick=()=>modal.remove();
+    const r=await fetch('https://api.github.com/repos/2002roshanmotion-ops/Rosemoon/contents/assets?ref=main',{cache:'no-store'});
+    const files=await r.json();
+    const imgs=(Array.isArray(files)?files:[]).filter(x=>x.type==='file'&&/\.(png|jpe?g|webp|gif|svg)$/i.test(x.name));
+    if(!imgs.length){alert('No images found in Assets. Add a picture in Assets first.');return}
+    const old=document.getElementById('assetPickerModal');if(old)old.remove();
+    const modal=document.createElement('div');modal.id='assetPickerModal';modal.style.cssText='position:fixed;inset:0;background:rgba(35,20,28,.62);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px';
+    modal.innerHTML='<div style="background:#fff;border-radius:22px;width:min(900px,100%);max-height:85vh;overflow:auto;padding:20px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div><h2 style="margin:0">🗂️ Select Asset</h2><p class="hint" style="margin:5px 0 0">Choose an image from Assets. Only Assets images can be used on the website.</p></div><button class="secondary" id="closeAssetPicker" type="button">Close</button></div><div id="assetPickerGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px"></div></div>';
+    document.body.appendChild(modal);
+    const grid=modal.querySelector('#assetPickerGrid');
+    imgs.forEach(a=>{
+      const card=document.createElement('button');card.type='button';card.style.cssText='border:1px solid #ead9df;background:#fff;border-radius:14px;padding:8px;text-align:left;cursor:pointer';
+      card.innerHTML='<img src="'+a.download_url+'" alt="" style="width:100%;height:130px;object-fit:cover;border-radius:10px"><div style="font-weight:800;font-size:12px;margin-top:7px;word-break:break-word">'+esc(a.name)+'</div>';
+      card.onclick=()=>{
+        $(targetId).value=a.download_url;
+        const preview=$(previewId); if(preview) preview.innerHTML='<img src="'+esc(a.download_url)+'" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:12px">';
+        const message=$(messageId); if(message) message.textContent='🖼️ '+a.name;
+        modal.remove();
+      };
+      grid.appendChild(card);
+    });
+    modal.querySelector('#closeAssetPicker').onclick=()=>modal.remove();
   }catch(e){alert('Could not load Assets.')}
- };
+}
+function setupCategoryAssetPicker(){
+  $('chooseCategoryAsset')?.addEventListener('click',()=>openAssetPicker('categoryAssetUrl','categoryAssetChosen','categoryAssetChosen'));
+  $('chooseManageCategoryAsset')?.addEventListener('click',()=>openAssetPicker('manageCategoryAssetUrl','manageCategoryAssetChosen','manageCategoryAssetChosen'));
 }
 async function createCategory(){
   const msg=$('categoryMessage'),btn=$('addCategoryBtn');
@@ -365,19 +371,18 @@ async function createCategory(){
     if(!Number.isFinite(price)||price<0)throw new Error('Enter a valid price.');
     const rows=[...document.querySelectorAll('#newCategoryFlowers .flower-manager-row')];
     if(!rows.length)throw new Error('Add at least one flower.');
-    btn.disabled=true;msg.textContent='Uploading category photos…';
-    const mainUrl=$('categoryAssetUrl').value||await uploadCategoryPhoto($('categoryPhoto').files[0],'Category');
+    btn.disabled=true;msg.textContent='Saving category…';
+    const mainUrl=String($('categoryAssetUrl').value||'').trim();
+    if(!mainUrl)throw new Error('Choose the category image from Assets first.');
     const options=[];
     for(const row of rows){
       const i=row.dataset.newFlower,type=String($('newFlowerName'+i)?.value||'').trim();
       const qty=Math.max(0,Math.floor(Number($('newFlowerStock'+i)?.value)||0));
       const flowerPrice=Math.max(0,Math.floor(Number($('newFlowerPrice'+i)?.value)||0));
-      const file=$('newFlowerPhoto'+i)?.files?.[0];
-      if(!type&&!file)continue;
+      const url=String($('newFlowerAssetUrl'+i)?.value||'').trim();
+      if(!type&&!url)continue;
       if(!type)throw new Error('Every added flower needs a name.');
-      if(!file)throw new Error(type+' needs a photo.');
-      msg.textContent='Uploading '+type+'…';
-      const url=await uploadCategoryPhoto(file,type);
+      if(!url)throw new Error(type+' needs an image from Assets.');
       options.push({type,stock:qty,price:flowerPrice,imageUrl:url});
     }
     if(!options.length)throw new Error('Add at least one flower with a photo.');
@@ -482,17 +487,17 @@ function renderCategoryManager(){
   if(!s||!box)return;
   const p=products.find(x=>String(x.id)===String(s.value));
   if(!p){
-    $('manageCategoryName').value='';$('manageCategoryPrice').value='';$('manageCategoryStock').value='';$('manageCategoryPhoto').value='';
+    $('manageCategoryName').value='';$('manageCategoryPrice').value='';$('manageCategoryStock').value='';$('manageCategoryAssetUrl').value='';$('manageCategoryAssetChosen').textContent='Keep current image';
     box.innerHTML='<div class="empty">Choose a category to manage its flowers.</div>';return;
   }
   $('manageCategoryName').value=p.name||p.category||'';
   $('manageCategoryPrice').value=Number(p.price||0);
   $('manageCategoryStock').value=Number(p.stock||0);
-  $('manageCategoryPhoto').value='';$('manageCategoryAssetUrl').value='';
+  $('manageCategoryAssetUrl').value='';$('manageCategoryAssetChosen').textContent='Keep current image';
   const d=categoryData(p),opts=Array.isArray(d.options)?d.options:[];
   let html='<div style="display:grid;gap:10px">';
   opts.forEach((o,i)=>{
-    html+='<div class="flower-manager-row" data-manage-flower="'+i+'"><div class="flower-photo-preview">'+(o.imageUrl?'<img src="'+esc(o.imageUrl)+'" alt="">':'🌸')+'</div><div><label>FLOWER NAME</label><input id="manageFlowerName'+i+'" type="text" value="'+esc(o.type||'')+'" placeholder="e.g. Pink Lily"><input id="manageFlowerPhoto'+i+'" type="file" accept="image/png,image/jpeg,image/webp,image/gif" style="margin-top:7px"></div><div class="stock-field"><label>INDIVIDUAL STOCK</label><input id="manageFlowerStock'+i+'" type="number" min="0" step="1" value="'+Number(o.stock||0)+'"></div><div class="price-field"><label>FLOWER PRICE (Rs.)</label><input id="manageFlowerPrice'+i+'" type="number" min="0" step="1" value="'+Number(o.price??p.price??0)+'"></div><button class="danger remove-flower" type="button" onclick="removeManageFlowerRow('+i+')">Remove</button></div>';
+    html+='<div class="flower-manager-row" data-manage-flower="'+i+'"><div class="flower-photo-preview" id="manageFlowerPreview'+i+'">'+(o.imageUrl?'<img src="'+esc(o.imageUrl)+'" alt="">':'🌸')+'</div><div><label>FLOWER NAME</label><input id="manageFlowerName'+i+'" type="text" value="'+esc(o.type||'')+'" placeholder="e.g. Pink Lily"><button class="secondary" type="button" style="margin-top:7px" onclick="openAssetPicker(\'manageFlowerAssetUrl'+i+'\',\'manageFlowerPreview'+i+'\',\'manageFlowerAssetChosen'+i+'\')">🗂️ Choose from Assets</button><span class="hint" id="manageFlowerAssetChosen'+i+'" style="display:block;margin-top:5px">'+(o.imageUrl?'Current image':'No image selected')+'</span><input id="manageFlowerAssetUrl'+i+'" type="hidden" value="'+esc(o.imageUrl||'')+'"></div><div class="stock-field"><label>INDIVIDUAL STOCK</label><input id="manageFlowerStock'+i+'" type="number" min="0" step="1" value="'+Number(o.stock||0)+'"></div><div class="price-field"><label>FLOWER PRICE (Rs.)</label><input id="manageFlowerPrice'+i+'" type="number" min="0" step="1" value="'+Number(o.price??p.price??0)+'"></div><button class="danger remove-flower" type="button" onclick="removeManageFlowerRow('+i+')">Remove</button></div>';
   });
   html+='</div><button class="secondary" type="button" style="margin-top:10px" onclick="addManageFlowerRow()">＋ Add Flower</button><div class="hint" style="margin-top:10px">Category total stock and every flower stock are independent. You can have different stock numbers for every flower.</div>';
   box.innerHTML=html;
@@ -501,7 +506,7 @@ function addManageFlowerRow(){
   const box=$('manageFlowerOptions');if(!box)return;
   const i=box.querySelectorAll('[data-manage-flower]').length;
   const wrap=document.createElement('div');wrap.className='flower-manager-row';wrap.dataset.manageFlower=i;
-  wrap.innerHTML='<div class="flower-photo-preview">🌸</div><div><label>FLOWER NAME</label><input id="manageFlowerName'+i+'" type="text" placeholder="e.g. Pink Lily"><input id="manageFlowerPhoto'+i+'" type="file" accept="image/png,image/jpeg,image/webp,image/gif" style="margin-top:7px"></div><div class="stock-field"><label>INDIVIDUAL STOCK</label><input id="manageFlowerStock'+i+'" type="number" min="0" step="1" value="0"></div><div class="price-field"><label>FLOWER PRICE (Rs.)</label><input id="manageFlowerPrice'+i+'" type="number" min="0" step="1" value="'+Number(p.price||0)+'"></div><button class="danger remove-flower" type="button" onclick="removeManageFlowerRow('+i+')">Remove</button>';
+  wrap.innerHTML='<div class="flower-photo-preview" id="manageFlowerPreview'+i+'">🌸</div><div><label>FLOWER NAME</label><input id="manageFlowerName'+i+'" type="text" placeholder="e.g. Pink Lily"><button class="secondary" type="button" style="margin-top:7px" onclick="openAssetPicker(\'manageFlowerAssetUrl'+i+'\',\'manageFlowerPreview'+i+'\',\'manageFlowerAssetChosen'+i+'\')">🗂️ Choose from Assets</button><span class="hint" id="manageFlowerAssetChosen'+i+'" style="display:block;margin-top:5px">No image selected</span><input id="manageFlowerAssetUrl'+i+'" type="hidden"></div><div class="stock-field"><label>INDIVIDUAL STOCK</label><input id="manageFlowerStock'+i+'" type="number" min="0" step="1" value="0"></div><div class="price-field"><label>FLOWER PRICE (Rs.)</label><input id="manageFlowerPrice'+i+'" type="number" min="0" step="1" value="'+Number(p.price||0)+'"></div><button class="danger remove-flower" type="button" onclick="removeManageFlowerRow('+i+')">Remove</button>';
   box.querySelector('div[style*="display:grid"]')?.appendChild(wrap);
 }
 function removeManageFlowerRow(i){const row=document.querySelector('#manageFlowerOptions [data-manage-flower="'+i+'"]');if(row)row.remove()}
@@ -519,17 +524,15 @@ async function saveCategoryManager(){
     btn.disabled=true;msg.textContent='Saving…';
 
     let imageUrl=$('manageCategoryAssetUrl')?.value||p.imageUrl||'';
-    const mainFile=$('manageCategoryPhoto')?.files?.[0];
-    if(mainFile){msg.textContent='Uploading image…';imageUrl=(await api('uploadPhoto',{dataUrl:await readDataUrl(mainFile),fileName:mainFile.name})).url||imageUrl}
+    if(!imageUrl)throw new Error('Choose an image from Assets first.');
 
     if(isCategoryProduct(p)){
       const oldOpts=categoryData(p).options||[],rows=[...document.querySelectorAll('#manageFlowerOptions [data-manage-flower]')],options=[];
       for(const row of rows){
-        const i=Number(row.dataset.manageFlower),type=String($('manageFlowerName'+i)?.value||'').trim(),qty=Math.max(0,Math.floor(Number($('manageFlowerStock'+i)?.value)||0)),flowerPrice=Math.max(0,Math.floor(Number($('manageFlowerPrice'+i)?.value)||0)),file=$('manageFlowerPhoto'+i)?.files?.[0],old=oldOpts[i]||{};
+        const i=Number(row.dataset.manageFlower),type=String($('manageFlowerName'+i)?.value||'').trim(),qty=Math.max(0,Math.floor(Number($('manageFlowerStock'+i)?.value)||0)),flowerPrice=Math.max(0,Math.floor(Number($('manageFlowerPrice'+i)?.value)||0)),old=oldOpts[i]||{};
         if(!type)continue;
-        let flowerImage=old.imageUrl||'';
-        if(file){msg.textContent='Uploading '+type+'…';flowerImage=(await api('uploadPhoto',{dataUrl:await readDataUrl(file),fileName:file.name})).url||flowerImage}
-        if(!flowerImage)throw new Error(type+' needs a photo.');
+        let flowerImage=String($('manageFlowerAssetUrl'+i)?.value||old.imageUrl||'').trim();
+        if(!flowerImage)throw new Error(type+' needs an image from Assets.');
         options.push({type,stock:qty,price:flowerPrice,imageUrl:flowerImage});
       }
       if(!options.length)throw new Error('Add at least one flower.');
