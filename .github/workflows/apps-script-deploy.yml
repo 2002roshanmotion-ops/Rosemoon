@@ -19,22 +19,25 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: "20"
 
       - name: Install clasp
         run: npm install -g @google/clasp
 
-      - name: Configure clasp credentials
+      - name: Configure clasp
         env:
-          CLASP_CREDENTIALS: ${{ secrets.CLASP_CREDENTIALS }}
+          CLASPRC_JSON: ${{ secrets.CLASPRC_JSON }}
         run: |
-          mkdir -p "$HOME"
-          printf '%s' "$CLASP_CREDENTIALS" > "$HOME/.clasprc.json"
+          printf '%s' "$CLASPRC_JSON" > "$HOME/.clasprc.json"
 
       - name: Push Code.gs to Apps Script
         run: clasp push --force
 
-      - name: Update Apps Script deployment
+      - name: Create Apps Script version
+        id: version
+        run: echo "version=$(clasp version "GitHub $GITHUB_SHA" | tail -n 1 | grep -oE '[0-9]+$')" >> "$GITHUB_OUTPUT"
+
+      - name: Redeploy existing web app
         env:
-          DEPLOYMENT_ID: ${{ secrets.APPS_SCRIPT_DEPLOYMENT_ID }}
-        run: clasp deploy --deploymentId "$DEPLOYMENT_ID" --description "GitHub automatic deployment"
+          DEPLOYMENT_ID: REPLACE_WITH_YOUR_DEPLOYMENT_ID
+        run: clasp redeploy "$DEPLOYMENT_ID" "${{ steps.version.outputs.version }}" "GitHub automatic deployment"
