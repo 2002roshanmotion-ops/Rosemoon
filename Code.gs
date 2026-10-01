@@ -213,6 +213,11 @@ function updateStock_(payload) {
 }
 
 function getAssets_() {
+  const cache=CacheService.getScriptCache();
+  const cached=cache.get('rosemoon_assets_v2');
+  if(cached){
+    try{return {success:true,assets:JSON.parse(cached),cached:true};}catch(e){}
+  }
   const folderId=ensureFolder_('Rosemoon Product Photos','ROSEMOON_PHOTO_FOLDER_ID');
   const folder=DriveApp.getFolderById(folderId);
   const it=folder.getFiles();
@@ -221,10 +226,10 @@ function getAssets_() {
     const file=it.next();
     const mime=String(file.getMimeType()||'');
     if(!/^image\\/(jpeg|png|webp|gif|svg\\+xml)$/i.test(mime)) continue;
-    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);
     assets.push({id:'asset-'+file.getId().slice(-12),name:file.getName(),fileId:file.getId(),mime:mime,url:file.getDownloadUrl(),createdAt:file.getDateCreated().getTime()});
   }
   assets.sort((a,b)=>b.createdAt-a.createdAt);
+  try{cache.put('rosemoon_assets_v2',JSON.stringify(assets),300);}catch(e){}
   return {success:true,assets:assets};
 }
 
