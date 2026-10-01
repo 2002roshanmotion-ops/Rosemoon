@@ -807,6 +807,29 @@ $('resetSettingsBtn')?.addEventListener('click',()=>{rosemoonSettings={...DEFAUL
   const search=document.getElementById('assetSearch');
   const refresh=document.getElementById('refreshAssets');
   let assets=[];
+
+  function renderRepoAssets(){
+    if(!grid)return;
+    const q=String(search?.value||'').trim().toLowerCase();
+    const list=assets.filter(a=>!q||a.name.toLowerCase().includes(q));
+    if(!list.length){
+      grid.innerHTML='<div class="empty">No image assets found.</div>';
+      return;
+    }
+    grid.innerHTML=list.map(a=>`
+      <div class="asset-card">
+        <div class="asset-preview"><img src="${a.download_url}" alt="${a.name}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\'empty\'>Image unavailable</div>'"></div>
+        <div class="asset-name">${esc(a.name)}</div>
+        <div class="asset-url">${esc(a.path)}</div>
+        <div class="asset-actions">
+          <button class="secondary asset-edit-btn" type="button">Edit</button>
+          <button class="secondary" type="button" onclick="navigator.clipboard?.writeText('${a.download_url}');this.textContent='Copied!'">Copy URL</button>
+          <button class="secondary" type="button" onclick="window.open('${a.html_url}','_blank')">Open</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
   async function loadRepoAssets(){
     if(!grid)return;
     grid.innerHTML='<div class="empty">Loading image assets…</div>';
@@ -814,21 +837,28 @@ $('resetSettingsBtn')?.addEventListener('click',()=>{rosemoonSettings={...DEFAUL
       const res=await fetch('https://api.github.com/repos/2002roshanmotion-ops/Rosemoon/contents/assets?ref=main',{cache:'no-store'});
       if(!res.ok)throw new Error('GitHub assets unavailable');
       const files=await res.json();
-      assets=Array.isArray(files)?files.filter(f=>f.type==='file'&&/\\.(png|jpe?g|webp|gif|svg)$/i.test(f.name)).map(f=>({
-        name:f.name,
-        download_url:f.download_url,
-        html_url:f.html_url,
-        path:f.path
-      })):[];
+      assets=Array.isArray(files)
+        ? files.filter(f=>f.type==='file'&&/\.(png|jpe?g|webp|gif|svg)$/i.test(f.name)).map(f=>({
+            name:f.name,download_url:f.download_url,html_url:f.html_url,path:f.path
+          }))
+        : [];
       renderRepoAssets();
     }catch(e){
       console.error('GitHub assets load failed:',e);
       const fallback=['basket.webp','large.webp','main-flower.webp','medium.webp','small.webp','rosemoon-logo.svg'];
-      assets=fallback.map(name=>({name,download_url:'https://raw.githubusercontent.com/2002roshanmotion-ops/Rosemoon/main/assets/'+encodeURIComponent(name),html_url:'https://github.com/2002roshanmotion-ops/Rosemoon/blob/main/assets/'+encodeURIComponent(name),path:'assets/'+name}));
+      assets=fallback.map(name=>({
+        name,
+        download_url:'https://raw.githubusercontent.com/2002roshanmotion-ops/Rosemoon/main/assets/'+encodeURIComponent(name),
+        html_url:'https://github.com/2002roshanmotion-ops/Rosemoon/blob/main/assets/'+encodeURIComponent(name),
+        path:'assets/'+name
+      }));
       renderRepoAssets();
     }
   }
+
   window.loadRepoAssets=loadRepoAssets;
+  search?.addEventListener('input',renderRepoAssets);
+  refresh?.addEventListener('click',loadRepoAssets);
   loadRepoAssets();
 })();
 </script><script>
