@@ -115,9 +115,6 @@ body{background:radial-gradient(circle at 10% 0%,#ffe8f0 0,#fff7f9 32%,#f8f2f5 1
   
 
 
-  </section>
-
-
   <section class="card" style="margin-bottom:18px;border:2px solid #efd3dc;background:linear-gradient(180deg,#fff,#fff8fa)">
     <h2>✏️ Edit Existing Flower Category</h2>
     <p class="hint">Change the category image, name, price, stock, or flower details for products already on your website.</p>
@@ -131,6 +128,9 @@ body{background:radial-gradient(circle at 10% 0%,#ffe8f0 0,#fff7f9 32%,#f8f2f5 1
       <div class="field full actions"><button class="primary" id="saveCategoryBtn" type="button">💾 Save Changes</button><span class="hint" id="manageCategoryMessage"></span></div>
     </div>
   </section>
+  </section>
+
+
 
   <section class="panel" id="settings">
     <div class="card settings-hero-card">
@@ -433,6 +433,7 @@ async function loadProducts(){
     updateStats();
     renderLowStock();
     renderLogoManager();
+    populateCategoryManager();
     loadSettings();
   }catch(e){console.error(e)}
 }
