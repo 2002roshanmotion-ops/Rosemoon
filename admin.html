@@ -811,41 +811,21 @@ $('resetSettingsBtn')?.addEventListener('click',()=>{rosemoonSettings={...DEFAUL
     if(!grid)return;
     grid.innerHTML='<div class="empty">Loading image assets…</div>';
     try{
-      const res=await fetch('ASSET_API_URL+'?action=assets&_='+Date.now()',{cache:'no-store'});
-      if(!res.ok)throw new Error('Assets folder unavailable');
+      const res=await fetch('https://api.github.com/repos/2002roshanmotion-ops/Rosemoon/contents/assets?ref=main',{cache:'no-store'});
+      if(!res.ok)throw new Error('GitHub assets unavailable');
       const files=await res.json();
-      assets=Array.isArray(files)?files.filter(f=>f.type==='file'&&/\.(png|jpe?g|webp|gif|svg)$/i.test(f.name)): [];
+      assets=Array.isArray(files)?files.filter(f=>f.type==='file'&&/\\.(png|jpe?g|webp|gif|svg)$/i.test(f.name)).map(f=>({
+        name:f.name,
+        download_url:f.download_url,
+        html_url:f.html_url,
+        path:f.path
+      })):[];
       renderRepoAssets();
     }catch(e){
-      grid.innerHTML='<div class="empty">No connected image assets found in the GitHub assets folder yet.</div>';
+      console.error('GitHub assets load failed:',e);
+      grid.innerHTML='<div class="empty">Could not load GitHub image assets. Tap Refresh to try again.</div>';
     }
   }
-  function renderRepoAssets(){
-    const q=(search?.value||'').toLowerCase();
-    const rows=assets.filter(a=>a.name.toLowerCase().includes(q));
-    grid.innerHTML=rows.length?rows.map(a=>'<div class="asset-card"><div class="asset-preview"><img loading="lazy" src="'+a.download_url+'" alt="'+a.name+'"></div><div class="asset-name">'+a.name+'</div><div class="asset-url">assets/'+a.name+'</div><div class="asset-actions"><button class="secondary asset-edit-btn" type="button">✏️ Edit</button><button class="secondary" type="button" data-copy="'+a.download_url+'">Copy URL</button><a class="secondary" href="'+a.html_url+'" target="_blank" rel="noopener">Open</a></div></div>').join(''):'<div class="empty">No image assets found.</div>';
-    grid.querySelectorAll('[data-copy]').forEach(b=>b.onclick=()=>navigator.clipboard?.writeText(b.dataset.copy));
-  }
-  const uploadBtn=document.getElementById('assetUploadBtn');
-  uploadBtn?.addEventListener('click',async()=>{
-    const input=document.getElementById('assetUploadFile'),msg=document.getElementById('assetUploadMessage');
-    const file=input?.files?.[0];
-    msg.textContent='';
-    if(!file){msg.textContent='❌ Choose an image first.';return}
-    if(file.size>10*1024*1024){msg.textContent='❌ Image must be 10 MB or smaller.';return}
-    uploadBtn.disabled=true;msg.textContent='Uploading…';
-    try{
-      const dataUrl=await readDataUrl(file);
-      const name=(document.getElementById('assetUploadName')?.value||file.name).trim();
-      await submitViaForm({action:'addAsset',adminKey:ADMIN_KEY,fileName:name,dataUrl},120000);
-      msg.textContent='✅ Added to Assets. It is not assigned to any product yet.';
-      input.value='';document.getElementById('assetUploadName').value='';
-      await loadRepoAssets();
-    }catch(e){msg.textContent='❌ '+e.message}
-    finally{uploadBtn.disabled=false}
-  });
-  refresh?.addEventListener('click',loadRepoAssets);
-  search?.addEventListener('input',renderRepoAssets);
   window.loadRepoAssets=loadRepoAssets;
   loadRepoAssets();
 })();
