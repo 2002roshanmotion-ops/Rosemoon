@@ -549,10 +549,10 @@ function renderInventory(){
       return '<div class="inventory-category-card">'+
         '<div class="inventory-category-head"><div><div class="inventory-category-title">'+esc(p.name||p.category)+'</div><div class="inventory-category-meta">'+money(p.price)+' · '+opts.length+' flowers</div></div>'+
         '<div><label class="hint">CATEGORY PRICE (Rs.)</label><input id="cat-price-'+pid+'" type="number" min="0" step="1" value="'+Number(p.price||0)+'"></div>'+
-        '<button class="secondary inventory-open-btn" type="button" onclick="toggleCategoryInventory(\\''+pid+'\\')">🌸 Open Flowers</button></div>'+
+        '<button class="secondary inventory-open-btn" type="button" onclick="toggleCategoryInventory(\''+pid+'\')">🌸 Open Flowers</button></div>'+
         '<div class="inventory-category-details" id="cat-details-'+pid+'"><div class="inventory-flower-list">'+
-        (opts.length?opts.map((o,i)=>'<div class="inventory-flower-row"><div>'+((o.imageUrl)?'<img src="'+esc(o.imageUrl)+'" alt="">':'🌸')+'</div><div><strong>'+esc(o.type||('Flower '+(i+1)))+'</strong></div><div class="flower-stock"><label class="hint">INDIVIDUAL STOCK</label><input id="cat-flower-stock-'+pid+'-'+i+'" type="number" min="0" value="'+Number(o.stock||0)+'"></div><div class="flower-save"><label class="hint">FLOWER PRICE (Rs.)</label><input id="cat-flower-price-'+pid+'-'+i+'" type="number" min="0" step="1" value="'+Number(o.price??p.price??0)+'"><div class="quick-stock"><button type="button" title="Remove 1" onclick="adjustFlowerStock(\\''+pid+'\\','+i+',-1)">−</button><span class="stock-value" id="quick-stock-'+pid+'-'+i+'">'+Number(o.stock||0)+'</span><button type="button" title="Add 1" onclick="adjustFlowerStock(\\''+pid+'\\','+i+',1)">+</button></div></div></div>').join(''):'<div class="empty">No flowers added.</div>')+
-        '</div><div class="inventory-category-actions"><button class="primary" type="button" onclick="saveCategoryInventory(\\''+pid+'\\')">💾 Save Category</button></div></div></div>';
+        (opts.length?opts.map((o,i)=>'<div class="inventory-flower-row"><div>'+((o.imageUrl)?'<img src="'+esc(o.imageUrl)+'" alt="">':'🌸')+'</div><div><strong>'+esc(o.type||('Flower '+(i+1)))+'</strong></div><div class="flower-stock"><label class="hint">INDIVIDUAL STOCK</label><input id="cat-flower-stock-'+pid+'-'+i+'" type="number" min="0" value="'+Number(o.stock||0)+'"></div><div class="flower-save"><label class="hint">FLOWER PRICE (Rs.)</label><input id="cat-flower-price-'+pid+'-'+i+'" type="number" min="0" step="1" value="'+Number(o.price??p.price??0)+'"><div class="quick-stock"><button type="button" title="Remove 1" onclick="adjustFlowerStock(\''+pid+'\','+i+',-1)">−</button><span class="stock-value" id="quick-stock-'+pid+'-'+i+'">'+Number(o.stock||0)+'</span><button type="button" title="Add 1" onclick="adjustFlowerStock(\''+pid+'\','+i+',1)">+</button></div></div></div>').join(''):'<div class="empty">No flowers added.</div>')+
+        '</div><div class="inventory-category-actions"><button class="primary" type="button" onclick="saveCategoryInventory(\''+pid+'\')">💾 Save Category</button></div></div></div>';
     }).join('');
   }
   if(regular.length){
@@ -563,7 +563,7 @@ function renderInventory(){
         '<div><div class="inventory-category-title">'+esc(p.name||'Product')+'</div><div class="inventory-category-meta">'+esc(p.category||'Product')+'</div></div>'+
         '<div><label class="hint">PRICE (Rs.)</label><input id="prod-price-'+pid+'" type="number" min="0" step="1" value="'+Number(p.price||0)+'"></div>'+
         '<div><label class="hint">STOCK</label><input id="prod-stock-'+pid+'" type="number" min="0" step="1" value="'+Number(p.stock||0)+'"></div>'+
-        '<button class="primary inventory-open-btn" type="button" onclick="saveProductInventory(\\''+pid+'\\')">💾 Save Product</button>'+
+        '<button class="primary inventory-open-btn" type="button" onclick="saveProductInventory(\''+pid+'\')">💾 Save Product</button>'+
         '</div></div>';
     }).join('')+'</div>';
   }
