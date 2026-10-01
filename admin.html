@@ -239,6 +239,7 @@ body{background:radial-gradient(circle at 10% 0%,#ffe8f0 0,#fff7f9 32%,#f8f2f5 1
 
 <script>
 const API_URL="https://script.google.com/macros/s/AKfycbw3ovS6hIwHLhp50Xrs-6ejMxZkI_q-AhB-Mz6JXbsIRKSphJcMoqBELVY4nUogRR__/exec";
+const ASSET_API_URL=API_URL;
 const ADMIN_KEY="1";
 let products=[],music=[];
 const $=id=>document.getElementById(id);
@@ -337,9 +338,9 @@ $('categoryName')?.addEventListener('change',setupOthersPreset);
 $('categoryName')?.addEventListener('input',()=>{if(String($('categoryName').value||'').trim().toLowerCase()==='others')setupOthersPreset()});
 async function openAssetPicker(targetId,previewId,messageId){
   try{
-    const r=await fetch('https://api.github.com/repos/2002roshanmotion-ops/Rosemoon/contents/assets?ref=main',{cache:'no-store'});
-    const files=await r.json();
-    const imgs=(Array.isArray(files)?files:[]).filter(x=>x.type==='file'&&/\.(png|jpe?g|webp|gif|svg)$/i.test(x.name));
+    const r=await fetch('ASSET_API_URL+'?action=assets&_='+Date.now()',{cache:'no-store'});
+    const data=await r.json();
+    const imgs=(data&&Array.isArray(data.assets)?data.assets:[]);
     if(!imgs.length){alert('No images found in Assets. Add a picture in Assets first.');return}
     const old=document.getElementById('assetPickerModal');if(old)old.remove();
     const modal=document.createElement('div');modal.id='assetPickerModal';modal.style.cssText='position:fixed;inset:0;background:rgba(35,20,28,.62);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px';
@@ -348,7 +349,7 @@ async function openAssetPicker(targetId,previewId,messageId){
     const grid=modal.querySelector('#assetPickerGrid');
     imgs.forEach(a=>{
       const card=document.createElement('button');card.type='button';card.style.cssText='border:1px solid #ead9df;background:#fff;border-radius:14px;padding:8px;text-align:left;cursor:pointer';
-      card.innerHTML='<img src="'+a.download_url+'" alt="" style="width:100%;height:130px;object-fit:cover;border-radius:10px"><div style="font-weight:800;font-size:12px;margin-top:7px;word-break:break-word">'+esc(a.name)+'</div>';
+      card.innerHTML='<img src="'+a.url+'" alt="" style="width:100%;height:130px;object-fit:cover;border-radius:10px"><div style="font-weight:800;font-size:12px;margin-top:7px;word-break:break-word">'+esc(a.name)+'</div>';
       card.onclick=()=>{
         $(targetId).value=a.download_url;
         const preview=$(previewId); if(preview) preview.innerHTML='<img src="'+esc(a.download_url)+'" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:12px">';
@@ -810,7 +811,7 @@ $('resetSettingsBtn')?.addEventListener('click',()=>{rosemoonSettings={...DEFAUL
     if(!grid)return;
     grid.innerHTML='<div class="empty">Loading image assets…</div>';
     try{
-      const res=await fetch('https://api.github.com/repos/2002roshanmotion-ops/Rosemoon/contents/assets?ref=main',{cache:'no-store'});
+      const res=await fetch('ASSET_API_URL+'?action=assets&_='+Date.now()',{cache:'no-store'});
       if(!res.ok)throw new Error('Assets folder unavailable');
       const files=await res.json();
       assets=Array.isArray(files)?files.filter(f=>f.type==='file'&&/\.(png|jpe?g|webp|gif|svg)$/i.test(f.name)): [];
