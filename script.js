@@ -43,6 +43,7 @@
   };
 
   let products = [...localFallback.products];
+  let assetPositions={};
   let cart = loadCart();
   const landing = document.getElementById("landingPage");
   const shop = document.getElementById("shopPage");
@@ -101,6 +102,7 @@
     "flower basket":"assets/basket.webp"
   };
   const categoryOrder=["Small","Medium","Large","Flower Basket","Others"];
+  function assetImageStyle(url){const p=assetPositions[String(url||"")];if(!p)return "";const x=Number(p.x)||0,y=Number(p.y)||0,z=Number(p.zoom)||1;return " style=\"transform:translate("+x+"px,"+y+"px) scale("+z+");transform-origin:center\"";}
   function categoryImageFor(p){
     if(p?.imageUrl)return String(p.imageUrl);
     const key=String(p?.category||p?.name||'').trim().toLowerCase();
@@ -155,7 +157,7 @@
     });
     grid.innerHTML=active.map(p=>{
       const fixedImage=categoryImageFor(p);
-      const art=fixedImage?'<img class="category-flower-image" src="'+fixedImage+'" alt="'+escapeAttr(p.name)+'">':(isOthers(p)?'🔑🎀📎':p.imageUrl?'<img src="'+escapeAttr(p.imageUrl)+'" alt="'+escapeAttr(p.name)+'" style="width:100%;height:100%;object-fit:cover;border-radius:18px">':(String(p.category||'').toLowerCase().includes("basket")?'🧺🌸':'🌹'));
+      const art=fixedImage?'<img class="category-flower-image" src="'+fixedImage+'" alt="'+escapeAttr(p.name)+'"'+assetImageStyle(fixedImage)+'>':(isOthers(p)?'🔑🎀📎':p.imageUrl?'<img src="'+escapeAttr(p.imageUrl)+'" alt="'+escapeAttr(p.name)+'" style="width:100%;height:100%;object-fit:cover;border-radius:18px">':(String(p.category||'').toLowerCase().includes("basket")?'🧺🌸':'🌹'));
       return '<article class="product" data-id="'+escapeAttr(p.id)+'" data-size="'+escapeAttr(p.category)+'" data-price="'+p.price+'" role="button" tabindex="0" aria-label="Open '+escapeAttr(categoryLabel(p))+' flower shop" style="cursor:pointer">'+
         '<div class="product-top"><span class="price-badge">'+money(p.price)+'</span></div>'+
         '<div class="bouquet-preview"><div class="flower-art">'+art+'</div></div>'+
@@ -194,7 +196,7 @@
     const options=categoryOptions(popupProduct);
     grid.innerHTML=options.map(o=>{
       const type=String(o.type||'Flower 1'),emoji=String(o.emoji||'🌸'),stock=Math.max(0,Number(o.stock)||0),price=Math.max(0,Number(o.price??popupProduct.price)||0),imageUrl=String(o.imageUrl||'');
-      const art=imageUrl?`<img src="${escapeAttr(imageUrl)}" alt="${escapeAttr(type)}" style="width:100%;height:100%;object-fit:cover;border-radius:18px">`:emoji;
+      const pos=assetPositions[imageUrl]||{};const art=imageUrl?`<img src="${escapeAttr(imageUrl)}" alt="${escapeAttr(type)}" style="width:100%;height:100%;object-fit:cover;border-radius:18px;transform:translate(${Number(pos.x)||0}px,${Number(pos.y)||0}px) scale(${Number(pos.zoom)||1});transform-origin:center">`:emoji;
       const stockClass=stock===0?"out":stock<=2?"low":"";
       return `<article class="flower-popup-card"><div class="flower-popup-art">${art}</div><h3>${escapeHtml(type)}</h3><div class="flower-popup-price">${money(price)}</div><div class="flower-popup-stock ${stockClass}">${stock===0?"Sold out":stock+" in stock"}</div><button type="button" data-popup-buy data-type="${escapeAttr(type)}" data-emoji="${escapeAttr(emoji)}" ${stock===0?'disabled':''}>🛒 Add to Cart</button></article>`;
     }).join("");
@@ -537,6 +539,7 @@
     try{const r=await fetch(`${API_URL}?action=products&_=${Date.now()}`,{cache:"no-store"});const d=await r.json();if(d.success&&Array.isArray(d.products)){
         const logoSetting=d.products.find(p=>String(p?.name||"")===ROSEMOON_LOGO_SETTING);
         const settingsSetting=d.products.find(p=>String(p?.name||"")===ROSEMOON_SETTINGS_NAME);
+        try{assetPositions=JSON.parse(String(settingsSetting?.description||"{}")).assetPositions||{}}catch(e){assetPositions={}}
         applyRosemoonLogo(logoSetting?.imageUrl||DEFAULT_ROSEMOON_LOGO);
         if(settingsSetting){try{applyRosemoonSettings(JSON.parse(String(settingsSetting.description||"{}")))}catch(e){applyRosemoonSettings(DEFAULT_ROSEMOON_SETTINGS)}}else applyRosemoonSettings(DEFAULT_ROSEMOON_SETTINGS);
         products=d.products.filter(p=>String(p?.name||"")!==ROSEMOON_LOGO_SETTING&&String(p?.name||"")!==ROSEMOON_SETTINGS_NAME);
