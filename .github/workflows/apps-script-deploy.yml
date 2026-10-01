@@ -39,5 +39,5 @@ jobs:
 
       - name: Redeploy existing web app
         env:
-          DEPLOYMENT_ID: REPLACE_WITH_YOUR_DEPLOYMENT_ID
+          DEPLOYMENT_ID: AKfycbw3ovS6hIwHLhp50Xrs-6ejMxZkI_q-AhB-Mz6JXbsIRKSphJcMoqBELVY4nUogRR__
         run: clasp redeploy "$DEPLOYMENT_ID" "${{ steps.version.outputs.version }}" "GitHub automatic deployment"
