@@ -510,27 +510,36 @@ resetNewCategoryFlowers();
 async function saveCategoryManager(){
   const msg=$('manageCategoryMessage'),btn=$('saveCategoryBtn'),s=$('manageCategorySelect');
   const p=products.find(x=>String(x.id)===String(s?.value));
-  if(!p){msg.textContent='❌ Choose a category first.';return}
+  if(!p){msg.textContent='❌ Choose a product or category first.';return}
   try{
     const name=String($('manageCategoryName').value||'').trim();
     const price=Math.max(0,Math.floor(Number($('manageCategoryPrice').value)||0));
     const stock=Math.max(0,Math.floor(Number($('manageCategoryStock').value)||0));
-    if(!name)throw new Error('Category name is required.');
-    btn.disabled=true;msg.textContent='Saving category…';
-    const oldOpts=categoryData(p).options||[],rows=[...document.querySelectorAll('#manageFlowerOptions [data-manage-flower]')],options=[];
-    for(const row of rows){
-      const i=Number(row.dataset.manageFlower),type=String($('manageFlowerName'+i)?.value||'').trim(),qty=Math.max(0,Math.floor(Number($('manageFlowerStock'+i)?.value)||0)),flowerPrice=Math.max(0,Math.floor(Number($('manageFlowerPrice'+i)?.value)||0)),file=$('manageFlowerPhoto'+i)?.files?.[0],old=oldOpts[i]||{};
-      if(!type)continue;
-      let imageUrl=old.imageUrl||'';
-      if(file){msg.textContent='Uploading '+type+'…';imageUrl=(await api('uploadPhoto',{dataUrl:await readDataUrl(file),fileName:file.name})).url||imageUrl}
-      if(!imageUrl)throw new Error(type+' needs a photo.');
-      options.push({type,stock:qty,price:flowerPrice,imageUrl});
+    if(!name)throw new Error('Name is required.');
+    btn.disabled=true;msg.textContent='Saving…';
+
+    let imageUrl=$('manageCategoryAssetUrl')?.value||p.imageUrl||'';
+    const mainFile=$('manageCategoryPhoto')?.files?.[0];
+    if(mainFile){msg.textContent='Uploading image…';imageUrl=(await api('uploadPhoto',{dataUrl:await readDataUrl(mainFile),fileName:mainFile.name})).url||imageUrl}
+
+    if(isCategoryProduct(p)){
+      const oldOpts=categoryData(p).options||[],rows=[...document.querySelectorAll('#manageFlowerOptions [data-manage-flower]')],options=[];
+      for(const row of rows){
+        const i=Number(row.dataset.manageFlower),type=String($('manageFlowerName'+i)?.value||'').trim(),qty=Math.max(0,Math.floor(Number($('manageFlowerStock'+i)?.value)||0)),flowerPrice=Math.max(0,Math.floor(Number($('manageFlowerPrice'+i)?.value)||0)),file=$('manageFlowerPhoto'+i)?.files?.[0],old=oldOpts[i]||{};
+        if(!type)continue;
+        let flowerImage=old.imageUrl||'';
+        if(file){msg.textContent='Uploading '+type+'…';flowerImage=(await api('uploadPhoto',{dataUrl:await readDataUrl(file),fileName:file.name})).url||flowerImage}
+        if(!flowerImage)throw new Error(type+' needs a photo.');
+        options.push({type,stock:qty,price:flowerPrice,imageUrl:flowerImage});
+      }
+      if(!options.length)throw new Error('Add at least one flower.');
+      const saved=await api('updateProduct',{id:p.id,name,category:name,price,stock,imageUrl,description:JSON.stringify({rosemoonCategory:true,options})});
+      products=saved.products||products;
+    }else{
+      const saved=await api('updateProduct',{id:p.id,name,category:p.category,price,stock,imageUrl,description:p.description||''});
+      products=saved.products||products;
     }
-    if(!options.length)throw new Error('Add at least one flower.');
-    let imageUrl=$('manageCategoryAssetUrl')?.value||p.imageUrl||'';const mainFile=$('manageCategoryPhoto')?.files?.[0];
-    if(mainFile){msg.textContent='Uploading category photo…';imageUrl=(await api('uploadPhoto',{dataUrl:await readDataUrl(mainFile),fileName:mainFile.name})).url||imageUrl}
-    const saved=await api('updateProduct',{id:p.id,name,category:name,price,stock,imageUrl,description:JSON.stringify({rosemoonCategory:true,options})});
-    products=saved.products||products;populateCategoryManager();s.value=String(p.id);renderCategoryManager();renderInventory();renderDashboardInventory();updateStats();msg.textContent='✅ Category saved.';
+    populateCategoryManager();s.value=String(p.id);renderCategoryManager();renderInventory();renderDashboardInventory();updateStats();renderLowStock();msg.textContent='✅ Saved successfully.';
   }catch(e){msg.textContent='❌ '+e.message}
   finally{btn.disabled=false}
 }
