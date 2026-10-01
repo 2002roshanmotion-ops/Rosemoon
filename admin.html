@@ -118,6 +118,20 @@ body{background:radial-gradient(circle at 10% 0%,#ffe8f0 0,#fff7f9 32%,#f8f2f5 1
   </section>
 
 
+  <section class="card" style="margin-bottom:18px;border:2px solid #efd3dc;background:linear-gradient(180deg,#fff,#fff8fa)">
+    <h2>✏️ Edit Existing Flower Category</h2>
+    <p class="hint">Change the category image, name, price, stock, or flower details for products already on your website.</p>
+    <div class="form-grid">
+      <div class="field full"><label>SELECT CATEGORY</label><select id="manageCategorySelect"><option value="">Choose a category</option></select></div>
+      <div class="field"><label>CATEGORY NAME</label><input id="manageCategoryName" placeholder="Category name"></div>
+      <div class="field"><label>PRICE (Rs.)</label><input id="manageCategoryPrice" type="number" min="0" step="1" placeholder="1500"></div>
+      <div class="field"><label>CATEGORY / MAIN IMAGE</label><input id="manageCategoryPhoto" type="file" accept="image/png,image/jpeg,image/webp,image/gif"><button class="secondary" id="chooseManageCategoryAsset" type="button" style="margin-top:8px">🗂️ Choose from Assets</button><input id="manageCategoryAssetUrl" type="hidden"></div>
+      <div class="field"><label>CATEGORY STOCK</label><input id="manageCategoryStock" type="number" min="0" step="1" placeholder="0"></div>
+      <div class="field full"><div id="manageFlowerOptions"><div class="empty">Choose a category to manage its flowers.</div></div></div>
+      <div class="field full actions"><button class="primary" id="saveCategoryBtn" type="button">💾 Save Changes</button><span class="hint" id="manageCategoryMessage"></span></div>
+    </div>
+  </section>
+
   <section class="panel" id="settings">
     <div class="card settings-hero-card">
       <h2>⚙️ Rosemoon Website Settings</h2>
@@ -471,7 +485,7 @@ function renderCategoryManager(){
   $('manageCategoryName').value=p.name||p.category||'';
   $('manageCategoryPrice').value=Number(p.price||0);
   $('manageCategoryStock').value=Number(p.stock||0);
-  $('manageCategoryPhoto').value='';
+  $('manageCategoryPhoto').value='';$('manageCategoryAssetUrl').value='';
   const d=categoryData(p),opts=Array.isArray(d.options)?d.options:[];
   let html='<div style="display:grid;gap:10px">';
   opts.forEach((o,i)=>{
@@ -510,7 +524,7 @@ async function saveCategoryManager(){
       options.push({type,stock:qty,imageUrl});
     }
     if(!options.length)throw new Error('Add at least one flower.');
-    let imageUrl=p.imageUrl||'';const mainFile=$('manageCategoryPhoto')?.files?.[0];
+    let imageUrl=$('manageCategoryAssetUrl')?.value||p.imageUrl||'';const mainFile=$('manageCategoryPhoto')?.files?.[0];
     if(mainFile){msg.textContent='Uploading category photo…';imageUrl=(await api('uploadPhoto',{dataUrl:await readDataUrl(mainFile),fileName:mainFile.name})).url||imageUrl}
     const saved=await api('updateProduct',{id:p.id,name,category:name,price,stock,imageUrl,description:JSON.stringify({rosemoonCategory:true,options})});
     products=saved.products||products;populateCategoryManager();s.value=String(p.id);renderCategoryManager();renderInventory();renderDashboardInventory();updateStats();msg.textContent='✅ Category saved.';
@@ -731,6 +745,35 @@ async function saveSettings(){
 $('saveSettingsBtn')?.addEventListener('click',saveSettings);
 $('resetSettingsBtn')?.addEventListener('click',()=>{rosemoonSettings={...DEFAULT_ROSEMOON_SETTINGS};renderSettings();$('settingsMessage').textContent='Defaults loaded. Press Save All Settings to apply them.'});
 </script>
+
+
+// Edit-existing-category asset picker
+(function(){
+  const btn=$('chooseManageCategoryAsset'); if(!btn)return;
+  btn.onclick=async()=>{
+    try{
+      const r=await fetch('https://api.github.com/repos/2002roshanmotion-ops/Rosemoon/contents/assets?ref=main',{cache:'no-store'});
+      const files=await r.json();
+      const imgs=(Array.isArray(files)?files:[]).filter(x=>x.type==='file'&&/\.(png|jpe?g|webp|gif|svg)$/i.test(x.name));
+      if(!imgs.length){alert('No images found in Assets.');return}
+      const old=$('manageAssetPickerModal');if(old)old.remove();
+      const modal=document.createElement('div');modal.id='manageAssetPickerModal';modal.style.cssText='position:fixed;inset:0;background:rgba(35,20,28,.62);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px';
+      modal.innerHTML='<div style="background:#fff;border-radius:22px;width:min(900px,100%);max-height:85vh;overflow:auto;padding:20px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div><h2 style="margin:0">🗂️ Select Asset</h2><p class="hint" style="margin:5px 0 0">Click an image to use it for this category.</p></div><button class="secondary" id="closeManageAssetPicker" type="button">Close</button></div><div id="manageAssetPickerGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px"></div></div>';
+      document.body.appendChild(modal);
+      const grid=modal.querySelector('#manageAssetPickerGrid');
+      imgs.forEach(a=>{
+        const card=document.createElement('button');card.type='button';card.style.cssText='border:1px solid #ead9df;background:#fff;border-radius:14px;padding:8px;text-align:left;cursor:pointer';
+        card.innerHTML='<img src="'+a.download_url+'" alt="" style="width:100%;height:130px;object-fit:cover;border-radius:10px"><div style="font-weight:800;font-size:12px;margin-top:7px;word-break:break-word">'+a.name+'</div>';
+        card.onclick=()=>{$('manageCategoryAssetUrl').value=a.download_url;$('manageCategoryPhoto').value='';$('manageCategoryMessage').textContent='🖼️ Asset selected: '+a.name;modal.remove()};
+        grid.appendChild(card);
+      });
+      modal.querySelector('#closeManageAssetPicker').onclick=()=>modal.remove();
+    }catch(e){alert('Could not load Assets.')}
+  };
+  $('manageCategorySelect')?.addEventListener('change',renderCategoryManager);
+  $('saveCategoryBtn')?.addEventListener('click',saveCategoryManager);
+  window.populateCategoryManager=populateCategoryManager;
+})();
 
 <script src="crop-editor.js?v=2"></script>
 <script>
