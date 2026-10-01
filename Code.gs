@@ -85,6 +85,7 @@ function doGet(e) {
   try {
     if(action==='inventory'||action==='products') return json_(getProducts_());
     if(action==='music') return json_(getMusic_());
+    if(action==='assets') return json_(getAssets_());
     if(action==='musicFile') return json_(getMusicFile_(e.parameter.fileId));
     if(action==='orders') return json_(getOrders_());
     if(action==='customers') return json_(getCustomers_());
@@ -110,6 +111,7 @@ function doPost(e) {
       case 'updateProduct': return json_(updateProduct_(payload));
       case 'deleteProduct': return json_(deleteProduct_(payload));
       case 'uploadPhoto': return json_(uploadMedia_(payload,'photo'));
+      case 'addAsset': return json_(addAsset_(payload));
       case 'addProductWithPhoto': {
         const upload=uploadMedia_(payload,'photo');
         return json_(addProduct_(Object.assign({},payload,{imageUrl:upload.url})));
@@ -208,6 +210,39 @@ function deleteProduct_(payload) {
 function updateStock_(payload) {
   requireAdmin_(payload);
   return updateProduct_({adminKey:payload.adminKey,id:payload.productId,stock:payload.stock});
+}
+
+function getAssets_() {
+  const folderId=ensureFolder_('Rosemoon Product Photos','ROSEMOON_PHOTO_FOLDER_ID');
+  const folder=DriveApp.getFolderById(folderId);
+  const it=folder.getFiles();
+  const assets=[];
+  while(it.hasNext()){
+    const file=it.next();
+    const mime=String(file.getMimeType()||'');
+    if(!/^image\\/(jpeg|png|webp|gif|svg\\+xml)$/i.test(mime)) continue;
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);
+    assets.push({id:'asset-'+file.getId().slice(-12),name:file.getName(),fileId:file.getId(),mime:mime,url:file.getDownloadUrl(),createdAt:file.getDateCreated().getTime()});
+  }
+  assets.sort((a,b)=>b.createdAt-a.createdAt);
+  return {success:true,assets:assets};
+}
+
+function addAsset_(payload) {
+  requireAdmin_(payload);
+  const dataUrl=String(payload.dataUrl||'');
+  const match=dataUrl.match(/^data:([^;]+);base64,(.+)$/);
+  if(!match) throw new Error('Invalid image data.');
+  const mime=match[1];
+  if(!/^image\\/(jpeg|png|webp|gif|svg\\+xml)$/i.test(mime)) throw new Error('Only PNG, JPEG, WebP, GIF or SVG images are allowed.');
+  const bytes=Utilities.base64Decode(match[2]);
+  if(bytes.length>10*1024*1024) throw new Error('Image is too large. Maximum 10 MB.');
+  const folderId=ensureFolder_('Rosemoon Product Photos','ROSEMOON_PHOTO_FOLDER_ID');
+  const fileName=safeFileName_(String(payload.fileName||'asset.'+(mime==='image/png'?'png':'jpg')));
+  const file=DriveApp.getFolderById(folderId).createFile(Utilities.newBlob(bytes,mime,fileName));
+  file.setSharing(DriveApp.Access.ANYONE_WITH_LINK,DriveApp.Permission.VIEW);
+  logActivity_('ADD_ASSET',file.getName());
+  return {success:true,message:'Image added to Assets.',asset:{id:'asset-'+file.getId().slice(-12),name:file.getName(),fileId:file.getId(),mime:mime,url:file.getDownloadUrl(),createdAt:file.getDateCreated().getTime()},assets:getAssets_().assets};
 }
 
 function uploadMedia_(payload,type) {
