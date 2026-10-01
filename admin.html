@@ -338,7 +338,7 @@ $('categoryName')?.addEventListener('change',setupOthersPreset);
 $('categoryName')?.addEventListener('input',()=>{if(String($('categoryName').value||'').trim().toLowerCase()==='others')setupOthersPreset()});
 async function openAssetPicker(targetId,previewId,messageId){
   try{
-    const r=await fetch('ASSET_API_URL+'?action=assets&_='+Date.now()',{cache:'no-store'});
+    const r=await fetch(ASSET_API_URL+'?action=assets&_='+Date.now(),{cache:'no-store'});
     const data=await r.json();
     const imgs=(data&&Array.isArray(data.assets)?data.assets:[]);
     if(!imgs.length){alert('No images found in Assets. Add a picture in Assets first.');return}
