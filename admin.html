@@ -230,7 +230,7 @@ body{background:radial-gradient(circle at 10% 0%,#ffe8f0 0,#fff7f9 32%,#f8f2f5 1
     </div>
   </section>
 
-  <section class="panel" id="assets"><div class="card"><div class="section-head"><div><h2>🗂️ Assets</h2><p class="muted">Preview and manage image assets connected to Rosemoon.</p></div><button class="secondary" id="refreshAssets">🔄 Refresh</button></div><div class="asset-tools"><input id="assetSearch" type="search" placeholder="Search assets…"><select id="assetType"><option value="">All assets</option><option value="image">Images</option></select></div><div id="assetGrid" class="asset-grid"><div class="empty">Loading assets…</div></div></div></section>
+  <section class="panel" id="assets"><div class="card"><div class="section-head"><div><h2>🗂️ Assets</h2><p class="muted">Preview and manage image assets connected to Rosemoon.</p></div><button class="secondary" id="refreshAssets">🔄 Refresh</button></div><div class="asset-tools"><input id="assetSearch" type="search" placeholder="Search assets…"><select id="assetType"><option value="">All assets</option><option value="image">Images</option></select></div><div class="card" style="margin:0 0 16px;background:#fff8fa"><h3 style="margin:0 0 10px">➕ Add Picture to Assets</h3><div class="asset-tools" style="margin:0"><input id="assetUploadFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"><input id="assetUploadName" type="text" placeholder="Picture name (optional)"><button class="primary" type="button" id="assetUploadBtn">⬆️ Add to Assets</button></div><div class="hint">Pictures added here stay in Assets only. They will not appear on the customer website until you assign them to a product or category.</div><div id="assetUploadMessage" class="hint" style="margin-top:8px"></div></div><div id="assetGrid" class="asset-grid"><div class="empty">Loading assets…</div></div></div></section>
 <section class="panel" id="music"><div class="card"><h2>🎵 Add Music</h2><div class="form-grid"><div class="field"><label>SONG NAME (OPTIONAL)</label><input id="musicTitle" placeholder="Leave blank to use MP3 filename"></div><div class="field"><label>AUDIO FILES (MP3)</label><input id="musicFile" type="file" accept=".mp3,audio/mpeg" multiple><div class="hint" style="margin-top:6px">Select one MP3 or multiple MP3 files. Title is optional; blank uses the filename.</div></div><div class="field full"><button class="primary" id="addMusicBtn">🎵 Add Music</button><span class="hint" id="musicMessage" style="margin-left:10px"></span><div id="musicUploadList" class="upload-list" aria-live="polite"></div></div></div></div><div class="card"><h2>Playlist order</h2><p class="hint">Use ↑ and ↓ to arrange the order. The customer website follows this order automatically.</p><div id="musicList"></div></div></section>
 
   <section class="panel" id="orders"><div class="card"><h2>📋 Orders</h2><div class="order-tools"><input id="orderSearch" type="search" placeholder="Search customer, phone or order…"><select id="orderStatusFilter"><option value="">All statuses</option><option>New</option><option>Confirmed</option><option>Preparing</option><option>Completed</option><option>Cancelled</option></select><button class="secondary" id="refreshOrders">🔄 Refresh</button></div><div class="order-summary" id="orderSummary"></div><div class="table-wrap"><table><thead><tr><th>Order</th><th>Date</th><th>Customer</th><th>Phone</th><th>Items</th><th>Total</th><th>Status</th></tr></thead><tbody id="ordersTable"></tbody></table></div></div></section>
@@ -842,6 +842,24 @@ $('resetSettingsBtn')?.addEventListener('click',()=>{rosemoonSettings={...DEFAUL
     grid.innerHTML=rows.length?rows.map(a=>'<div class="asset-card"><div class="asset-preview"><img loading="lazy" src="'+a.download_url+'" alt="'+a.name+'"></div><div class="asset-name">'+a.name+'</div><div class="asset-url">assets/'+a.name+'</div><div class="asset-actions"><button class="secondary asset-edit-btn" type="button">✏️ Edit</button><button class="secondary" type="button" data-copy="'+a.download_url+'">Copy URL</button><a class="secondary" href="'+a.html_url+'" target="_blank" rel="noopener">Open</a></div></div>').join(''):'<div class="empty">No image assets found.</div>';
     grid.querySelectorAll('[data-copy]').forEach(b=>b.onclick=()=>navigator.clipboard?.writeText(b.dataset.copy));
   }
+  const uploadBtn=document.getElementById('assetUploadBtn');
+  uploadBtn?.addEventListener('click',async()=>{
+    const input=document.getElementById('assetUploadFile'),msg=document.getElementById('assetUploadMessage');
+    const file=input?.files?.[0];
+    msg.textContent='';
+    if(!file){msg.textContent='❌ Choose an image first.';return}
+    if(file.size>10*1024*1024){msg.textContent='❌ Image must be 10 MB or smaller.';return}
+    uploadBtn.disabled=true;msg.textContent='Uploading…';
+    try{
+      const dataUrl=await readDataUrl(file);
+      const name=(document.getElementById('assetUploadName')?.value||file.name).trim();
+      await submitViaForm({action:'addAsset',adminKey:ADMIN_KEY,fileName:name,dataUrl},120000);
+      msg.textContent='✅ Added to Assets. It is not assigned to any product yet.';
+      input.value='';document.getElementById('assetUploadName').value='';
+      await loadRepoAssets();
+    }catch(e){msg.textContent='❌ '+e.message}
+    finally{uploadBtn.disabled=false}
+  });
   refresh?.addEventListener('click',loadRepoAssets);
   search?.addEventListener('input',renderRepoAssets);
   window.loadRepoAssets=loadRepoAssets;
