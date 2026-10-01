@@ -823,7 +823,9 @@ $('resetSettingsBtn')?.addEventListener('click',()=>{rosemoonSettings={...DEFAUL
       renderRepoAssets();
     }catch(e){
       console.error('GitHub assets load failed:',e);
-      grid.innerHTML='<div class="empty">Could not load GitHub image assets. Tap Refresh to try again.</div>';
+      const fallback=['basket.webp','large.webp','main-flower.webp','medium.webp','small.webp','rosemoon-logo.svg'];
+      assets=fallback.map(name=>({name,download_url:'https://raw.githubusercontent.com/2002roshanmotion-ops/Rosemoon/main/assets/'+encodeURIComponent(name),html_url:'https://github.com/2002roshanmotion-ops/Rosemoon/blob/main/assets/'+encodeURIComponent(name),path:'assets/'+name}));
+      renderRepoAssets();
     }
   }
   window.loadRepoAssets=loadRepoAssets;
