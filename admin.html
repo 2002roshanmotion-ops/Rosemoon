@@ -470,8 +470,8 @@ function populateCategoryManager(){
   const s=$('manageCategorySelect');
   if(!s)return;
   const current=s.value;
-  const cats=products.filter(isCategoryProduct);
-  s.innerHTML='<option value="">Choose a category</option>'+cats.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.name||p.category)+' — '+money(p.price)+'</option>').join('');
+  const cats=products.filter(p=>p&&p.active!==false&&String(p.name||"")!==ROSEMOON_SETTINGS_NAME);
+  s.innerHTML='<option value="">Choose a product or category</option>'+cats.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.name||p.category)+' — '+money(p.price)+'</option>').join('');
   if(current&&cats.some(p=>String(p.id)===String(current)))s.value=current;
   renderCategoryManager();
 }
