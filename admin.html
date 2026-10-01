@@ -857,6 +857,23 @@ $('resetSettingsBtn')?.addEventListener('click',()=>{rosemoonSettings={...DEFAUL
   }
 
   window.loadRepoAssets=loadRepoAssets;
+  document.getElementById('assetUploadBtn')?.addEventListener('click',async()=>{
+    const file=document.getElementById('assetUploadFile')?.files?.[0];
+    const msg=document.getElementById('assetUploadMessage');
+    if(!file){if(msg)msg.textContent='Please choose an image first.';return;}
+    const name=document.getElementById('assetUploadName')?.value.trim()||file.name;
+    const btn=document.getElementById('assetUploadBtn');
+    try{
+      btn.disabled=true;btn.textContent='⏳ Adding…';if(msg)msg.textContent='Uploading image to Rosemoon Assets…';
+      const dataUrl=await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(new Error('Could not read image.'));r.readAsDataURL(file)});
+      const d=await api('addAsset',{fileName:name,dataUrl});
+      if(msg)msg.textContent='✅ Image added to Assets.';
+      document.getElementById('assetUploadFile').value='';
+      document.getElementById('assetUploadName').value='';
+      await loadRepoAssets();
+    }catch(e){if(msg)msg.textContent='❌ '+e.message}
+    finally{btn.disabled=false;btn.textContent='⬆️ Add to Assets'}
+  });
   search?.addEventListener('input',renderRepoAssets);
   refresh?.addEventListener('click',loadRepoAssets);
   loadRepoAssets();
