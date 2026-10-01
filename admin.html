@@ -876,7 +876,7 @@ $('resetSettingsBtn')?.addEventListener('click',()=>{rosemoonSettings={...DEFAUL
   [x,y,z].forEach(q=>q.addEventListener("input",draw));draw();
   el.querySelector("#closeAssetEditor").onclick=()=>el.remove();
   el.querySelector("#assetReset").onclick=()=>{x.value=0;y.value=0;z.value=1;draw()};
-  el.querySelector("#assetSave").onclick=()=>{localStorage.setItem(key,JSON.stringify({x:+x.value,y:+y.value,zoom:+z.value}));alert("Image position saved.")};
+  el.querySelector("#assetSave").onclick=async()=>{const pos={x:+x.value,y:+y.value,zoom:+z.value};try{const settings=products.find(p=>String(p?.name||"")===ROSEMOON_SETTINGS_NAME);if(!settings)throw new Error("Rosemoon settings product not found");let data={};try{data=JSON.parse(String(settings.description||"{}"))||{}}catch(e){}data.assetPositions={...(data.assetPositions||{}),[url]:pos};await api("updateProduct",{id:settings.id,name:settings.name,category:settings.category,price:settings.price,stock:settings.stock,imageUrl:settings.imageUrl||"",active:false,description:JSON.stringify(data)});localStorage.setItem(key,JSON.stringify(pos));alert("Image position saved to Rosemoon. The live website will use it.");}catch(e){alert("Could not save image position: "+e.message)}};
  };
 })();
 </script><script>
