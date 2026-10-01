@@ -537,18 +537,37 @@ async function saveCategoryManager(){
 function renderDashboardInventory(){const t=$('dashboardInventoryTable');if(!t)return;t.innerHTML=products.slice(0,12).map(p=>`<tr><td>${esc(p.name)}</td><td>${esc(p.category)}</td><td>${money(p.price)}</td><td class="${p.stock===0?'status-out':p.stock<=2?'status-low':'status-ok'}">${p.stock}</td></tr>`).join('')||'<tr><td colspan="4" class="empty">No products yet.</td></tr>'}
 function renderInventory(){
   const box=$('categoryInventoryList');if(!box)return;
-  const cats=products.filter(isCategoryProduct);
-  if(!cats.length){box.innerHTML='<div class="empty">No categories yet. Add one from 🖼️ Add Flowers.</div>';return}
-  box.innerHTML=cats.map(p=>{
-    const raw=categoryData(p),opts=Array.isArray(raw.options)?raw.options:[],pid=esc(p.id);
-    return '<div class="inventory-category-card">'+
-      '<div class="inventory-category-head"><div><div class="inventory-category-title">'+esc(p.name||p.category)+'</div><div class="inventory-category-meta">'+money(p.price)+' · '+opts.length+' flowers</div></div>'+
-      '<div><label class="hint">PRICE (Rs.)</label><input id="cat-price-'+pid+'" type="number" min="0" value="'+Number(p.price||0)+'"></div>'+
-      '<button class="secondary inventory-open-btn" type="button" onclick="toggleCategoryInventory(\''+pid+'\')">🌸 Open Flowers</button></div>'+
-      '<div class="inventory-category-details" id="cat-details-'+pid+'"><div class="inventory-flower-list">'+
-      (opts.length?opts.map((o,i)=>'<div class="inventory-flower-row"><div>'+((o.imageUrl)?'<img src="'+esc(o.imageUrl)+'" alt="">':'🌸')+'</div><div><strong>'+esc(o.type||('Flower '+(i+1)))+'</strong><div class="hint">Quick stock</div></div><div class="flower-stock"><label class="hint">FLOWER STOCK</label><input id="cat-flower-stock-'+pid+'-'+i+'" type="number" min="0" value="'+Number(o.stock||0)+'"></div><div class="flower-save"><div class="quick-stock"><button type="button" title="Remove 1" onclick="adjustFlowerStock(\''+pid+'\','+i+',-1)">−</button><span class="stock-value" id="quick-stock-'+pid+'-'+i+'">'+Number(o.stock||0)+'</span><button type="button" title="Add 1" onclick="adjustFlowerStock(\''+pid+'\','+i+',1)">+</button></div><button class="secondary" type="button" onclick="saveCategoryInventory(\''+pid+'\')">Save</button></div></div>').join(''):'<div class="empty">No flowers added.</div>')+
-      '</div><div class="inventory-category-actions"><button class="primary" type="button" onclick="saveCategoryInventory(\''+pid+'\')">💾 Save Category</button></div></div></div>';
-  }).join('');
+  const activeProducts=products.filter(p=>p&&p.active!==false&&String(p.name||'')!==ROSEMOON_SETTINGS_NAME);
+  if(!activeProducts.length){box.innerHTML='<div class="empty">No products yet.</div>';return}
+  const cats=activeProducts.filter(isCategoryProduct);
+  const regular=activeProducts.filter(p=>!isCategoryProduct(p));
+  let html='';
+  if(cats.length){
+    html+='<div class="inventory-section-title">🌸 CATEGORIES</div>';
+    html+=cats.map(p=>{
+      const raw=categoryData(p),opts=Array.isArray(raw.options)?raw.options:[],pid=esc(p.id);
+      return '<div class="inventory-category-card">'+
+        '<div class="inventory-category-head"><div><div class="inventory-category-title">'+esc(p.name||p.category)+'</div><div class="inventory-category-meta">'+money(p.price)+' · '+opts.length+' flowers</div></div>'+
+        '<div><label class="hint">CATEGORY PRICE (Rs.)</label><input id="cat-price-'+pid+'" type="number" min="0" step="1" value="'+Number(p.price||0)+'"></div>'+
+        '<button class="secondary inventory-open-btn" type="button" onclick="toggleCategoryInventory(\\''+pid+'\\')">🌸 Open Flowers</button></div>'+
+        '<div class="inventory-category-details" id="cat-details-'+pid+'"><div class="inventory-flower-list">'+
+        (opts.length?opts.map((o,i)=>'<div class="inventory-flower-row"><div>'+((o.imageUrl)?'<img src="'+esc(o.imageUrl)+'" alt="">':'🌸')+'</div><div><strong>'+esc(o.type||('Flower '+(i+1)))+'</strong></div><div class="flower-stock"><label class="hint">INDIVIDUAL STOCK</label><input id="cat-flower-stock-'+pid+'-'+i+'" type="number" min="0" value="'+Number(o.stock||0)+'"></div><div class="flower-save"><label class="hint">FLOWER PRICE (Rs.)</label><input id="cat-flower-price-'+pid+'-'+i+'" type="number" min="0" step="1" value="'+Number(o.price??p.price??0)+'"><div class="quick-stock"><button type="button" title="Remove 1" onclick="adjustFlowerStock(\\''+pid+'\\','+i+',-1)">−</button><span class="stock-value" id="quick-stock-'+pid+'-'+i+'">'+Number(o.stock||0)+'</span><button type="button" title="Add 1" onclick="adjustFlowerStock(\\''+pid+'\\','+i+',1)">+</button></div></div></div>').join(''):'<div class="empty">No flowers added.</div>')+
+        '</div><div class="inventory-category-actions"><button class="primary" type="button" onclick="saveCategoryInventory(\\''+pid+'\\')">💾 Save Category</button></div></div></div>';
+    }).join('');
+  }
+  if(regular.length){
+    html+='<div class="inventory-section-title" style="margin-top:22px">📦 PRODUCTS</div>';
+    html+='<div class="inventory-product-list">'+regular.map(p=>{
+      const pid=esc(p.id);
+      return '<div class="inventory-category-card inventory-product-card"><div class="inventory-category-head">'+
+        '<div><div class="inventory-category-title">'+esc(p.name||'Product')+'</div><div class="inventory-category-meta">'+esc(p.category||'Product')+'</div></div>'+
+        '<div><label class="hint">PRICE (Rs.)</label><input id="prod-price-'+pid+'" type="number" min="0" step="1" value="'+Number(p.price||0)+'"></div>'+
+        '<div><label class="hint">STOCK</label><input id="prod-stock-'+pid+'" type="number" min="0" step="1" value="'+Number(p.stock||0)+'"></div>'+
+        '<button class="primary inventory-open-btn" type="button" onclick="saveProductInventory(\\''+pid+'\\')">💾 Save Product</button>'+
+        '</div></div>';
+    }).join('')+'</div>';
+  }
+  box.innerHTML=html;
 }
 function toggleCategoryInventory(id){
   const details=$('cat-details-'+id),btn=document.querySelector('[onclick="toggleCategoryInventory(\''+id+'\')"]');
@@ -561,7 +580,7 @@ async function saveCategoryInventory(id){
   try{
     const price=Math.max(0,Math.floor(Number($('cat-price-'+id).value)||0));
     const old=categoryData(p).options||[];
-    const options=old.map((o,i)=>({...o,stock:Math.max(0,Math.floor(Number($('cat-flower-stock-'+id+'-'+i).value)||0))}));
+    const options=old.map((o,i)=>({...o,stock:Math.max(0,Math.floor(Number($('cat-flower-stock-'+id+'-'+i).value)||0)),price:Math.max(0,Math.floor(Number($('cat-flower-price-'+id+'-'+i).value)||0))}));
     const d=await api('updateProduct',{id:p.id,name:p.name,category:p.category,price,stock:p.stock,imageUrl:p.imageUrl||'',description:JSON.stringify({rosemoonCategory:true,options})});
     products=d.products||products;renderInventory();renderDashboardInventory();updateStats();
   }catch(e){alert(e.message)}
@@ -571,6 +590,15 @@ function openCategoryEditor(id){
   const s=$('manageCategorySelect');if(!s)return;
   if(!products.some(p=>String(p.id)===String(id)))return;
   s.value=id;setTab('inventory');renderCategoryManager();
+}
+async function saveProductInventory(id){
+  const p=products.find(x=>String(x.id)===String(id));if(!p)return;
+  try{
+    const price=Math.max(0,Math.floor(Number($('prod-price-'+id).value)||0));
+    const stock=Math.max(0,Math.floor(Number($('prod-stock-'+id).value)||0));
+    const d=await api('updateProduct',{id:p.id,name:p.name,category:p.category,price,stock,imageUrl:p.imageUrl||'',description:p.description||''});
+    products=d.products||products;renderInventory();renderDashboardInventory();updateStats();renderLowStock();
+  }catch(e){alert(e.message)}
 }
 async function saveInventory(id){try{const price=Math.max(0,Math.floor(Number($('price-'+id).value)||0));const stock=Math.max(0,Math.floor(Number($('stock-'+id).value)||0));const d=await api('updateProduct',{id,price,stock});products=d.products||products;renderInventory();renderDashboardInventory();updateStats()}catch(e){alert(e.message)}}
 async function saveStock(id){try{const v=Math.max(0,Math.floor(Number($('stock-'+id).value)||0));const d=await api('updateStock',{productId:id,stock:v});products=d.products||products;renderInventory();updateStats()}catch(e){alert(e.message)}}
