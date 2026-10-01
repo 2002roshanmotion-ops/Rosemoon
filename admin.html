@@ -747,7 +747,7 @@ $('resetSettingsBtn')?.addEventListener('click',()=>{rosemoonSettings={...DEFAUL
 </script>
 
 
-// Edit-existing-category asset picker
+<script>
 (function(){
   const btn=$('chooseManageCategoryAsset'); if(!btn)return;
   btn.onclick=async()=>{
@@ -774,6 +774,7 @@ $('resetSettingsBtn')?.addEventListener('click',()=>{rosemoonSettings={...DEFAUL
   $('saveCategoryBtn')?.addEventListener('click',saveCategoryManager);
   window.populateCategoryManager=populateCategoryManager;
 })();
+</script>
 
 <script src="crop-editor.js?v=2"></script>
 <script>
