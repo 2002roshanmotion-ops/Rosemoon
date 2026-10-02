@@ -99,9 +99,9 @@
     small:"assets/small.webp",
     medium:"assets/medium.webp",
     large:"assets/large.webp",
-    "flower basket":"assets/basket.webp"
+    "flower basket":"assets/basket.webp","festival decoration":"assets/festival-decoration.webp"
   };
-  const categoryOrder=["Small","Medium","Large","Flower Basket","Others"];
+  const categoryOrder=["Small","Medium","Large","Flower Basket","Festival Decoration","Others"];
   function assetImageStyle(url){const p=assetPositions[String(url||"")];if(!p)return "";const x=Number(p.x)||0,y=Number(p.y)||0,z=Number(p.zoom)||1;return " style=\"transform:translate("+x+"px,"+y+"px) scale("+z+");transform-origin:center\"";}
   function categoryImageFor(p){
     if(p?.imageUrl)return String(p.imageUrl);
@@ -543,6 +543,7 @@
         applyRosemoonLogo(logoSetting?.imageUrl||DEFAULT_ROSEMOON_LOGO);
         if(settingsSetting){try{applyRosemoonSettings(JSON.parse(String(settingsSetting.description||"{}")))}catch(e){applyRosemoonSettings(DEFAULT_ROSEMOON_SETTINGS)}}else applyRosemoonSettings(DEFAULT_ROSEMOON_SETTINGS);
         products=d.products.filter(p=>String(p?.name||"")!==ROSEMOON_LOGO_SETTING&&String(p?.name||"")!==ROSEMOON_SETTINGS_NAME);
+        if(!products.some(p=>String(p?.category||"").trim().toLowerCase()==="festival decoration")){products.push({id:"festival-decoration",category:"Festival Decoration",name:"Festival Decoration",price:0,stock:0,imageUrl:"assets/festival-decoration.webp",active:true,description:JSON.stringify({rosemoonCategory:true,options:[{type:"Tihar & Dashain Decoration",emoji:"🪔",stock:0,price:0,imageUrl:"assets/festival-decoration.webp"}]})});}
         if(!products.some(p=>String(p?.category||"").trim().toLowerCase()==="others")){
           products.push(localFallback.products.find(p=>p.id==="others"));
         }
