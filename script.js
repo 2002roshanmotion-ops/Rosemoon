@@ -81,6 +81,8 @@
   };
   const categoryOrder=["Small","Medium","Large","Flower Basket","Others"];
   function categoryImageFor(p){
+    const custom=String(p?.imageUrl||'').trim();
+    if(custom)return custom;
     const key=String(p?.category||p?.name||'').trim().toLowerCase();
     return categoryImages[key]||categoryImages[String(p?.name||'').trim().toLowerCase()]||"";
   }
