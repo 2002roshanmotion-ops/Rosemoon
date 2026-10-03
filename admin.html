@@ -37,6 +37,7 @@ body{background:radial-gradient(circle at 10% 0%,#ffe8f0 0,#fff7f9 32%,#f8f2f5 1
       <button class="tab active" data-tab="dashboard">📊 <span>Dashboard</span></button>
       <button class="tab" data-tab="inventory">📦 <span>Inventory</span></button>
       <button class="tab" data-tab="photos">🌸 <span>Add Flowers</span></button>
+      <button class="tab" data-tab="editFlowers">✏️ <span>Edit Flowers</span></button>
       <button class="tab" data-tab="orders">📋 <span>Orders</span></button>
       <button class="tab" data-tab="music">🎵 <span>Music</span></button>
     </nav>
@@ -106,6 +107,30 @@ body{background:radial-gradient(circle at 10% 0%,#ffe8f0 0,#fff7f9 32%,#f8f2f5 1
 
   </section>
 
+  <section class="panel" id="editFlowers">
+    <div class="card">
+      <h2>✏️ Edit Existing Flower Category</h2>
+      <p class="hint">Choose an existing category to replace images directly from your PC, change names, prices and stock, or add/remove flowers.</p>
+      <div class="form-grid">
+        <div class="field full">
+          <label>CHOOSE EXISTING CATEGORY</label>
+          <select id="manageCategorySelect"><option value="">Choose a category</option></select>
+        </div>
+        <div class="field"><label>CATEGORY NAME</label><input id="manageCategoryName" type="text"></div>
+        <div class="field"><label>CATEGORY PRICE (Rs.)</label><input id="manageCategoryPrice" type="number" min="0" step="1"></div>
+        <div class="field"><label>CATEGORY TOTAL STOCK</label><input id="manageCategoryStock" type="number" min="0" step="1"></div>
+        <div class="field"><label>REPLACE CATEGORY IMAGE FROM PC</label><input id="manageCategoryPhoto" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></div>
+        <div class="field full"><div id="manageCategoryPhotoPreview"></div></div>
+        <div class="field full"><h3 style="margin:4px 0">Flowers in this category</h3><div class="hint">Each flower can have its own image, name, price and stock.</div></div>
+        <div class="field full" id="manageFlowerOptions"><div class="empty">Choose a category to manage its flowers.</div></div>
+        <div class="field full actions">
+          <button class="primary" id="saveCategoryBtn" type="button">💾 Save Changes</button>
+          <span class="hint" id="manageCategoryMessage"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section class="panel" id="music"><div class="card"><h2>🎵 Add Music</h2><div class="form-grid"><div class="field"><label>SONG NAME (OPTIONAL)</label><input id="musicTitle" placeholder="Leave blank to use MP3 filename"></div><div class="field"><label>AUDIO FILES (MP3)</label><input id="musicFile" type="file" accept=".mp3,audio/mpeg" multiple><div class="hint" style="margin-top:6px">Select one MP3 or multiple MP3 files. Title is optional; blank uses the filename.</div></div><div class="field full"><button class="primary" id="addMusicBtn">🎵 Add Music</button><span class="hint" id="musicMessage" style="margin-left:10px"></span><div id="musicUploadList" class="upload-list" aria-live="polite"></div></div></div></div><div class="card"><h2>Playlist order</h2><p class="hint">Use ↑ and ↓ to arrange the order. The customer website follows this order automatically.</p><div id="musicList"></div></div></section>
 
   <section class="panel" id="orders"><div class="card"><h2>📋 Orders</h2><button class="secondary" id="refreshOrders">🔄 Refresh</button><div class="table-wrap"><table><thead><tr><th>Order</th><th>Date</th><th>Customer</th><th>Phone</th><th>Items</th><th>Total</th><th>Status</th></tr></thead><tbody id="ordersTable"></tbody></table></div></div></section>
@@ -122,7 +147,7 @@ async function api(action,body){const r=await fetch(API_URL+(body?'':`?action=${
 function submitViaForm(payload,timeoutMs=120000){return new Promise((resolve,reject)=>{const iframe=document.createElement('iframe');iframe.name='rosemoonUploadFrame_'+Date.now()+'_'+Math.random().toString(36).slice(2);iframe.style.display='none';document.body.appendChild(iframe);const form=document.createElement('form');form.method='POST';form.action=API_URL;form.target=iframe.name;form.style.display='none';const input=document.createElement('input');input.type='hidden';input.name='payload';input.value=JSON.stringify(payload);form.appendChild(input);document.body.appendChild(form);let settled=false;const cleanup=()=>{clearTimeout(timer);form.remove();iframe.remove()};const timer=setTimeout(()=>{if(settled)return;settled=true;cleanup();reject(new Error('Upload timed out. Check the Apps Script deployment and try again.'))},timeoutMs);iframe.onload=()=>{if(settled)return;settled=true;cleanup();resolve(true)};iframe.onerror=()=>{if(settled)return;settled=true;cleanup();reject(new Error('Upload connection failed.'))};form.submit()})}
 async function waitForMusic(title,beforeCount){for(let i=0;i<12;i++){await new Promise(r=>setTimeout(r,1000));try{const d=await api('music');const list=d.music||[];if(list.length>beforeCount&&list.some(x=>x.title===title))return list}catch(e){}}throw new Error('Upload was sent, but the server did not confirm it. Check the Music sheet and try again if needed.')}
 async function waitForProduct(name,beforeCount){for(let i=0;i<12;i++){await new Promise(r=>setTimeout(r,1000));try{const d=await api('products');const list=d.products||[];if(list.length>beforeCount&&list.some(x=>x.name===name))return list}catch(e){}}throw new Error('Product upload was sent, but the server did not confirm it. Check the Products sheet and try again if needed.')}
-function setTab(name){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===name));if(name==='inventory'||name==='dashboard')loadProducts();if(name==='music')loadMusic();if(name==='orders')loadOrders()}
+function setTab(name){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===name));if(name==='inventory'||name==='dashboard'||name==='editFlowers')loadProducts();if(name==='editFlowers')populateCategoryManager();if(name==='music')loadMusic();if(name==='orders')loadOrders()}
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));document.querySelectorAll('[data-jump]').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.jump)));
 function showAdmin(){
   $('loginScreen').style.display='none';
@@ -307,7 +332,7 @@ function renderCategoryManager(){
   const d=categoryData(p),opts=Array.isArray(d.options)?d.options:[];
   let html='<div style="display:grid;gap:10px">';
   opts.forEach((o,i)=>{
-    html+='<div class="flower-manager-row" data-manage-flower="'+i+'"><div class="flower-photo-preview">'+(o.imageUrl?'<img src="'+esc(o.imageUrl)+'" alt="">':'🌸')+'</div><div><label>FLOWER NAME</label><input id="manageFlowerName'+i+'" type="text" value="'+esc(o.type||'')+'" placeholder="e.g. Pink Lily"><input id="manageFlowerPhoto'+i+'" type="file" accept="image/png,image/jpeg,image/webp,image/gif" style="margin-top:7px"></div><div class="stock-field"><label>INDIVIDUAL STOCK</label><input id="manageFlowerStock'+i+'" type="number" min="0" step="1" value="'+Number(o.stock||0)+'"></div><button class="danger remove-flower" type="button" onclick="removeManageFlowerRow('+i+')">Remove</button></div>';
+    html+='<div class="flower-manager-row" data-manage-flower="'+i+'"><div class="flower-photo-preview">'+(o.imageUrl?'<img src="'+esc(o.imageUrl)+'" alt="">':'')+'</div><div><label>FLOWER NAME</label><input id="manageFlowerName'+i+'" type="text" value="'+esc(o.type||'')+'" placeholder="e.g. Pink Lily"><input id="manageFlowerPhoto'+i+'" type="file" accept="image/png,image/jpeg,image/webp,image/gif" style="margin-top:7px"></div><div><label>PRICE (Rs.)</label><input id="manageFlowerPrice'+i+'" type="number" min="0" step="1" value="'+Number(o.price ?? p.price ?? 0)+'"></div><div class="stock-field"><label>INDIVIDUAL STOCK</label><input id="manageFlowerStock'+i+'" type="number" min="0" step="1" value="'+Number(o.stock||0)+'"></div><button class="danger remove-flower" type="button" onclick="removeManageFlowerRow('+i+')">Remove</button></div>';
   });
   html+='</div><button class="secondary" type="button" style="margin-top:10px" onclick="addManageFlowerRow()">＋ Add Flower</button><div class="hint" style="margin-top:10px">Category total stock and every flower stock are independent. You can have different stock numbers for every flower.</div>';
   box.innerHTML=html;
@@ -316,7 +341,7 @@ function addManageFlowerRow(){
   const box=$('manageFlowerOptions');if(!box)return;
   const i=box.querySelectorAll('[data-manage-flower]').length;
   const wrap=document.createElement('div');wrap.className='flower-manager-row';wrap.dataset.manageFlower=i;
-  wrap.innerHTML='<div class="flower-photo-preview">🌸</div><div><label>FLOWER NAME</label><input id="manageFlowerName'+i+'" type="text" placeholder="e.g. Pink Lily"><input id="manageFlowerPhoto'+i+'" type="file" accept="image/png,image/jpeg,image/webp,image/gif" style="margin-top:7px"></div><div class="stock-field"><label>INDIVIDUAL STOCK</label><input id="manageFlowerStock'+i+'" type="number" min="0" step="1" value="0"></div><button class="danger remove-flower" type="button" onclick="removeManageFlowerRow('+i+')">Remove</button>';
+  wrap.innerHTML='<div class="flower-photo-preview"></div><div><label>FLOWER NAME</label><input id="manageFlowerName'+i+'" type="text" placeholder="e.g. Pink Lily"><input id="manageFlowerPhoto'+i+'" type="file" accept="image/png,image/jpeg,image/webp,image/gif" style="margin-top:7px"></div><div><label>PRICE (Rs.)</label><input id="manageFlowerPrice'+i+'" type="number" min="0" step="1" value="0"></div><div class="stock-field"><label>INDIVIDUAL STOCK</label><input id="manageFlowerStock'+i+'" type="number" min="0" step="1" value="0"></div><button class="danger remove-flower" type="button" onclick="removeManageFlowerRow('+i+')">Remove</button>';
   box.querySelector('div[style*="display:grid"]')?.appendChild(wrap);
 }
 function removeManageFlowerRow(i){const row=document.querySelector('#manageFlowerOptions [data-manage-flower="'+i+'"]');if(row)row.remove()}
@@ -334,12 +359,12 @@ async function saveCategoryManager(){
     btn.disabled=true;msg.textContent='Saving category…';
     const oldOpts=categoryData(p).options||[],rows=[...document.querySelectorAll('#manageFlowerOptions [data-manage-flower]')],options=[];
     for(const row of rows){
-      const i=Number(row.dataset.manageFlower),type=String($('manageFlowerName'+i)?.value||'').trim(),qty=Math.max(0,Math.floor(Number($('manageFlowerStock'+i)?.value)||0)),file=$('manageFlowerPhoto'+i)?.files?.[0],old=oldOpts[i]||{};
+      const i=Number(row.dataset.manageFlower),type=String($('manageFlowerName'+i)?.value||'').trim(),price=Math.max(0,Math.floor(Number($('manageFlowerPrice'+i)?.value)||0)),qty=Math.max(0,Math.floor(Number($('manageFlowerStock'+i)?.value)||0)),file=$('manageFlowerPhoto'+i)?.files?.[0],old=oldOpts[i]||{};
       if(!type)continue;
       let imageUrl=old.imageUrl||'';
       if(file){msg.textContent='Uploading '+type+'…';imageUrl=(await api('uploadPhoto',{dataUrl:await readDataUrl(file),fileName:file.name})).url||imageUrl}
       if(!imageUrl)throw new Error(type+' needs a photo.');
-      options.push({type,stock:qty,imageUrl});
+      options.push({...old,type,price,stock:qty,imageUrl});
     }
     if(!options.length)throw new Error('Add at least one flower.');
     let imageUrl=p.imageUrl||'';const mainFile=$('manageCategoryPhoto')?.files?.[0];
@@ -349,6 +374,9 @@ async function saveCategoryManager(){
   }catch(e){msg.textContent='❌ '+e.message}
   finally{btn.disabled=false}
 }
+$('manageCategorySelect')?.addEventListener('change',renderCategoryManager);
+$('saveCategoryBtn')?.addEventListener('click',saveCategoryManager);
+$('manageCategoryPhoto')?.addEventListener('change',async()=>{const file=$('manageCategoryPhoto').files?.[0],box=$('manageCategoryPhotoPreview');if(!box)return;if(!file){box.innerHTML='';return}try{const url=await readDataUrl(file);box.innerHTML='<img src="'+esc(url)+'" alt="" style="width:120px;height:120px;object-fit:contain;border-radius:14px;background:#fff;border:1px solid #f0e2e7">'}catch(e){box.innerHTML=''}});
 function renderDashboardInventory(){const t=$('dashboardInventoryTable');if(!t)return;t.innerHTML=products.slice(0,12).map(p=>`<tr><td>${esc(p.name)}</td><td>${esc(p.category)}</td><td>${money(p.price)}</td><td class="${p.stock===0?'status-out':p.stock<=2?'status-low':'status-ok'}">${p.stock}</td></tr>`).join('')||'<tr><td colspan="4" class="empty">No products yet.</td></tr>'}
 function adminCategoryImageFor(p){
   const key=String(p?.category||p?.name||'').trim().toLowerCase();
