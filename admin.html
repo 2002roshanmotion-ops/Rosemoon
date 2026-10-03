@@ -478,9 +478,13 @@ function adminCategoryImageFor(p){
   return fixed[key]||fixed[String(p?.name||'').trim().toLowerCase()]||'';
 }
 function adminFlowerImageFor(o,p){
+  // A saved custom flower image always wins. The Decoration asset is only a fallback
+  // for legacy Decoration flowers that do not yet have their own imageUrl.
+  const custom=String(o?.imageUrl||'').trim();
+  if(custom)return custom;
   const type=String(o?.type||'').trim().toLowerCase();
   if(type==='decoration')return 'assets/Decoration.webp';
-  return String(o?.imageUrl||p?.imageUrl||'');
+  return String(p?.imageUrl||'').trim();
 }
 function renderInventory(){
   const box=$('categoryInventoryList');if(!box)return;
