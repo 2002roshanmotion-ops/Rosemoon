@@ -366,3 +366,9 @@ body.flower-popup-open{
 @media (max-width:600px) and (pointer:coarse){
   .flower-popup-grid{grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:10px !important}
 }
+
+/* Definitive mobile flower chooser: 2 columns, including landscape phones. */
+.flower-popup-grid{grid-template-columns:repeat(2,minmax(0,1fr)) !important;}
+@media (max-width:900px){
+  .flower-popup-grid{grid-template-columns:repeat(2,minmax(0,1fr)) !important;}
+}
