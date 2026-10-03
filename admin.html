@@ -319,84 +319,6 @@ function populateCategoryManager(){
   if(current&&cats.some(p=>String(p.id)===String(current)))s.value=current;
   renderCategoryManager();
 }
-function imageStudioImageFor(o,p){return adminFlowerImageFor(o,p)}
-function renderImageStudio(){
-  const box=$('imageStudioList'); if(!box)return;
-  if(!products.length){box.innerHTML='<div class="empty">No products loaded.</div>';return}
-  let html='';
-  products.forEach((p,pi)=>{
-    const opts=categoryData(p).options||[];
-    const catImg=adminCategoryImageFor(p);
-    html+='<div class="card" style="margin:0;border:1px solid var(--rm-line);box-shadow:none"><div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap"><div style="width:110px;height:110px;border-radius:16px;overflow:hidden;background:#fff7fa;border:1px solid #f0e2e7;display:grid;place-items:center">'+(catImg?'<img src="'+esc(catImg)+'" style="width:100%;height:100%;object-fit:contain" alt="">':'<span class="hint">No image</span>')+'</div><div style="flex:1;min-width:220px"><b>'+esc(p.name||p.category||'Category')+'</b><div class="hint">Category image · '+esc(catImg||'No image')+'</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><label class="secondary" style="display:inline-flex;align-items:center;gap:6px">📤 Replace <input id="studioCatFile'+pi+'" type="file" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none" onchange="studioEditCategory('+pi+')"></label><button type="button" class="secondary" onclick="studioEditCategory('+pi+')">✂️ Crop / Edit</button></div><div class="hint" style="margin-top:6px">Controls: Replace • Crop • Rotate • Zoom • Reposition • Reset • Save</div><div id="studioCatMsg'+pi+'" class="hint"></div></div></div>';
-    if(opts.length) html+='<div style="display:grid;gap:9px;margin-top:12px">'+opts.map((o,i)=>{const im=imageStudioImageFor(o,p);return '<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:10px;border:1px solid #f0e2e7;border-radius:14px"><div style="width:82px;height:82px;border-radius:12px;overflow:hidden;background:#fff7fa;border:1px solid #f0e2e7;display:grid;place-items:center">'+(im?'<img src="'+esc(im)+'" style="width:100%;height:100%;object-fit:contain" alt="">':'<span class="hint">No image</span>')+'</div><div style="flex:1;min-width:220px"><b>'+esc(o.type||('Flower '+(i+1)))+'</b><div class="hint">'+esc(im||'No image on website')+'</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:7px"><label class="secondary" style="display:inline-flex;align-items:center;gap:6px">📤 Replace <input id="studioFlowerFile'+pi+'_'+i+'" type="file" accept="image/png,image/jpeg,image/webp,image/gif" style="display:none" onchange="studioReplaceFlower('+pi+','+i+')"></label><button type="button" class="secondary" onclick="studioEditFlower('+pi+','+i+')">✂️ Edit / Crop</button></div><div id="studioFlowerMsg'+pi+'_'+i+'" class="hint"></div></div></div>'}).join('')+'</div>';
-    html+='</div>';
-  });
-  box.innerHTML=html;
-}
-async function studioUploadAndSave(product,flowerIndex,file,processedDataUrl,msgEl,editorState){
-  let dataUrl=processedDataUrl;
-  if(!dataUrl&&file)dataUrl=await readDataUrl(file);
-  if(!dataUrl)throw new Error('Choose an image first.');
-  msgEl.textContent='Uploading image…';
-  const uploaded=(await api('uploadPhoto',{dataUrl,fileName:(file?.name||'rosemoon-edited.jpg')})).url;
-  if(!uploaded)throw new Error('Upload did not return an image URL.');
-  const d=categoryData(product),opts=Array.isArray(d.options)?d.options.map(x=>({...x})):[];
-  const cleanState=editorState?{
-    x:Number(editorState.x)||0,y:Number(editorState.y)||0,
-    scale:Number(editorState.scale)||1,rot:Number(editorState.rot)||0
-  }:null;
-  if(flowerIndex===null){
-    await api('updateProduct',{
-      id:product.id,name:product.name,category:product.category||product.name,
-      price:Number(product.price||0),stock:Number(product.stock||0),imageUrl:uploaded,
-      description:JSON.stringify({rosemoonCategory:true,options:opts,categoryEditorState:cleanState})
-    });
-  } else {
-    if(!opts[flowerIndex])throw new Error('Flower not found.');
-    opts[flowerIndex].imageUrl=uploaded;
-    if(cleanState)opts[flowerIndex].editorState=cleanState;
-    await api('updateProduct',{
-      id:product.id,name:product.name,category:product.category||product.name,
-      price:Number(product.price||0),stock:Number(product.stock||0),imageUrl:product.imageUrl||'',
-      description:JSON.stringify({rosemoonCategory:true,options:opts,categoryEditorState:d.categoryEditorState||null})
-    });
-  }
-  msgEl.textContent='✅ Saved. Refreshing…';
-  const fresh=await api('products'); products=fresh.products||products; populateCategoryManager(); renderImageStudio(); renderInventory(); renderDashboardInventory(); updateStats();
-}
-function studioOpenEditor(sourceUrl,onSave,initialState){
-  if(!sourceUrl){alert('This image is not available to edit yet. Upload a new image first.');return}
-  const overlay=document.createElement('div');overlay.style.cssText='position:fixed;inset:0;background:#0009;z-index:99999;display:grid;place-items:center;padding:20px';
-  overlay.innerHTML='<div style="width:min(900px,96vw);max-height:92vh;overflow:auto;background:#fff;border-radius:20px;padding:18px"><h2 style="margin:0 0 10px">📸 Image Editor</h2><div style="display:grid;place-items:center;background:#222;border-radius:14px;padding:12px"><canvas width="800" height="1000" style="width:min(800px,90vw);height:auto;max-height:72vh;touch-action:none;border-radius:10px"></canvas></div><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:12px"><button type="button" data-fit class="secondary">↔ Fit Full</button><button type="button" data-fill class="secondary">⛶ Fill Website Area</button><button type="button" data-zminus class="secondary">− Zoom</button><button type="button" data-zplus class="secondary">＋ Zoom</button><button type="button" data-left class="secondary">↶ Rotate</button><button type="button" data-right class="secondary">↷ Rotate</button><button type="button" data-reset class="secondary">↺ Reset</button><button type="button" data-save class="primary">✓ Save Edited Image</button><button type="button" data-close class="danger">Close</button></div><div data-msg class="hint" style="text-align:center;margin-top:8px"></div></div>';
-  document.body.appendChild(overlay);
-  const cv=overlay.querySelector('canvas'),g=cv.getContext('2d'),msg=overlay.querySelector('[data-msg]'),im=new Image();
-  const saved=initialState&&typeof initialState==='object'?initialState:{};
-  let scale=Number(saved.scale)||1,rot=Number(saved.rot)||0,x=Number(saved.x)||0,y=Number(saved.y)||0,down=false,sx=0,sy=0,ox=0,oy=0;
-  const draw=()=>{g.clearRect(0,0,cv.width,cv.height);g.fillStyle='#222';g.fillRect(0,0,cv.width,cv.height);g.save();g.translate(cv.width/2+x,cv.height/2+y);g.rotate(rot*Math.PI/180);const fit=Math.min(cv.width/im.width,cv.height/im.height);const s=fit*scale;g.drawImage(im,-im.width*s/2,-im.height*s/2,im.width*s,im.height*s);g.restore();g.strokeStyle='#fff';g.lineWidth=3;g.strokeRect(1,1,cv.width-2,cv.height-2)};
-  im.onload=draw;im.src=sourceUrl;
-  overlay.querySelector('[data-fit]').onclick=()=>{scale=1;rot=0;x=0;y=0;draw()};overlay.querySelector('[data-fill]').onclick=()=>{if(im.width&&im.height){const cover=Math.max(cv.width/im.width,cv.height/im.height);const fit=Math.min(cv.width/im.width,cv.height/im.height);scale=cover/fit}x=0;y=0;draw()};overlay.querySelector('[data-zplus]').onclick=()=>{scale*=1.12;draw()};overlay.querySelector('[data-zminus]').onclick=()=>{scale=Math.max(.2,scale/1.12);draw()};overlay.querySelector('[data-left]').onclick=()=>{rot-=90;draw()};overlay.querySelector('[data-right]').onclick=()=>{rot+=90;draw()};overlay.querySelector('[data-reset]').onclick=()=>{scale=1;rot=0;x=0;y=0;draw()};overlay.querySelector('[data-close]').onclick=()=>overlay.remove();
-  cv.onpointerdown=e=>{down=true;sx=e.clientX;sy=e.clientY;ox=x;oy=y;cv.setPointerCapture(e.pointerId)};cv.onpointermove=e=>{if(down){x=ox+e.clientX-sx;y=oy+e.clientY-sy;draw()}};cv.onpointerup=()=>down=false;cv.onpointercancel=()=>down=false;
-  overlay.querySelector('[data-save]').onclick=()=>{try{msg.textContent='Saving exact composition…';cv.toBlob(async b=>{try{if(!b)throw new Error('Could not create the edited image. Try another image.');await onSave(new File([b],'rosemoon-edited.jpg',{type:'image/jpeg'}),{x,y,scale,rot});overlay.remove()}catch(e){msg.textContent='❌ '+(e.message||e)}},'image/jpeg',.95)}catch(e){msg.textContent='❌ '+(e.message||e)}};
-}
-async function studioEditCategory(pi){
-  const p=products[pi],file=$('studioCatFile'+pi),msg=$('studioCatMsg'+pi);if(!p)return;
-  try{
-    const chosen=file?.files?.[0],src=chosen?URL.createObjectURL(chosen):adminCategoryImageFor(p);
-    if(!src){if(msg)msg.textContent='❌ No category image available. Choose an image first.';return}
-    const state=chosen?null:(categoryData(p).categoryEditorState||null);
-    studioOpenEditor(src,async(f,s)=>{await studioUploadAndSave(p,null,f,null,msg,s)},state);
-  }catch(e){if(msg)msg.textContent='❌ '+(e.message||e);else alert('❌ '+(e.message||e));}
-}
-async function studioEditFlower(pi,i){
-  const p=products[pi],o=(categoryData(p).options||[])[i],file=$('studioFlowerFile'+pi+'_'+i),msg=$('studioFlowerMsg'+pi+'_'+i);if(!o)return;
-  try{
-    const chosen=file?.files?.[0],src=chosen?URL.createObjectURL(chosen):imageStudioImageFor(o,p);
-    if(!src){if(msg)msg.textContent='❌ No flower image available. Choose an image first.';return}
-    const state=chosen?null:(o.editorState||null);
-    studioOpenEditor(src,async(f,s)=>{await studioUploadAndSave(p,i,f,null,msg,s)},state);
-  }catch(e){if(msg)msg.textContent='❌ '+(e.message||e);else alert('❌ '+(e.message||e));}
-}
-
 function renderCategoryManager(){
   const s=$('manageCategorySelect'),box=$('manageFlowerOptions');
   if(!s||!box)return;
@@ -445,7 +367,7 @@ async function replaceManageFlowerImage(i){
     if(!uploaded)throw new Error('Photo upload failed.');
     old.imageUrl=uploaded;opts[idx]=old;
     const saved=await api('updateProduct',{id:p.id,name:p.name,category:p.category||p.name,price:Number(p.price||0),stock:Number(p.stock||0),imageUrl:p.imageUrl||'',description:JSON.stringify({rosemoonCategory:true,options:opts})});
-    products=saved.products||products;populateCategoryManager();s.value=String(p.id);renderCategoryManager();renderInventory();renderImageStudio();renderDashboardInventory();updateStats();
+    products=saved.products||products;populateCategoryManager();s.value=String(p.id);renderCategoryManager();renderInventory();renderDashboardInventory();updateStats();
   }catch(e){if(msg)msg.textContent='❌ '+(e.message||e);else alert(e.message||e)}
 }
 async function studioReplaceFlower(pi,i){
@@ -459,7 +381,7 @@ async function studioReplaceFlower(pi,i){
     if(!opts[i])throw new Error('Flower not found.');
     opts[i].imageUrl=uploaded;
     const saved=await api('updateProduct',{id:p.id,name:p.name,category:p.category||p.name,price:Number(p.price||0),stock:Number(p.stock||0),imageUrl:p.imageUrl||'',description:JSON.stringify({rosemoonCategory:true,options:opts,categoryEditorState:d.categoryEditorState||null})});
-    products=saved.products||products;renderImageStudio();renderInventory();renderDashboardInventory();updateStats();populateCategoryManager();
+    products=saved.products||products;renderInventory();renderDashboardInventory();updateStats();populateCategoryManager();
   }catch(e){if(msg)msg.textContent='❌ '+(e.message||e);else alert(e.message||e)}
 }
 async function saveCategoryManager(){
@@ -485,7 +407,7 @@ async function saveCategoryManager(){
     let imageUrl=p.imageUrl||'';const mainFile=$('manageCategoryPhoto')?.files?.[0];
     if(mainFile){msg.textContent='Uploading category photo…';imageUrl=(await api('uploadPhoto',{dataUrl:await readDataUrl(mainFile),fileName:mainFile.name})).url||imageUrl}
     const saved=await api('updateProduct',{id:p.id,name,category:name,price,stock,imageUrl,description:JSON.stringify({rosemoonCategory:true,options})});
-    products=saved.products||products;populateCategoryManager();s.value=String(p.id);renderCategoryManager();renderInventory();renderDashboardInventory();updateStats();renderImageStudio();msg.textContent='✅ Category saved.';
+    products=saved.products||products;populateCategoryManager();s.value=String(p.id);renderCategoryManager();renderInventory();renderDashboardInventory();updateStats();msg.textContent='✅ Category saved.';
   }catch(e){msg.textContent='❌ '+e.message}
   finally{btn.disabled=false}
 }
