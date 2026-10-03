@@ -132,7 +132,7 @@
     });
     grid.innerHTML=active.map(p=>{
       const fixedImage=categoryImageFor(p);
-      const art=fixedImage?'<img class="category-flower-image" src="'+fixedImage+'" alt="'+escapeAttr(p.name)+'">':(isOthers(p)?'🔑🎀📎':p.imageUrl?'<img src="'+escapeAttr(p.imageUrl)+'" alt="'+escapeAttr(p.name)+'" style="width:100%;height:100%;object-fit:cover;border-radius:18px">':(String(p.category||'').toLowerCase().includes("basket")?'🧺🌸':'🌹'));
+      const art=fixedImage?'<img class="category-flower-image" src="'+fixedImage+'" alt="'+escapeAttr(p.name)+'">':(isOthers(p)?'🔑🎀📎':p.imageUrl?'<img src="'+escapeAttr(p.imageUrl)+'" alt="'+escapeAttr(p.name)+'" style="width:100%;height:100%;object-fit:contain;border-radius:18px">':(String(p.category||'').toLowerCase().includes("basket")?'🧺🌸':'🌹'));
       return '<article class="product" data-id="'+escapeAttr(p.id)+'" data-size="'+escapeAttr(p.category)+'" data-price="'+p.price+'" role="button" tabindex="0" aria-label="Open '+escapeAttr(categoryLabel(p))+' flower shop" style="cursor:pointer">'+
         '<div class="product-top"><span class="price-badge">'+money(p.price)+'</span></div>'+
         '<div class="bouquet-preview"><div class="flower-art">'+art+'</div></div>'+
