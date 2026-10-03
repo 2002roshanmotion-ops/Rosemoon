@@ -298,15 +298,14 @@ function categoryData(p){
     const d=JSON.parse(String(p?.description||''));
     if(d&&Array.isArray(d.options))return d;
   }catch(e){}
-  // Legacy categories did not store per-flower options.
-  // Mirror the website's legacy five-flower display using the category stock.
-  const emojis=['🌹','🌸','🌼','🌷','🌻'];
+  // Match the customer website's legacy category data without inventing admin-only images.
   return {
     rosemoonCategory:true,
-    options:emojis.map((emoji,i)=>({
+    options:Array.from({length:5},(_,i)=>({
       type:'Flower '+(i+1),
-      emoji,
+      emoji:'',
       stock:Math.max(0,Number(p?.stock)||0),
+      price:Math.max(0,Number(p?.price)||0),
       imageUrl:p?.imageUrl||''
     }))
   };
@@ -338,7 +337,7 @@ function renderCategoryManager(){
   if(categoryPreview) categoryPreview.innerHTML=categoryImage?'<img src="'+esc(categoryImage)+'" alt="" style="width:120px;height:120px;object-fit:contain;border-radius:14px;background:#fff;border:1px solid #f0e2e7">':'';
   let html='<div style="display:grid;gap:10px">';
   opts.forEach((o,i)=>{
-    html+='<div class="flower-manager-row" data-manage-flower="'+i+'"><div class="flower-photo-preview">'+(o.imageUrl?'<img src="'+esc(o.imageUrl)+'" alt="">':'')+'</div><div><label>FLOWER NAME</label><input id="manageFlowerName'+i+'" type="text" value="'+esc(o.type||'')+'" placeholder="e.g. Pink Lily"><input id="manageFlowerPhoto'+i+'" type="file" accept="image/png,image/jpeg,image/webp,image/gif" style="margin-top:7px"></div><div><label>PRICE (Rs.)</label><input id="manageFlowerPrice'+i+'" type="number" min="0" step="1" value="'+Number(o.price ?? p.price ?? 0)+'"></div><div class="stock-field"><label>INDIVIDUAL STOCK</label><input id="manageFlowerStock'+i+'" type="number" min="0" step="1" value="'+Number(o.stock||0)+'"></div><button class="danger remove-flower" type="button" onclick="removeManageFlowerRow('+i+')">Remove</button></div>';
+    html+='<div class="flower-manager-row" data-manage-flower="'+i+'"><div class="flower-photo-preview">'+(adminFlowerImageFor(o,p)?'<img src="'+esc(adminFlowerImageFor(o,p))+'" alt="">':'')+'</div><div><label>FLOWER NAME</label><input id="manageFlowerName'+i+'" type="text" value="'+esc(o.type||'')+'" placeholder="e.g. Pink Lily"><input id="manageFlowerPhoto'+i+'" type="file" accept="image/png,image/jpeg,image/webp,image/gif" style="margin-top:7px"></div><div><label>PRICE (Rs.)</label><input id="manageFlowerPrice'+i+'" type="number" min="0" step="1" value="'+Number(o.price ?? p.price ?? 0)+'"></div><div class="stock-field"><label>INDIVIDUAL STOCK</label><input id="manageFlowerStock'+i+'" type="number" min="0" step="1" value="'+Number(o.stock||0)+'"></div><button class="danger remove-flower" type="button" onclick="removeManageFlowerRow('+i+')">Remove</button></div>';
   });
   html+='</div><button class="secondary" type="button" style="margin-top:10px" onclick="addManageFlowerRow()">＋ Add Flower</button><div class="hint" style="margin-top:10px">Category total stock and every flower stock are independent. You can have different stock numbers for every flower.</div>';
   box.innerHTML=html;
@@ -397,7 +396,7 @@ function adminFlowerImageFor(o,p){
 function renderInventory(){
   const box=$('categoryInventoryList');if(!box)return;
   const cats=products.filter(isCategoryProduct);
-  if(!cats.length){box.innerHTML='<div class="empty">No categories yet. Add one from 🖼️ Add Flowers.</div>';return}
+  if(!cats.length){box.innerHTML='<div class="empty">No categories yet. Add one from Add Flowers.</div>';return}
   box.innerHTML=cats.map(p=>{
     const raw=categoryData(p);
     const opts=Array.isArray(raw.options)?raw.options:[];
@@ -409,7 +408,7 @@ function renderInventory(){
       '<button class="secondary inventory-open-btn" type="button" onclick="toggleCategoryInventory(\''+pid+'\')">🌸 Open Flowers</button>'+
       '</div>'+
       '<div class="inventory-category-details" id="cat-details-'+pid+'">'+
-      '<div class="inventory-flower-list">'+(opts.length?opts.map((o,i)=>'<div class="inventory-flower-row"><div>'+(adminFlowerImageFor(o,p)?'<img src="'+esc(adminFlowerImageFor(o,p))+'" alt="" style="object-fit:contain;background:#fff">':'🌸')+'</div><div><strong>'+esc(o.type||('Flower '+(i+1)))+'</strong></div><div><label class="hint">PRICE (Rs.)</label><input id="cat-flower-price-'+pid+'-'+i+'" type="number" min="0" step="1" value="'+Number(o.price ?? p.price ?? 0)+'"></div><div class="flower-stock"><label class="hint">FLOWER STOCK</label><input id="cat-flower-stock-'+pid+'-'+i+'" type="number" min="0" value="'+Number(o.stock||0)+'"></div><div class="flower-save"><button class="secondary" type="button" onclick="saveCategoryInventory(\''+pid+'\')">Save</button></div></div>').join(''):'<div class="empty">No flowers added.</div>')+'</div>'+
+      '<div class="inventory-flower-list">'+(opts.length?opts.map((o,i)=>'<div class="inventory-flower-row"><div>'+(adminFlowerImageFor(o,p)?'<img src="'+esc(adminFlowerImageFor(o,p))+'" alt="" style="object-fit:contain;background:#fff">':'')+'</div><div><strong>'+esc(o.type||('Flower '+(i+1)))+'</strong></div><div><label class="hint">PRICE (Rs.)</label><input id="cat-flower-price-'+pid+'-'+i+'" type="number" min="0" step="1" value="'+Number(o.price ?? p.price ?? 0)+'"></div><div class="flower-stock"><label class="hint">FLOWER STOCK</label><input id="cat-flower-stock-'+pid+'-'+i+'" type="number" min="0" value="'+Number(o.stock||0)+'"></div><div class="flower-save"><button class="secondary" type="button" onclick="saveCategoryInventory(\''+pid+'\')">Save</button></div></div>').join(''):'<div class="empty">No flowers added.</div>')+'</div>'+
       '<div class="inventory-category-actions"><button class="primary" type="button" onclick="saveCategoryInventory(\''+pid+'\')">💾 Save Category</button></div>'+
       '</div>'+
     '</div>';
