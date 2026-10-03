@@ -73,7 +73,7 @@
   document.getElementById("homeLogo")?.addEventListener("click",e=>{e.preventDefault();shop.classList.remove("active");shop.setAttribute("aria-hidden","true");landing.style.display="grid";window.scrollTo(0,0)});
 
   const categoryImages={
-    small:"assets/small.webp",
+    small:"assets/500.png",
     medium:"assets/medium.webp",
     large:"assets/large.webp",
     "flower basket":"assets/basket.webp"
