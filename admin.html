@@ -342,7 +342,7 @@ function renderImageStudio(){
   });
   box.innerHTML=html;
 }
-async async function studioUploadAndSave(product,flowerIndex,file,processedDataUrl,msgEl,editorState){
+async function studioUploadAndSave(product,flowerIndex,file,processedDataUrl,msgEl,editorState){
   let dataUrl=processedDataUrl;
   if(!dataUrl&&file)dataUrl=await readDataUrl(file);
   if(!dataUrl)throw new Error('Choose an image first.');
