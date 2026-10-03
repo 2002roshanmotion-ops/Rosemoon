@@ -333,10 +333,19 @@ body.flower-popup-open{
 .admin-logo-login,.admin-side-logo{object-fit:contain !important;height:auto !important;max-height:80px}
 @media(max-width:600px){.rosemoon-loader-title{min-height:68px !important}.rosemoon-loader-title img{width:200px !important;max-width:72vw !important}.landing-logo{min-height:82px}.landing-logo img{width:min(380px,82vw) !important}.logo img{width:160px !important;max-width:48vw !important;max-height:42px !important}}
 
-/* Desktop horizontal popup: keep asset inside its image area so price/details stay visible. */
+/* Full Decoration image: show the complete asset without cropping, while keeping price/details visible. */
+.flower-popup-card{overflow:hidden;min-height:0}
+.flower-popup-art{display:flex;align-items:center;justify-content:center;overflow:hidden;background:#fff7fa}
+.flower-popup-art img{width:100%;height:100%;object-fit:contain!important;object-position:center;display:block;position:relative;z-index:1}
+.flower-popup-card h3,.flower-popup-price,.flower-popup-stock,.flower-popup-card button{position:relative;z-index:2}
+
 @media (min-width:901px){
-  .flower-popup-card{overflow:hidden;min-height:0}
-  .flower-popup-art{height:150px;min-height:150px;flex:0 0 150px;overflow:hidden;display:flex;align-items:center;justify-content:center}
-  .flower-popup-art img{width:100%;height:100%;object-fit:contain!important;display:block;position:relative;z-index:1}
-  .flower-popup-card h3,.flower-popup-price,.flower-popup-stock,.flower-popup-card button{position:relative;z-index:2}
+  .flower-popup-art{height:240px;min-height:240px;flex:0 0 240px}
+}
+@media (max-width:600px){
+  .flower-popup-art{height:210px;min-height:210px;flex:0 0 210px}
+  .flower-popup-art img{object-fit:contain!important}
+}
+@media (max-width:350px){
+  .flower-popup-art{height:180px;min-height:180px;flex-basis:180px}
 }
