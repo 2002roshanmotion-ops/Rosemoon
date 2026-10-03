@@ -442,9 +442,11 @@ $('saveCategoryBtn')?.addEventListener('click',saveCategoryManager);
 $('manageCategoryPhoto')?.addEventListener('change',async()=>{const file=$('manageCategoryPhoto').files?.[0],box=$('manageCategoryPhotoPreview');if(!box)return;if(!file){box.innerHTML='';return}try{const url=await readDataUrl(file);box.innerHTML='<img src="'+esc(url)+'" alt="" style="width:120px;height:120px;object-fit:contain;border-radius:14px;background:#fff;border:1px solid #f0e2e7">'}catch(e){box.innerHTML=''}});
 function renderDashboardInventory(){const t=$('dashboardInventoryTable');if(!t)return;t.innerHTML=products.slice(0,12).map(p=>`<tr><td>${esc(p.name)}</td><td>${esc(p.category)}</td><td>${money(p.price)}</td><td class="${p.stock===0?'status-out':p.stock<=2?'status-low':'status-ok'}">${p.stock}</td></tr>`).join('')||'<tr><td colspan="4" class="empty">No products yet.</td></tr>'}
 function adminCategoryImageFor(p){
+  const custom=String(p?.imageUrl||'').trim();
+  if(custom)return custom;
   const key=String(p?.category||p?.name||'').trim().toLowerCase();
   const fixed={small:'assets/500.png',medium:'assets/medium.webp',large:'assets/large.webp','flower basket':'assets/basket.webp'};
-  return fixed[key]||fixed[String(p?.name||'').trim().toLowerCase()]||String(p?.imageUrl||'');
+  return fixed[key]||fixed[String(p?.name||'').trim().toLowerCase()]||'';
 }
 function adminFlowerImageFor(o,p){
   const type=String(o?.type||'').trim().toLowerCase();
