@@ -372,3 +372,16 @@ body.flower-popup-open{
 @media (max-width:900px){
   .flower-popup-grid{grid-template-columns:repeat(2,minmax(0,1fr)) !important;}
 }
+
+
+/* Decoration: always display the complete original image without cropping or stretching. */
+.flower-popup-art img.decoration-full-image{
+  width:auto !important;
+  height:auto !important;
+  max-width:100% !important;
+  max-height:100% !important;
+  object-fit:contain !important;
+  object-position:center center !important;
+  display:block !important;
+  flex:0 0 auto !important;
+}
