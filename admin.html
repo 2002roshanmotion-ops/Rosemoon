@@ -269,7 +269,7 @@ async function ensureOthersCategory(){
     }
   }catch(e){console.error('Others category setup failed',e)}
 }
-async async function refreshAdminData(preferredCategoryId){
+async function refreshAdminData(preferredCategoryId){
   const d=await api('products');
   products=d.products||[];
   renderInventory();
@@ -284,7 +284,7 @@ async async function refreshAdminData(preferredCategoryId){
     }
   }
 }
-function loadProducts(){
+async function loadProducts(){
   try{
     const d=await api('products');
     products=d.products||[];
