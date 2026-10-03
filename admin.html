@@ -269,7 +269,22 @@ async function ensureOthersCategory(){
     }
   }catch(e){console.error('Others category setup failed',e)}
 }
-async function loadProducts(){
+async async function refreshAdminData(preferredCategoryId){
+  const d=await api('products');
+  products=d.products||[];
+  renderInventory();
+  renderDashboardInventory();
+  updateStats();
+  populateCategoryManager();
+  if(preferredCategoryId!==undefined && preferredCategoryId!==null){
+    const sel=$('manageCategorySelect');
+    if(sel){
+      sel.value=String(preferredCategoryId);
+      renderCategoryManager();
+    }
+  }
+}
+function loadProducts(){
   try{
     const d=await api('products');
     products=d.products||[];
@@ -407,7 +422,7 @@ async function saveCategoryManager(){
     let imageUrl=p.imageUrl||'';const mainFile=$('manageCategoryPhoto')?.files?.[0];
     if(mainFile){msg.textContent='Uploading category photo…';imageUrl=(await api('uploadPhoto',{dataUrl:await readDataUrl(mainFile),fileName:mainFile.name})).url||imageUrl}
     const saved=await api('updateProduct',{id:p.id,name,category:name,price,stock,imageUrl,description:JSON.stringify({rosemoonCategory:true,options})});
-    products=saved.products||products;populateCategoryManager();s.value=String(p.id);renderCategoryManager();renderInventory();renderDashboardInventory();updateStats();msg.textContent='✅ Category saved.';
+    products=saved.products||products;await refreshAdminData(p.id);msg.textContent='✅ Category saved.';
   }catch(e){msg.textContent='❌ '+e.message}
   finally{btn.disabled=false}
 }
@@ -495,9 +510,9 @@ function openCategoryEditor(id){
   if(!products.some(p=>String(p.id)===String(id)))return;
   s.value=id;setTab('inventory');renderCategoryManager();
 }
-async function saveInventory(id){try{const price=Math.max(0,Math.floor(Number($('price-'+id).value)||0));const stock=Math.max(0,Math.floor(Number($('stock-'+id).value)||0));const d=await api('updateProduct',{id,price,stock});products=d.products||products;renderInventory();renderDashboardInventory();updateStats()}catch(e){alert(e.message)}}
-async function saveStock(id){try{const v=Math.max(0,Math.floor(Number($('stock-'+id).value)||0));const d=await api('updateStock',{productId:id,stock:v});products=d.products||products;renderInventory();updateStats()}catch(e){alert(e.message)}}
-async function deleteProduct(id){if(!confirm('Delete this product?'))return;try{const d=await api('deleteProduct',{id});products=d.products||[];renderInventory();renderDashboardInventory();updateStats()}catch(e){alert(e.message)}}
+async function saveInventory(id){try{const price=Math.max(0,Math.floor(Number($('price-'+id).value)||0));const stock=Math.max(0,Math.floor(Number($('stock-'+id).value)||0));const d=await api('updateProduct',{id,price,stock});products=d.products||products;await refreshAdminData();}catch(e){alert(e.message)}}
+async function saveStock(id){try{const v=Math.max(0,Math.floor(Number($('stock-'+id).value)||0));const d=await api('updateStock',{productId:id,stock:v});products=d.products||products;await refreshAdminData();}catch(e){alert(e.message)}}
+async function deleteProduct(id){if(!confirm('Delete this product?'))return;try{const d=await api('deleteProduct',{id});products=d.products||[];await refreshAdminData();}catch(e){alert(e.message)}}
 function categoryStockTotal(p){
   const opts=categoryData(p).options||[];
   if(opts.length)return opts.reduce((sum,o)=>sum+Math.max(0,Number(o.stock)||0),0);
