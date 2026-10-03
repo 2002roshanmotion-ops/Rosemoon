@@ -229,7 +229,7 @@ function uploadMedia_(payload,type) {
 
   if(type==='photo') {
     logActivity_('UPLOAD_PHOTO',file.getName());
-    return {success:true,type:'photo',url:file.getDownloadUrl(),fileId:file.getId(),message:'Photo uploaded.'};
+    return {success:true,type:'photo',url:'https://drive.google.com/uc?export=view&id='+encodeURIComponent(file.getId()),fileId:file.getId(),message:'Photo uploaded.'};
   }
 
   const title=clean_(payload.title||file.getName().replace(/\.[^.]+$/,''));
