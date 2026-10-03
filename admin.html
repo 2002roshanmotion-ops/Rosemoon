@@ -377,7 +377,7 @@ function toggleCategoryInventory(id){
   const open=details.classList.toggle('open');
   if(btn)btn.textContent=open?'✕ Close Flowers':'🌸 Open Flowers';
 }
-async function saveCategoryInventory(id){
+async async function saveCategoryInventory(id){
   const p=products.find(x=>String(x.id)===String(id));if(!p)return;
   try{
     const price=Math.max(0,Math.floor(Number($('cat-price-'+id).value)||0));
