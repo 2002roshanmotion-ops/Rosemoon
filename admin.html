@@ -385,19 +385,25 @@ function studioOpenEditor(sourceUrl,onSave,initialState){
   im.onload=draw;im.src=sourceUrl;
   overlay.querySelector('[data-zplus]').onclick=()=>{scale*=1.12;draw()};overlay.querySelector('[data-zminus]').onclick=()=>{scale=Math.max(.2,scale/1.12);draw()};overlay.querySelector('[data-left]').onclick=()=>{rot-=90;draw()};overlay.querySelector('[data-right]').onclick=()=>{rot+=90;draw()};overlay.querySelector('[data-reset]').onclick=()=>{scale=1;rot=0;x=0;y=0;draw()};overlay.querySelector('[data-close]').onclick=()=>overlay.remove();
   cv.onpointerdown=e=>{down=true;sx=e.clientX;sy=e.clientY;ox=x;oy=y;cv.setPointerCapture(e.pointerId)};cv.onpointermove=e=>{if(down){x=ox+e.clientX-sx;y=oy+e.clientY-sy;draw()}};cv.onpointerup=()=>down=false;cv.onpointercancel=()=>down=false;
-  overlay.querySelector('[data-save]').onclick=()=>{cv.toBlob(async b=>{try{msg.textContent='Saving exact composition…';await onSave(new File([b],'rosemoon-edited.jpg',{type:'image/jpeg'}),{x,y,scale,rot});overlay.remove()}catch(e){msg.textContent='❌ '+e.message}},'image/jpeg',.95)};
+  overlay.querySelector('[data-save]').onclick=()=>{try{msg.textContent='Saving exact composition…';cv.toBlob(async b=>{try{if(!b)throw new Error('Could not create the edited image. Try another image.');await onSave(new File([b],'rosemoon-edited.jpg',{type:'image/jpeg'}),{x,y,scale,rot});overlay.remove()}catch(e){msg.textContent='❌ '+(e.message||e)}},'image/jpeg',.95)}catch(e){msg.textContent='❌ '+(e.message||e)}};
 }
-function studioEditCategory(pi){
+async function studioEditCategory(pi){
   const p=products[pi],file=$('studioCatFile'+pi),msg=$('studioCatMsg'+pi);if(!p)return;
-  const chosen=file?.files?.[0],src=chosen?URL.createObjectURL(chosen):adminCategoryImageFor(p);
-  const state=chosen?null:(categoryData(p).categoryEditorState||null);
-  studioOpenEditor(src,async(f,s)=>{await studioUploadAndSave(p,null,f,null,msg,s)},state);
+  try{
+    const chosen=file?.files?.[0],src=chosen?URL.createObjectURL(chosen):adminCategoryImageFor(p);
+    if(!src){if(msg)msg.textContent='❌ No category image available. Choose an image first.';return}
+    const state=chosen?null:(categoryData(p).categoryEditorState||null);
+    studioOpenEditor(src,async(f,s)=>{await studioUploadAndSave(p,null,f,null,msg,s)},state);
+  }catch(e){if(msg)msg.textContent='❌ '+(e.message||e);else alert('❌ '+(e.message||e));}
 }
-function studioEditFlower(pi,i){
+async function studioEditFlower(pi,i){
   const p=products[pi],o=(categoryData(p).options||[])[i],file=$('studioFlowerFile'+pi+'_'+i),msg=$('studioFlowerMsg'+pi+'_'+i);if(!o)return;
-  const chosen=file?.files?.[0],src=chosen?URL.createObjectURL(chosen):imageStudioImageFor(o,p);
-  const state=chosen?null:(o.editorState||null);
-  studioOpenEditor(src,async(f,s)=>{await studioUploadAndSave(p,i,f,null,msg,s)},state);
+  try{
+    const chosen=file?.files?.[0],src=chosen?URL.createObjectURL(chosen):imageStudioImageFor(o,p);
+    if(!src){if(msg)msg.textContent='❌ No flower image available. Choose an image first.';return}
+    const state=chosen?null:(o.editorState||null);
+    studioOpenEditor(src,async(f,s)=>{await studioUploadAndSave(p,i,f,null,msg,s)},state);
+  }catch(e){if(msg)msg.textContent='❌ '+(e.message||e);else alert('❌ '+(e.message||e));}
 }
 
 function renderCategoryManager(){
