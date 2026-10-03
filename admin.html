@@ -368,22 +368,19 @@ function removeManageFlowerRow(i){const row=document.querySelector('#manageFlowe
 $('addCategoryFlowerRow')?.addEventListener('click',()=>addNewFlowerRow());
 resetNewCategoryFlowers();
 async function replaceManageFlowerImage(i){
-  const msg=$('manageFlowerPhotoMsg'+i),file=$('manageFlowerPhoto'+i)?.files?.[0],s=$('manageCategorySelect');
-  const p=products.find(x=>String(x.id)===String(s?.value));
-  if(!p||!file)return;
+  const msg=$('manageFlowerPhotoMsg'+i),file=$('manageFlowerPhoto'+i)?.files?.[0];
+  const input=$('manageFlowerPhoto'+i);
+  const row=document.querySelector('#manageFlowerOptions [data-manage-flower="'+i+'"]');
+  const preview=row?.querySelector('.flower-photo-preview');
+  if(!file)return;
   try{
-    if(msg)msg.textContent='Uploading photo…';
-    const d=categoryData(p),opts=Array.isArray(d.options)?d.options.map(x=>({...x})):[];
-    const row=document.querySelector('#manageFlowerOptions [data-manage-flower="'+i+'"]');
-    if(!row)throw new Error('Flower row not found.');
-    const idx=Number(row.dataset.manageFlower),old=opts[idx];
-    if(!old)throw new Error('Flower not found.');
-    const uploaded=(await api('uploadPhoto',{dataUrl:await readDataUrl(file),fileName:file.name})).url;
-    if(!uploaded)throw new Error('Photo upload failed.');
-    old.imageUrl=uploaded;opts[idx]=old;
-    const saved=await api('updateProduct',{id:p.id,name:p.name,category:p.category||p.name,price:Number(p.price||0),stock:Number(p.stock||0),imageUrl:p.imageUrl||'',description:JSON.stringify({rosemoonCategory:true,options:opts})});
-    products=saved.products||products;populateCategoryManager();s.value=String(p.id);renderCategoryManager();renderInventory();renderDashboardInventory();updateStats();
-  }catch(e){if(msg)msg.textContent='❌ '+(e.message||e);else alert(e.message||e)}
+    if(msg)msg.textContent='Selected: '+file.name+' — click Save Changes to upload.';
+    const dataUrl=await readDataUrl(file);
+    if(preview)preview.innerHTML='<img src="'+esc(dataUrl)+'" alt="" style="width:64px;height:64px;object-fit:contain;border-radius:12px;background:#fff">';
+    if(input)input.title=file.name;
+  }catch(e){
+    if(msg)msg.textContent='❌ Could not preview '+file.name;
+  }
 }
 async function studioReplaceFlower(pi,i){
   const p=products[pi],o=(categoryData(p).options||[])[i],file=$('studioFlowerFile'+pi+'_'+i),msg=$('studioFlowerMsg'+pi+'_'+i);
