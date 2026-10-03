@@ -48,7 +48,7 @@
           type:String(o?.type||('Flower '+(i+1))),
           emoji:String(o?.emoji||choices[i]?.[1]||'🌸'),
           stock:Math.max(0,Number(o?.stock)||0),
-          imageUrl:String(o?.imageUrl||'')
+          imageUrl:String(o?.imageUrl||((String(o?.type||'').trim().toLowerCase()==='decoration')?'assets/IMG_8924.webp':''))
         }));
       }
     }catch(e){}
