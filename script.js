@@ -171,7 +171,7 @@
     const options=categoryOptions(popupProduct);
     grid.innerHTML=options.map(o=>{
       const type=String(o.type||'Flower 1'),emoji=String(o.emoji||'🌸'),stock=Math.max(0,Number(o.stock)||0),imageUrl=String(o.imageUrl||'');
-      const art=imageUrl?`<img src="${escapeAttr(imageUrl)}" alt="${escapeAttr(type)}" style="width:100%;height:100%;object-fit:cover;border-radius:18px">`:emoji;
+      const art=imageUrl?`<img src="${escapeAttr(imageUrl)}" alt="${escapeAttr(type)}" style="width:100%;height:100%;object-fit:contain;border-radius:18px">`:emoji;
       const stockClass=stock===0?"out":stock<=2?"low":"";
       return `<article class="flower-popup-card"><div class="flower-popup-art">${art}</div><h3>${escapeHtml(type)}</h3><div class="flower-popup-price">${money(popupProduct.price)}</div><div class="flower-popup-stock ${stockClass}">${stock===0?"Sold out":stock+" in stock"}</div><button type="button" data-popup-buy data-type="${escapeAttr(type)}" data-emoji="${escapeAttr(emoji)}" ${stock===0?'disabled':''}>🛒 Add to Cart</button></article>`;
     }).join("");
