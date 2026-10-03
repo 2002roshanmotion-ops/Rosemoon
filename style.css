@@ -332,3 +332,11 @@ body.flower-popup-open{
 .logo{height:48px;overflow:visible !important}.logo img{width:190px !important;max-width:55vw !important;height:auto !important;max-height:48px !important;object-fit:contain !important;display:block !important}
 .admin-logo-login,.admin-side-logo{object-fit:contain !important;height:auto !important;max-height:80px}
 @media(max-width:600px){.rosemoon-loader-title{min-height:68px !important}.rosemoon-loader-title img{width:200px !important;max-width:72vw !important}.landing-logo{min-height:82px}.landing-logo img{width:min(380px,82vw) !important}.logo img{width:160px !important;max-width:48vw !important;max-height:42px !important}}
+
+/* Desktop horizontal popup: keep asset inside its image area so price/details stay visible. */
+@media (min-width:901px){
+  .flower-popup-card{overflow:hidden;min-height:0}
+  .flower-popup-art{height:150px;min-height:150px;flex:0 0 150px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+  .flower-popup-art img{width:100%;height:100%;object-fit:contain!important;display:block;position:relative;z-index:1}
+  .flower-popup-card h3,.flower-popup-price,.flower-popup-stock,.flower-popup-card button{position:relative;z-index:2}
+}
