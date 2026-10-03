@@ -342,7 +342,7 @@ function renderImageStudio(){
   });
   box.innerHTML=html;
 }
-async function studioUploadAndSave(product,flowerIndex,file,processedDataUrl,msgEl){
+async async function studioUploadAndSave(product,flowerIndex,file,processedDataUrl,msgEl,editorState){
   let dataUrl=processedDataUrl;
   if(!dataUrl&&file)dataUrl=await readDataUrl(file);
   if(!dataUrl)throw new Error('Choose an image first.');
@@ -350,34 +350,54 @@ async function studioUploadAndSave(product,flowerIndex,file,processedDataUrl,msg
   const uploaded=(await api('uploadPhoto',{dataUrl,fileName:(file?.name||'rosemoon-edited.jpg')})).url;
   if(!uploaded)throw new Error('Upload did not return an image URL.');
   const d=categoryData(product),opts=Array.isArray(d.options)?d.options.map(x=>({...x})):[];
-  if(flowerIndex===null){await api('updateProduct',{id:product.id,name:product.name,category:product.category||product.name,price:Number(product.price||0),stock:Number(product.stock||0),imageUrl:uploaded,description:JSON.stringify({rosemoonCategory:true,options:opts})})}
-  else {if(!opts[flowerIndex])throw new Error('Flower not found.');opts[flowerIndex].imageUrl=uploaded;await api('updateProduct',{id:product.id,name:product.name,category:product.category||product.name,price:Number(product.price||0),stock:Number(product.stock||0),imageUrl:product.imageUrl||'',description:JSON.stringify({rosemoonCategory:true,options:opts})})}
+  const cleanState=editorState?{
+    x:Number(editorState.x)||0,y:Number(editorState.y)||0,
+    scale:Number(editorState.scale)||1,rot:Number(editorState.rot)||0
+  }:null;
+  if(flowerIndex===null){
+    await api('updateProduct',{
+      id:product.id,name:product.name,category:product.category||product.name,
+      price:Number(product.price||0),stock:Number(product.stock||0),imageUrl:uploaded,
+      description:JSON.stringify({rosemoonCategory:true,options:opts,categoryEditorState:cleanState})
+    });
+  } else {
+    if(!opts[flowerIndex])throw new Error('Flower not found.');
+    opts[flowerIndex].imageUrl=uploaded;
+    if(cleanState)opts[flowerIndex].editorState=cleanState;
+    await api('updateProduct',{
+      id:product.id,name:product.name,category:product.category||product.name,
+      price:Number(product.price||0),stock:Number(product.stock||0),imageUrl:product.imageUrl||'',
+      description:JSON.stringify({rosemoonCategory:true,options:opts,categoryEditorState:d.categoryEditorState||null})
+    });
+  }
   msgEl.textContent='✅ Saved. Refreshing…';
   const fresh=await api('products'); products=fresh.products||products; populateCategoryManager(); renderImageStudio(); renderInventory(); renderDashboardInventory(); updateStats();
 }
-function studioOpenEditor(sourceUrl,onSave){
+function studioOpenEditor(sourceUrl,onSave,initialState){
   if(!sourceUrl){alert('This image is not available to edit yet. Upload a new image first.');return}
   const overlay=document.createElement('div');overlay.style.cssText='position:fixed;inset:0;background:#0009;z-index:99999;display:grid;place-items:center;padding:20px';
   overlay.innerHTML='<div style="width:min(900px,96vw);max-height:92vh;overflow:auto;background:#fff;border-radius:20px;padding:18px"><h2 style="margin:0 0 10px">📸 Image Editor</h2><div style="display:grid;place-items:center;background:#222;border-radius:14px;padding:12px"><canvas width="800" height="650" style="width:min(800px,90vw);height:auto;max-height:65vh;touch-action:none;border-radius:10px"></canvas></div><div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:12px"><button type="button" data-zminus class="secondary">− Zoom</button><button type="button" data-zplus class="secondary">＋ Zoom</button><button type="button" data-left class="secondary">↶ Rotate</button><button type="button" data-right class="secondary">↷ Rotate</button><button type="button" data-reset class="secondary">↺ Reset</button><button type="button" data-save class="primary">✓ Save Edited Image</button><button type="button" data-close class="danger">Close</button></div><div data-msg class="hint" style="text-align:center;margin-top:8px"></div></div>';
   document.body.appendChild(overlay);
-  const cv=overlay.querySelector('canvas'),g=cv.getContext('2d'),msg=overlay.querySelector('[data-msg]'),im=new Image();let scale=1,rot=0,x=0,y=0,down=false,sx=0,sy=0,ox=0,oy=0;
-  // Keep the editor canvas composition as the saved image. This prevents the previous
-  // transform from being re-cropped/re-scaled differently every time the editor opens.
+  const cv=overlay.querySelector('canvas'),g=cv.getContext('2d'),msg=overlay.querySelector('[data-msg]'),im=new Image();
+  const saved=initialState&&typeof initialState==='object'?initialState:{};
+  let scale=Number(saved.scale)||1,rot=Number(saved.rot)||0,x=Number(saved.x)||0,y=Number(saved.y)||0,down=false,sx=0,sy=0,ox=0,oy=0;
   const draw=()=>{g.clearRect(0,0,cv.width,cv.height);g.fillStyle='#222';g.fillRect(0,0,cv.width,cv.height);g.save();g.translate(cv.width/2+x,cv.height/2+y);g.rotate(rot*Math.PI/180);const fit=Math.min(cv.width/im.width,cv.height/im.height);const s=fit*scale;g.drawImage(im,-im.width*s/2,-im.height*s/2,im.width*s,im.height*s);g.restore();g.strokeStyle='#fff';g.lineWidth=3;g.strokeRect(1,1,cv.width-2,cv.height-2)};
   im.onload=draw;im.src=sourceUrl;
   overlay.querySelector('[data-zplus]').onclick=()=>{scale*=1.12;draw()};overlay.querySelector('[data-zminus]').onclick=()=>{scale=Math.max(.2,scale/1.12);draw()};overlay.querySelector('[data-left]').onclick=()=>{rot-=90;draw()};overlay.querySelector('[data-right]').onclick=()=>{rot+=90;draw()};overlay.querySelector('[data-reset]').onclick=()=>{scale=1;rot=0;x=0;y=0;draw()};overlay.querySelector('[data-close]').onclick=()=>overlay.remove();
   cv.onpointerdown=e=>{down=true;sx=e.clientX;sy=e.clientY;ox=x;oy=y;cv.setPointerCapture(e.pointerId)};cv.onpointermove=e=>{if(down){x=ox+e.clientX-sx;y=oy+e.clientY-sy;draw()}};cv.onpointerup=()=>down=false;cv.onpointercancel=()=>down=false;
-  overlay.querySelector('[data-save]').onclick=()=>{cv.toBlob(async b=>{try{msg.textContent='Saving exact composition…';await onSave(new File([b],'rosemoon-edited.jpg',{type:'image/jpeg'}));overlay.remove()}catch(e){msg.textContent='❌ '+e.message}},'image/jpeg',.95)};
+  overlay.querySelector('[data-save]').onclick=()=>{cv.toBlob(async b=>{try{msg.textContent='Saving exact composition…';await onSave(new File([b],'rosemoon-edited.jpg',{type:'image/jpeg'}),{x,y,scale,rot});overlay.remove()}catch(e){msg.textContent='❌ '+e.message}},'image/jpeg',.95)};
 }
 function studioEditCategory(pi){
   const p=products[pi],file=$('studioCatFile'+pi),msg=$('studioCatMsg'+pi);if(!p)return;
   const chosen=file?.files?.[0],src=chosen?URL.createObjectURL(chosen):adminCategoryImageFor(p);
-  studioOpenEditor(src,async f=>{await studioUploadAndSave(p,null,f,null,msg)});
+  const state=chosen?null:(categoryData(p).categoryEditorState||null);
+  studioOpenEditor(src,async(f,s)=>{await studioUploadAndSave(p,null,f,null,msg,s)},state);
 }
 function studioEditFlower(pi,i){
   const p=products[pi],o=(categoryData(p).options||[])[i],file=$('studioFlowerFile'+pi+'_'+i),msg=$('studioFlowerMsg'+pi+'_'+i);if(!o)return;
   const chosen=file?.files?.[0],src=chosen?URL.createObjectURL(chosen):imageStudioImageFor(o,p);
-  studioOpenEditor(src,async f=>{await studioUploadAndSave(p,i,f,null,msg)});
+  const state=chosen?null:(o.editorState||null);
+  studioOpenEditor(src,async(f,s)=>{await studioUploadAndSave(p,i,f,null,msg,s)},state);
 }
 
 function renderCategoryManager(){
