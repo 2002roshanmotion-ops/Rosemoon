@@ -164,7 +164,7 @@ body.flower-popup-open{position:fixed;width:100%;overflow:hidden;overscroll-beha
   .flower-popup-close{width:40px;height:40px;flex:0 0 40px}
   .flower-popup-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
   .flower-popup-card{padding:10px;border-radius:17px}
-  .flower-popup-art{height:132px;margin-bottom:9px;border-radius:14px;font-size:60px;overflow:hidden}
+  .flower-popup-art{height:180px;margin-bottom:12px;border-radius:16px;font-size:60px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#fff7fa}.flower-popup-art img{width:100%;height:100%;object-fit:contain;display:block}
   .flower-popup-art img{width:100%;height:100%;object-fit:cover;display:block}
   .flower-popup-card h3{font-size:15px;line-height:1.2}
   .flower-popup-price{font-size:16px;margin-bottom:5px}
