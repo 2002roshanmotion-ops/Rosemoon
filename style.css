@@ -349,3 +349,12 @@ body.flower-popup-open{
 @media (max-width:350px){
   .flower-popup-art{height:180px;min-height:180px;flex-basis:180px}
 }
+
+
+/* Phone flower chooser: always use a 2 × 2 grid. */
+@media (max-width:600px) and (orientation:portrait){
+  .flower-popup-grid{grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:10px !important}
+}
+@media (max-width:350px) and (orientation:portrait){
+  .flower-popup-grid{grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:8px !important}
+}
