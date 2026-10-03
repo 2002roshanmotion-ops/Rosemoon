@@ -49,7 +49,7 @@
           emoji:String(o?.emoji||choices[i]?.[1]||'🌸'),
           stock:Math.max(0,Number(o?.stock)||0),
           price:Math.max(0,Number(o?.price ?? product?.price ?? 0)),
-          imageUrl:(String(o?.type||'').trim().toLowerCase()==='decoration')?'assets/Decoration.webp':String(o?.imageUrl||'')
+          imageUrl:(String(o?.imageUrl||'').trim()||((String(o?.type||'').trim().toLowerCase()==='decoration')?'assets/Decoration.webp':''))
         }));
       }
     }catch(e){}
