@@ -119,7 +119,7 @@ body{background:radial-gradient(circle at 10% 0%,#ffe8f0 0,#fff7f9 32%,#f8f2f5 1
         <div class="field"><label>CATEGORY NAME</label><input id="manageCategoryName" type="text"></div>
         <div class="field"><label>CATEGORY PRICE (Rs.)</label><input id="manageCategoryPrice" type="number" min="0" step="1"></div>
         <div class="field"><label>CATEGORY TOTAL STOCK</label><input id="manageCategoryStock" type="number" min="0" step="1"></div>
-        <div class="field"><label>REPLACE CATEGORY IMAGE FROM PC</label><input id="manageCategoryPhoto" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></div>
+        <div class="field"><label>REPLACE CATEGORY IMAGE FROM PC <span class="photo-optional-note">(optional)</span></label><input id="manageCategoryPhoto" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></div>
         <div class="field full"><div id="manageCategoryPhotoPreview"></div></div>
         <div class="field full"><h3 style="margin:4px 0">Flowers in this category</h3><div class="hint">Each flower can have its own image, name, price and stock.</div></div>
         <div class="field full" id="manageFlowerOptions"><div class="empty">Choose a category to manage its flowers.</div></div>
@@ -412,7 +412,7 @@ async function saveCategoryManager(){
       if(!type)continue;
       let imageUrl=old.imageUrl||'';
       if(file){msg.textContent='Uploading '+type+'…';imageUrl=(await api('uploadPhoto',{dataUrl:await readDataUrl(file),fileName:file.name})).url||imageUrl}
-      if(!imageUrl)throw new Error(type+' needs a photo.');
+      // Photo replacement is optional; keep the existing image when no new file is selected.
       options.push({...old,type,price,stock:qty,imageUrl});
     }
     if(!options.length)throw new Error('Add at least one flower.');
