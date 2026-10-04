@@ -331,7 +331,7 @@ body.flower-popup-open{
 .rosemoon-loader-title img{width:220px !important;max-width:78vw !important;height:auto !important;max-height:none !important;object-fit:contain !important;display:block !important;margin:0 auto !important}
 .landing-logo{width:100%;min-height:100px;overflow:visible !important}
 .landing-logo img{width:min(520px,78vw) !important;max-width:78vw !important;height:auto !important;max-height:none !important;object-fit:contain !important;display:block !important;margin:0 auto !important}
-.logo{height:48px;overflow:visible !important}.logo img{width:190px !important;max-width:55vw !important;height:auto !important;max-height:48px !important;object-fit:contain !important;display:block !important}
+.logo{height:48px;overflow:visible !important;display:flex !important;align-items:center !important;justify-content:flex-start !important;margin-left:0 !important;margin-right:auto !important}.logo img{width:190px !important;max-width:55vw !important;height:auto !important;max-height:48px !important;object-fit:contain !important;display:block !important;margin-left:0 !important;margin-right:auto !important}
 .admin-logo-login,.admin-side-logo{object-fit:contain !important;height:auto !important;max-height:80px}
 @media(max-width:600px){.rosemoon-loader-title{min-height:68px !important}.rosemoon-loader-title img{width:200px !important;max-width:72vw !important}.landing-logo{min-height:82px}.landing-logo img{width:min(380px,82vw) !important}.logo img{width:160px !important;max-width:48vw !important;max-height:42px !important}}
 
