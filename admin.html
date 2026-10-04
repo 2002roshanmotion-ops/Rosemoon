@@ -427,8 +427,17 @@ $('manageCategorySelect')?.addEventListener('change',renderCategoryManager);
 $('saveCategoryBtn')?.addEventListener('click',saveCategoryManager);
 $('manageCategoryPhoto')?.addEventListener('change',async()=>{const file=$('manageCategoryPhoto').files?.[0],box=$('manageCategoryPhotoPreview');if(!box)return;if(!file){box.innerHTML='';return}try{const url=await readDataUrl(file);box.innerHTML='<img src="'+esc(url)+'" alt="" style="width:120px;height:120px;object-fit:contain;border-radius:14px;background:#fff;border:1px solid #f0e2e7">'}catch(e){box.innerHTML=''}});
 function renderDashboardInventory(){const t=$('dashboardInventoryTable');if(!t)return;t.innerHTML=products.slice(0,12).map(p=>`<tr><td>${esc(p.name)}</td><td>${esc(p.category)}</td><td>${money(p.price)}</td><td class="${p.stock===0?'status-out':p.stock<=2?'status-low':'status-ok'}">${p.stock}</td></tr>`).join('')||'<tr><td colspan="4" class="empty">No products yet.</td></tr>'}
+function driveAdminImageUrl(url){
+  const s=String(url||'').trim();
+  if(!s)return '';
+  const m=s.match(/[?&](?:id|fileId)=([^&]+)/i)||s.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if((s.includes('drive.google.com')||s.includes('docs.google.com'))&&m?.[1]){
+    return 'https://drive.google.com/thumbnail?id='+encodeURIComponent(m[1])+'&sz=w1600';
+  }
+  return s;
+}
 function adminCategoryImageFor(p){
-  const custom=String(p?.imageUrl||'').trim();
+  const custom=driveAdminImageUrl(p?.imageUrl);
   if(custom)return custom;
   const key=String(p?.category||p?.name||'').trim().toLowerCase();
   const fixed={small:'assets/500.png',medium:'assets/medium.webp',large:'assets/large.webp','flower basket':'assets/basket.webp'};
@@ -437,7 +446,7 @@ function adminCategoryImageFor(p){
 function adminFlowerImageFor(o,p){
   // A saved custom flower image always wins. The Decoration asset is only a fallback
   // for legacy Decoration flowers that do not yet have their own imageUrl.
-  const custom=String(o?.imageUrl||'').trim();
+  const custom=driveAdminImageUrl(o?.imageUrl);
   if(custom)return custom;
   const type=String(o?.type||'').trim().toLowerCase();
   if(type==='decoration')return 'assets/Decoration.webp';
