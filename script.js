@@ -87,10 +87,11 @@
     return s;
   }
   const categoryImages={
-    small:"assets/500.png",
-    medium:"assets/medium.webp",
-    large:"assets/large.webp",
-    "flower basket":"assets/basket.webp"
+    small:"https://drive.google.com/thumbnail?id=1ylFqs2sOR4cD1qiSim2WA8j4vzOpxLbF&sz=w1600",
+    medium:"https://drive.google.com/thumbnail?id=1XnzoVMRUHLgt3NX6rYGOEdrajW0i3eTf&sz=w1600",
+    large:"https://drive.google.com/thumbnail?id=1SdKdIhQbWoJTCQa2s1R7_5rxsufpz0wp&sz=w1600",
+    "flower basket":"https://drive.google.com/thumbnail?id=1Kx5wAgLI21Whr5spBHJLJITkx7p3Vnfy&sz=w1600",
+    others:"https://drive.google.com/thumbnail?id=1saWH_Zqt-FN-7BFKlZfvxTmAs5XXgq58&sz=w1600"
   };
   const categoryOrder=["Small","Medium","Large","Flower Basket","Others"];
   function categoryImageFor(p){
@@ -144,13 +145,7 @@
     const order=categoryOrder.map(x=>x.toLowerCase());
     active.sort((a,b)=>{
       const ai=order.indexOf(String(a.category||a.name||"").toLowerCase()), bi=order.indexOf(String(b.category||b.name||"").toLowerCase());
-      if(ai>=0 && bi>=0)return ai-bi;
-      if(ai>=0)return -1;
-      if(bi>=0)return 1;
-      // Keep renamed price categories in their original visual order instead of dropping them to the bottom.
-      const ap=Number(a.price)||0, bp=Number(b.price)||0;
-      if(ap&&bp&&ap!==bp)return ap-bp;
-      return String(a.id||"").localeCompare(String(b.id||""));
+      return (ai<0?99:ai)-(bi<0?99:bi);
     });
     grid.innerHTML=active.map(p=>{
       const fixedImage=categoryImageFor(p);
