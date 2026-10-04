@@ -412,3 +412,7 @@ body.flower-popup-open{
 
 /* Optional photo replacement in Edit Flowers */
 .photo-optional-note{font-size:10px;font-weight:600;color:#9b7d88;letter-spacing:.02em}
+
+/* Keep category cards aligned when an existing category is edited */
+.products{align-items:start}
+.product{align-self:start}
