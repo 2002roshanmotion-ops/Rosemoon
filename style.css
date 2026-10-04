@@ -94,7 +94,7 @@ body.flower-popup-open{position:fixed;width:100%;overflow:hidden;overscroll-beha
   .product-top{gap:6px;align-items:flex-start}
   .price-badge{font-size:11px;padding:7px 8px}
   .stock-status{font-size:9px;text-align:right;white-space:normal}
-  .bouquet-preview{height:170px;margin-top:9px;border-radius:14px}
+  .bouquet-preview{height:185px;margin-top:9px;border-radius:14px}
   .flower-art{font-size:70px}
   .flower-art:has(img.category-flower-image){width:100%;height:100%;display:flex;align-items:center;justify-content:center}
   .flower-art img.category-flower-image{width:100%;height:100%;object-fit:contain;display:block;transform:none}
