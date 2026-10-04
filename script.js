@@ -144,6 +144,7 @@
     });
     grid.innerHTML=active.map(p=>{
       const fixedImage=categoryImageFor(p);
+      // Category image sizing is controlled by style.css; keep the original image ratio and never crop.
       const art=fixedImage?'<img class="category-flower-image" src="'+fixedImage+'" alt="'+escapeAttr(p.name)+'">':'';
       return '<article class="product" data-id="'+escapeAttr(p.id)+'" data-size="'+escapeAttr(p.category)+'" data-price="'+p.price+'" role="button" tabindex="0" aria-label="Open '+escapeAttr(categoryLabel(p))+' flower shop" style="cursor:pointer">'+
         '<div class="product-top"><span class="price-badge">'+money(p.price)+'</span></div>'+
