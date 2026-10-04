@@ -49,7 +49,7 @@
           emoji:String(o?.emoji||choices[i]?.[1]||'🌸'),
           stock:Math.max(0,Number(o?.stock)||0),
           price:Math.max(0,Number(o?.price ?? product?.price ?? 0)),
-          imageUrl:(String(o?.imageUrl||'').trim()||((String(o?.type||'').trim().toLowerCase()==='decoration')?'assets/Decoration.webp':''))
+          imageUrl:(driveImageUrl(o?.imageUrl)||((String(o?.type||'').trim().toLowerCase()==='decoration')?'assets/Decoration.webp':''))
         }));
       }
     }catch(e){}
@@ -73,6 +73,15 @@
   if(new URLSearchParams(location.search).get("returnShop")==="1") { enterShop(); history.replaceState(null,"",location.pathname+"#shopPage"); }
   document.getElementById("homeLogo")?.addEventListener("click",e=>{e.preventDefault();shop.classList.remove("active");shop.setAttribute("aria-hidden","true");landing.style.display="grid";window.scrollTo(0,0)});
 
+  function driveImageUrl(url){
+    const s=String(url||'').trim();
+    if(!s)return '';
+    const m=s.match(/[?&](?:id|fileId)=([^&]+)/i)||s.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if((s.includes('drive.google.com')||s.includes('docs.google.com'))&&m?.[1]){
+      return 'https://drive.google.com/uc?export=view&id='+encodeURIComponent(m[1]);
+    }
+    return s;
+  }
   const categoryImages={
     small:"assets/500.png",
     medium:"assets/medium.webp",
@@ -81,7 +90,7 @@
   };
   const categoryOrder=["Small","Medium","Large","Flower Basket","Others"];
   function categoryImageFor(p){
-    const custom=String(p?.imageUrl||'').trim();
+    const custom=driveImageUrl(p?.imageUrl);
     if(custom)return custom;
     const key=String(p?.category||p?.name||'').trim().toLowerCase();
     return categoryImages[key]||categoryImages[String(p?.name||'').trim().toLowerCase()]||"";
@@ -173,7 +182,7 @@
     sub.textContent=`${popupProduct.name} · ${money(popupProduct.price)}. Choose a flower.`;
     const options=categoryOptions(popupProduct);
     grid.innerHTML=options.map(o=>{
-      const type=String(o.type||'Flower 1'),emoji=String(o.emoji||'🌸'),stock=Math.max(0,Number(o.stock)||0),price=Math.max(0,Number(o.price ?? popupProduct.price ?? 0)),imageUrl=String(o.imageUrl||'');
+      const type=String(o.type||'Flower 1'),emoji=String(o.emoji||'🌸'),stock=Math.max(0,Number(o.stock)||0),price=Math.max(0,Number(o.price ?? popupProduct.price ?? 0)),imageUrl=driveImageUrl(o.imageUrl);
       const isDecoration=type.trim().toLowerCase()==='decoration';
       const art=imageUrl?`<img class="${isDecoration?'decoration-full-image':''}" src="${escapeAttr(imageUrl)}" alt="${escapeAttr(type)}">`:emoji;
       const stockClass=stock===0?"out":stock<=2?"low":"";
