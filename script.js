@@ -71,6 +71,7 @@
   start?.addEventListener("click",enterShop);
   if(start)start.disabled=true;
   if(new URLSearchParams(location.search).get("returnShop")==="1") { enterShop(); history.replaceState(null,"",location.pathname+"#shopPage"); }
+  // Keep header logo anchored to the left; layout behavior is controlled by style.css.
   document.getElementById("homeLogo")?.addEventListener("click",e=>{e.preventDefault();shop.classList.remove("active");shop.setAttribute("aria-hidden","true");landing.style.display="grid";window.scrollTo(0,0)});
 
   function driveImageUrl(url){
