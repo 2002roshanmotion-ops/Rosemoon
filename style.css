@@ -96,6 +96,8 @@ body.flower-popup-open{position:fixed;width:100%;overflow:hidden;overscroll-beha
   .stock-status{font-size:9px;text-align:right;white-space:normal}
   .bouquet-preview{height:145px;margin-top:9px;border-radius:14px}
   .flower-art{font-size:70px}
+  .flower-art:has(img.category-flower-image){width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+  .flower-art img.category-flower-image{width:100%;height:100%;object-fit:contain;display:block;transform:none}
   .product h2{font-size:18px;line-height:1.15;margin:11px 2px 3px}
   .product>p{font-size:11px;margin:0 2px 8px;line-height:1.35}
   .flower-options{gap:8px;margin:10px 0}
