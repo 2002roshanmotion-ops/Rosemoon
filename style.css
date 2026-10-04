@@ -122,7 +122,7 @@ body.flower-popup-open{position:fixed;width:100%;overflow:hidden;overscroll-beha
 @media (max-width: 350px) and (orientation: portrait){
   .products{gap:8px}
   .product{padding:8px}
-  .bouquet-preview{height:125px}
+  .bouquet-preview{height:160px}
   .music-info{display:none}
 }
 
