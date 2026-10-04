@@ -409,3 +409,6 @@ body.flower-popup-open{
   .header .nav a,.header .nav button{font-size:12px}
   .cart-btn{padding:8px 10px}
 }
+
+/* Optional photo replacement in Edit Flowers */
+.photo-optional-note{font-size:10px;font-weight:600;color:#9b7d88;letter-spacing:.02em}
