@@ -78,7 +78,7 @@
     if(!s)return '';
     const m=s.match(/[?&](?:id|fileId)=([^&]+)/i)||s.match(/\/d\/([a-zA-Z0-9_-]+)/);
     if((s.includes('drive.google.com')||s.includes('docs.google.com'))&&m?.[1]){
-      return 'https://drive.google.com/uc?export=view&id='+encodeURIComponent(m[1]);
+      return 'https://drive.google.com/thumbnail?id='+encodeURIComponent(m[1])+'&sz=w1600';
     }
     return s;
   }
