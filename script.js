@@ -73,6 +73,7 @@
   if(new URLSearchParams(location.search).get("returnShop")==="1") { enterShop(); history.replaceState(null,"",location.pathname+"#shopPage"); }
   // Keep header logo anchored to the left; layout behavior is controlled by style.css.
   // Keep header logo sizing/positioning in sync with the header layout.
+  // Header spacing is intentionally kept compact so navigation remains visible.
   document.getElementById("homeLogo")?.addEventListener("click",e=>{e.preventDefault();shop.classList.remove("active");shop.setAttribute("aria-hidden","true");landing.style.display="grid";window.scrollTo(0,0)});
 
   function driveImageUrl(url){
