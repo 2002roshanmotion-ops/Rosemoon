@@ -394,7 +394,3 @@ body.flower-popup-open{
 
 
 
-/* Compact balanced category cards */
-.product{height:420px;min-height:420px;box-sizing:border-box;}
-@media (max-width:600px) and (orientation:portrait){.product{height:320px;min-height:320px;}}
-@media (max-width:350px) and (orientation:portrait){.product{height:300px;min-height:300px;}}
