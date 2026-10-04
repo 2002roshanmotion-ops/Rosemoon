@@ -34,16 +34,16 @@ body.flower-popup-open{position:fixed;width:100%;overflow:hidden;overscroll-beha
 .shop-main{max-width:1250px;margin:auto;padding:70px 34px 120px;position:relative;z-index:2}
 .shop-heading{text-align:center;margin-bottom:48px}.eyebrow{font-size:11px;letter-spacing:.2em;font-weight:700;color:#b65d7b;margin:0 0 9px}.shop-heading h1{font:600 clamp(42px,6vw,72px) "Playfair Display";margin:0;color:#3b202b}.shop-heading>p:last-child{color:#876a75;margin-top:13px}
 .rosemoon-search{max-width:620px;margin:0 auto 30px;display:flex;align-items:center;gap:10px;padding:6px 10px 6px 16px;background:rgba(255,255,255,.92);border:1px solid #ead5de;border-radius:999px;box-shadow:0 12px 30px rgba(84,38,57,.07);position:relative;z-index:3}.rosemoon-search:focus-within{border-color:#c87592;box-shadow:0 14px 35px rgba(84,38,57,.12)}.rosemoon-search-icon{font-size:18px}.rosemoon-search input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:#351f28;font:500 15px "DM Sans",sans-serif;padding:11px 4px}.rosemoon-search input::placeholder{color:#9b7d88}.rosemoon-search button{width:34px;height:34px;border:0;border-radius:50%;background:#fff0f5;color:#754158;font-size:22px;line-height:1;display:grid;place-items:center}.rosemoon-search button:hover{background:#ead5de}
-.products{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
-.product{background:rgba(255,255,255,.82);border:1px solid #ead5de;border-radius:25px;padding:16px;box-shadow:0 15px 40px rgba(84,38,57,.07);transition:.3s;position:relative;overflow:hidden}
+.products{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.product{background:rgba(255,255,255,.82);border:1px solid #ead5de;border-radius:25px;padding:18px;box-shadow:0 15px 40px rgba(84,38,57,.07);transition:.3s;position:relative;overflow:hidden}
 .product:hover{transform:translateY(-8px);box-shadow:0 25px 55px rgba(84,38,57,.12)}
 .product-top{display:flex;justify-content:space-between;align-items:center;gap:10px}.price-badge{font-weight:700;color:#7e3e58;background:#fff0f5;border-radius:999px;padding:8px 11px;font-size:12px}.stock-status{font-size:11px;color:#3c8b62;white-space:nowrap}.stock-status.low{color:#bd7a28}.stock-status.out{color:#c13b4b}
-.bouquet-preview{height:245px;border-radius:20px;margin-top:12px;background:linear-gradient(145deg,#fff0f5,#ffe3ed);display:grid;place-items:center;position:relative;overflow:hidden;border:1px solid #f3d9e3;outline:none}
+.bouquet-preview{height:290px;border-radius:20px;margin-top:12px;background:linear-gradient(145deg,#fff0f5,#ffe3ed);display:grid;place-items:center;position:relative;overflow:hidden;border:1px solid #f3d9e3;outline:none}
 .bouquet-preview:after{content:"";position:absolute;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.55);filter:blur(10px)}
 .flower-art{font-size:112px;position:relative;z-index:2;filter:drop-shadow(0 12px 12px rgba(100,35,60,.15));transition:.35s}.bouquet-preview:hover .flower-art{transform:scale(1.12) rotate(4deg)}
 .preview-hint{position:absolute;bottom:12px;right:12px;z-index:3;background:rgba(59,32,43,.85);color:#fff;padding:7px 10px;border-radius:999px;font-size:9px;letter-spacing:.12em}
 .product h2{font:600 25px "Playfair Display";margin:17px 0 2px}.product>p{margin:0 0 13px;color:#8b707b;font-size:13px}
-.flower-options{display:flex;flex-direction:column;gap:14px;margin:18px 0}.flower-option{width:100%;min-height:86px;box-sizing:border-box;border:1px solid #ead5de;background:linear-gradient(135deg,#fff,#fff8fb);border-radius:18px;padding:16px 18px;text-align:left;color:#54333f;transition:transform .25s,box-shadow .25s,border-color .25s,background .25s;display:flex;align-items:center;gap:14px;position:relative;overflow:hidden}.flower-option:before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:#f1c8d5;transform:scaleY(.35);transform-origin:center;transition:transform .25s}.flower-option span{font-size:34px;line-height:1;min-width:48px;text-align:center;filter:drop-shadow(0 5px 8px rgba(90,45,55,.10))}.flower-option.active,.flower-option:hover{border-color:#c87592;background:#fff0f5;transform:translateX(4px);box-shadow:0 12px 28px rgba(84,38,57,.10)}.flower-option.active:before,.flower-option:hover:before{transform:scaleY(1)}
+.flower-options{display:flex;flex-direction:column;gap:16px;margin:20px 0}.flower-option{width:100%;min-height:105px;box-sizing:border-box;border:1px solid #ead5de;background:linear-gradient(135deg,#fff,#fff8fb);border-radius:18px;padding:16px 18px;text-align:left;color:#54333f;transition:transform .25s,box-shadow .25s,border-color .25s,background .25s;display:flex;align-items:center;gap:14px;position:relative;overflow:hidden}.flower-option:before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:#f1c8d5;transform:scaleY(.35);transform-origin:center;transition:transform .25s}.flower-option span{font-size:34px;line-height:1;min-width:48px;text-align:center;filter:drop-shadow(0 5px 8px rgba(90,45,55,.10))}.flower-option.active,.flower-option:hover{border-color:#c87592;background:#fff0f5;transform:translateX(4px);box-shadow:0 12px 28px rgba(84,38,57,.10)}.flower-option.active:before,.flower-option:hover:before{transform:scaleY(1)}
 .preview-btn{width:100%;margin-top:10px;border:1px solid #d8b7c5;background:#fff;border-radius:12px;padding:10px;color:#754158;font-weight:700}.preview-btn:hover{background:#fff0f5}
 .add-btn,.add-preview-btn,.checkout-btn{width:100%;margin-top:9px;border:0;background:#3b202b;color:#fff;border-radius:13px;padding:13px;font-weight:700;transition:.25s}.add-btn:hover,.add-preview-btn:hover,.checkout-btn:hover{transform:translateY(-2px);background:#6b3a4b}.add-btn:disabled{opacity:.4;cursor:not-allowed}
 .music-bar{position:fixed;left:22px;right:22px;bottom:18px;height:70px;z-index:100;display:flex;align-items:center;gap:22px;padding:9px 14px;border:1px solid rgba(171,105,129,.28);background:rgba(59,32,43,.96);color:#fff;border-radius:20px;box-shadow:0 20px 55px rgba(47,20,31,.28);backdrop-filter:blur(16px)}
@@ -94,12 +94,12 @@ body.flower-popup-open{position:fixed;width:100%;overflow:hidden;overscroll-beha
   .product-top{gap:6px;align-items:flex-start}
   .price-badge{font-size:11px;padding:7px 8px}
   .stock-status{font-size:9px;text-align:right;white-space:normal}
-  .bouquet-preview{height:145px;margin-top:9px;border-radius:14px}
+  .bouquet-preview{height:180px;margin-top:9px;border-radius:14px}
   .flower-art{font-size:70px}
   .product h2{font-size:18px;line-height:1.15;margin:11px 2px 3px}
   .product>p{font-size:11px;margin:0 2px 8px;line-height:1.35}
   .flower-options{gap:8px;margin:10px 0}
-  .flower-option{min-height:58px;padding:9px 8px;gap:7px;border-radius:13px}
+  .flower-option{min-height:78px;padding:11px 9px;gap:7px;border-radius:13px}
   .flower-option span{font-size:24px;min-width:30px}
   .flower-option small{font-size:9px;padding:5px 6px}
   .preview-btn,.add-btn,.add-preview-btn{font-size:11px;padding:10px 7px;border-radius:10px}
