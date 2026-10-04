@@ -144,7 +144,13 @@
     const order=categoryOrder.map(x=>x.toLowerCase());
     active.sort((a,b)=>{
       const ai=order.indexOf(String(a.category||a.name||"").toLowerCase()), bi=order.indexOf(String(b.category||b.name||"").toLowerCase());
-      return (ai<0?99:ai)-(bi<0?99:bi);
+      if(ai>=0 && bi>=0)return ai-bi;
+      if(ai>=0)return -1;
+      if(bi>=0)return 1;
+      // Keep renamed price categories in their original visual order instead of dropping them to the bottom.
+      const ap=Number(a.price)||0, bp=Number(b.price)||0;
+      if(ap&&bp&&ap!==bp)return ap-bp;
+      return String(a.id||"").localeCompare(String(b.id||""));
     });
     grid.innerHTML=active.map(p=>{
       const fixedImage=categoryImageFor(p);
