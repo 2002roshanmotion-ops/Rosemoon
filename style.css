@@ -79,7 +79,7 @@ body.flower-popup-open{position:fixed;width:100%;overflow:hidden;overscroll-beha
 
 .cart-fly-item{position:fixed;z-index:2147483002;pointer-events:none;font-size:56px;line-height:1;filter:drop-shadow(0 10px 16px rgba(59,32,43,.25));will-change:transform,opacity}.cart-fx-spark{position:fixed;z-index:2147483003;pointer-events:none;font-size:19px;color:#c97996;filter:drop-shadow(0 2px 5px rgba(126,62,88,.25));animation:cartSparkBurst .65s ease-out forwards}@keyframes cartSparkBurst{0%{opacity:0;transform:translate3d(0,0,0) scale(.2) rotate(0)}18%{opacity:1;transform:translate3d(0,0,0) scale(1.15)}100%{opacity:0;transform:translate3d(var(--sx),var(--sy),0) scale(.25) rotate(120deg)}}
 
-.flower-art:has(img.category-flower-image){width:100%;height:100%;display:grid;place-items:center}.flower-art img.category-flower-image{width:100%;height:100%;display:block;object-fit:contain;border-radius:18px;position:relative;z-index:2;transition:transform .35s ease;filter:saturate(1.03);transform:none;transform-origin:center}.bouquet-preview:hover .flower-art img.category-flower-image{transform:scale(1.03)}
+.flower-art:has(img.category-flower-image){width:100%;height:100%;display:flex;align-items:center;justify-content:center}.flower-art img.category-flower-image{width:100%;height:100%;display:block;object-fit:contain;border-radius:18px;position:relative;z-index:2;transition:none;filter:saturate(1.03);transform:none}.bouquet-preview:hover .flower-art img.category-flower-image{transform:none}
 
 
 /* Phone portrait: keep the four price categories in a clean 2 × 2 grid. */
