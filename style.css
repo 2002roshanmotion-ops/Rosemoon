@@ -386,3 +386,9 @@ body.flower-popup-open{
   flex:0 0 auto !important;
   margin:0 !important;
 }
+
+
+/* Taller category cards */
+.product{min-height:680px}
+@media (max-width:600px) and (orientation:portrait){.product{min-height:620px}}
+@media (max-width:350px) and (orientation:portrait){.product{min-height:570px}}
