@@ -79,7 +79,7 @@ body.flower-popup-open{position:fixed;width:100%;overflow:hidden;overscroll-beha
 
 .cart-fly-item{position:fixed;z-index:2147483002;pointer-events:none;font-size:56px;line-height:1;filter:drop-shadow(0 10px 16px rgba(59,32,43,.25));will-change:transform,opacity}.cart-fx-spark{position:fixed;z-index:2147483003;pointer-events:none;font-size:19px;color:#c97996;filter:drop-shadow(0 2px 5px rgba(126,62,88,.25));animation:cartSparkBurst .65s ease-out forwards}@keyframes cartSparkBurst{0%{opacity:0;transform:translate3d(0,0,0) scale(.2) rotate(0)}18%{opacity:1;transform:translate3d(0,0,0) scale(1.15)}100%{opacity:0;transform:translate3d(var(--sx),var(--sy),0) scale(.25) rotate(120deg)}}
 
-.flower-art:has(img.category-flower-image){width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden}.flower-art img.category-flower-image{width:100%;height:100%;display:block;object-fit:contain;object-position:center;border-radius:18px;position:relative;z-index:2;transition:none;filter:saturate(1.03);transform:none;max-width:100%;max-height:100%}.bouquet-preview:hover .flower-art img.category-flower-image{transform:none}
+.flower-art:has(img.category-flower-image){width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:visible}.flower-art img.category-flower-image{width:auto;height:auto;max-width:100%;max-height:100%;display:block;object-fit:contain;object-position:center;border-radius:18px;position:relative;z-index:2;transition:none;filter:saturate(1.03);transform:none}.bouquet-preview:hover .flower-art img.category-flower-image{transform:none}
 
 
 /* Phone portrait: keep the four price categories in a clean 2 × 2 grid. */
@@ -96,8 +96,8 @@ body.flower-popup-open{position:fixed;width:100%;overflow:hidden;overscroll-beha
   .stock-status{font-size:9px;text-align:right;white-space:normal}
   .bouquet-preview{height:185px;margin-top:9px;border-radius:14px}
   .flower-art{font-size:70px}
-  .flower-art:has(img.category-flower-image){width:100%;height:100%;display:flex;align-items:center;justify-content:center}
-  .flower-art img.category-flower-image{width:100%;height:100%;object-fit:contain;display:block;transform:none}
+  .flower-art:has(img.category-flower-image){width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:visible}
+  .flower-art img.category-flower-image{width:auto;height:auto;max-width:100%;max-height:100%;object-fit:contain;display:block;transform:none}
   .product h2{font-size:18px;line-height:1.15;margin:11px 2px 3px}
   .product>p{font-size:11px;margin:0 2px 8px;line-height:1.35}
   .flower-options{gap:8px;margin:10px 0}
