@@ -388,18 +388,9 @@ body.flower-popup-open{
 }
 
 
-/* Taller category cards */
-.product{min-height:680px}
-@media (max-width:600px) and (orientation:portrait){.product{min-height:620px}}
-@media (max-width:350px) and (orientation:portrait){.product{min-height:570px}}
 
 
-/* Make category cards visibly taller */
-.product{padding-bottom:30px}
-.product .bouquet-preview{margin-bottom:18px}
-.product .flower-options{padding-bottom:12px}
-@media (max-width:600px) and (orientation:portrait){
-  .product{padding-bottom:24px}
-  .product .bouquet-preview{margin-bottom:14px}
-  .product .flower-options{padding-bottom:10px}
-}
+/* Visible fixed length for bouquet category cards */
+.product{height:760px;min-height:760px;box-sizing:border-box;}
+@media (max-width:600px) and (orientation:portrait){.product{height:680px;min-height:680px;}}
+@media (max-width:350px) and (orientation:portrait){.product{height:620px;min-height:620px;}}
