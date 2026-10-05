@@ -663,25 +663,18 @@ async function deleteCategoryContents(id){
   if(!p)return;
   const raw=categoryData(p);
   const count=Array.isArray(raw.options)?raw.options.length:0;
-  if(!count){
-    alert('This category has no flowers inside.');
-    return;
-  }
-  if(!confirm('Delete all flowers, colors, stock and flower image data inside "'+(p.name||p.category||'this category')+'"? The category itself will stay.'))return;
+  const name=p.name||p.category||'this category';
+  if(!confirm('Delete category "'+name+'" and everything inside it? This removes all flowers, colors (including Default), stock, prices and category data. This cannot be undone.'))return;
   try{
-    const description=JSON.stringify({...raw,rosemoonCategory:true,options:[]});
-    const d=await api('updateProduct',{
-      id:p.id,name:p.name,category:p.category||p.name,
-      price:Number(p.price||0),stock:0,imageUrl:p.imageUrl||'',description
-    });
-    if(!d.products)throw new Error('The server did not return the updated category.');
+    const d=await api('deleteProduct',{id:p.id});
+    if(!d.products)throw new Error('The server did not return the updated products.');
     products=d.products;
     renderInventory();
     renderDashboardInventory();
     updateStats();
     renderWebsiteCategoryOrder();
-    alert('✅ Category kept. Everything inside it was deleted.');
-  }catch(e){alert('❌ Could not delete category contents: '+e.message)}
+    alert('✅ Category "'+name+'" and everything inside it were deleted.');
+  }catch(e){alert('❌ Could not delete category: '+e.message)}
 }
 
 async function saveCategoryInventory(id){
