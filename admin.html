@@ -227,7 +227,17 @@ let products=[],music=[];
 const $=id=>document.getElementById(id);
 function money(n){return 'Rs. '+Number(n||0).toLocaleString('en-IN')}
 function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
-async function api(action,body){const r=await fetch(API_URL+(body?'':`?action=${encodeURIComponent(action)}&_=${Date.now()}`),body?{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action,adminKey:ADMIN_KEY,...body})}:{cache:'no-store'});const d=await r.json();if(!d.success&&d.ok!==true)throw new Error(d.message||'Request failed');return d}
+async function api(action,body){
+  const url=API_URL+(body?'':`?action=${encodeURIComponent(action)}&_=${Date.now()}`);
+  let r;
+  try{
+    r=await fetch(url,body?{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action,adminKey:ADMIN_KEY,...body}),cache:'no-store'}:{method:'GET',cache:'no-store'});
+  }catch(e){throw new Error('Rosemoon API connection failed. Check the Apps Script deployment.')}
+  let d;
+  try{d=await r.json()}catch(e){throw new Error('Rosemoon API returned an invalid response. Check the Apps Script deployment.')}
+  if(!d.success&&d.ok!==true)throw new Error(d.message||'Rosemoon API request failed.');
+  return d;
+}
 function submitViaForm(payload,timeoutMs=120000){return new Promise((resolve,reject)=>{const iframe=document.createElement('iframe');iframe.name='rosemoonUploadFrame_'+Date.now()+'_'+Math.random().toString(36).slice(2);iframe.style.display='none';document.body.appendChild(iframe);const form=document.createElement('form');form.method='POST';form.action=API_URL;form.target=iframe.name;form.style.display='none';const input=document.createElement('input');input.type='hidden';input.name='payload';input.value=JSON.stringify(payload);form.appendChild(input);document.body.appendChild(form);let settled=false;const cleanup=()=>{clearTimeout(timer);form.remove();iframe.remove()};const timer=setTimeout(()=>{if(settled)return;settled=true;cleanup();reject(new Error('Upload timed out. Check the Apps Script deployment and try again.'))},timeoutMs);iframe.onload=()=>{if(settled)return;settled=true;cleanup();resolve(true)};iframe.onerror=()=>{if(settled)return;settled=true;cleanup();reject(new Error('Upload connection failed.'))};form.submit()})}
 async function waitForMusic(title,beforeCount){for(let i=0;i<12;i++){await new Promise(r=>setTimeout(r,1000));try{const d=await api('music');const list=d.music||[];if(list.length>beforeCount&&list.some(x=>x.title===title))return list}catch(e){}}throw new Error('Upload was sent, but the server did not confirm it. Check the Music sheet and try again if needed.')}
 async function waitForProduct(name,beforeCount){for(let i=0;i<12;i++){await new Promise(r=>setTimeout(r,1000));try{const d=await api('products');const list=d.products||[];if(list.length>beforeCount&&list.some(x=>x.name===name))return list}catch(e){}}throw new Error('Product upload was sent, but the server did not confirm it. Check the Products sheet and try again if needed.')}
