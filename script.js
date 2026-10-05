@@ -7,11 +7,6 @@
       {id:"medium",category:"Medium",name:"Medium Bouquet",price:800,stock:5,imageUrl:"",active:true},
       {id:"large",category:"Large",name:"Large Bouquet",price:1500,stock:3,imageUrl:"",active:true},
       {id:"flower-basket",category:"Flower Basket",name:"Flower Basket",price:1800,stock:6,imageUrl:"",active:true},
-      {id:"others",category:"Others",name:"Others",price:0,stock:0,imageUrl:"",active:true,description:JSON.stringify({rosemoonCategory:true,options:[
-        {type:"Key Ring",emoji:"🔑",stock:0,imageUrl:""},
-        {type:"Decoration",emoji:"🎀",stock:0,imageUrl:""},
-        {type:"Clips",emoji:"📎",stock:0,imageUrl:""}
-      ]})}
     ],
     music: []
   };
@@ -93,10 +88,9 @@
     small:"https://drive.google.com/thumbnail?id=1ylFqs2sOR4cD1qiSim2WA8j4vzOpxLbF&sz=w1600",
     medium:"https://drive.google.com/thumbnail?id=1XnzoVMRUHLgt3NX6rYGOEdrajW0i3eTf&sz=w1600",
     large:"https://drive.google.com/thumbnail?id=1SdKdIhQbWoJTCQa2s1R7_5rxsufpz0wp&sz=w1600",
-    "flower basket":"https://drive.google.com/thumbnail?id=1Kx5wAgLI21Whr5spBHJLJITkx7p3Vnfy&sz=w1600",
-    others:"https://drive.google.com/thumbnail?id=1saWH_Zqt-FN-7BFKlZfvxTmAs5XXgq58&sz=w1600"
+    "flower basket":"https://drive.google.com/thumbnail?id=1Kx5wAgLI21Whr5spBHJLJITkx7p3Vnfy&sz=w1600"
   };
-  const categoryOrder=["Small","Medium","Large","Flower Basket","Others"];
+  const categoryOrder=["Small","Medium","Large","Flower Basket"];
   function categoryImageFor(p){
     let savedCategoryImage='';
     try{const d=JSON.parse(String(p?.description||''));savedCategoryImage=driveImageUrl(d?.categoryImageUrl)}catch(e){}
@@ -116,9 +110,8 @@
   }
   function categoryLabel(p){
     const c=String(p?.category||p?.name||'').trim();
-    return c.toLowerCase()==="others" ? "Others" : c;
+    return c;
   }
-  function isOthers(p){return String(p?.category||p?.name||'').trim().toLowerCase()==="others";}
   function searchMatches(query){
     const q=String(query||'').trim().toLowerCase();
     return products.filter(p=>{
@@ -636,7 +629,7 @@
     const deliveryCharge=deliveryLocation==="Pokhara"?150:0;
     const subtotal=cart.reduce((s,x)=>s+x.qty*x.price,0),total=subtotal+deliveryCharge;for(const x of cart)if(x.qty>itemStockFor(x)){note.textContent=`Not enough stock for ${x.name}.`;return}
     const items=cart.map(x=>({productId:x.id,name:x.name,type:x.type,color:x.color||'',qty:x.qty,price:x.price}));
-    try{const response=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"placeOrder",customer:{name:document.getElementById("name").value,phone:document.getElementById("phone").value,note:document.getElementById("note").value,payment:document.getElementById("payment").value,deliveryLocation,deliveryCharge},items,total})});const result=await response.json();if(!result.success)throw new Error(result.message||"Order failed");if(Array.isArray(result.products)){products=result.products;renderProducts()}await syncProducts();playUISound('order');note.textContent=`Order ${result.orderId||""} received.`;cart.length=0;saveCart();renderCart()}catch(err){note.textContent="Order could not be confirmed. Please try again."}
+    try{const response=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"placeOrder",customer:{name:document.getElementById("name").value,phone:document.getElementById("phone").value,note:document.getElementById("note").value,payment:document.getElementById("payment").value,deliveryLocation,deliveryCharge},items,total})});const result=await response.json();if(!result.success)throw new Error(result.message||"Order failed");if(Array.isArray(result.products)){products=result.products.filter(p=>String(p?.category||p?.name||"").trim().toLowerCase()!=="others");renderProducts()}await syncProducts();playUISound('order');note.textContent=`Order ${result.orderId||""} received.`;cart.length=0;saveCart();renderCart()}catch(err){note.textContent="Order could not be confirmed. Please try again."}
   });
 
   async function fetchWithTimeout(url,options={},timeoutMs=8000){
@@ -651,10 +644,7 @@
       const r=await fetchWithTimeout(`${API_URL}?action=products&_=${Date.now()}`,{cache:"no-store"},8000);
       const d=await r.json();
       if(d.success&&Array.isArray(d.products)){
-        products=d.products;
-        if(!products.some(p=>String(p?.category||"").trim().toLowerCase()==="others")){
-          products.push(localFallback.products.find(p=>p.id==="others"));
-        }
+        products=d.products.filter(p=>String(p?.category||p?.name||"").trim().toLowerCase()!=="others");
       }
     }catch(e){console.warn("Rosemoon products sync unavailable; using current products.",e)}
     window.rosemoonProducts=products;
