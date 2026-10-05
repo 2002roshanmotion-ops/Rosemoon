@@ -399,9 +399,12 @@
     return stockFor(item.id);
   }
   function addItem(item,silent=false,source=null){
-    const stock=itemStockFor(item), existing=cart.find(x=>x.id===item.id&&x.type===item.type);
+    // Different colors of the same flower are separate cart lines.
+    const stock=itemStockFor(item);
+    const itemColor=String(item?.color||'Default');
+    const existing=cart.find(x=>x.id===item.id&&x.type===item.type&&String(x?.color||'Default')===itemColor);
     if((existing?.qty||0)>=stock){toast("Stock limit reached");return false}
-    if(existing)existing.qty++;else cart.push({...item,qty:1});
+    if(existing)existing.qty++;else cart.push({...item,color:itemColor,qty:1});
     saveCart();renderCart();playUISound('cartSparkle');animateCartAdd(source);if(!silent)toast("Added to cart");return true;
   }
   window.rosemoonAddItem=addItem;
