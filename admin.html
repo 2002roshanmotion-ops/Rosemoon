@@ -350,31 +350,19 @@ async function loadProducts(){
 }
 function isCategoryProduct(p){
   if(!p)return false;
-  const name=String(p.name||'').trim().toLowerCase();
-  const category=String(p.category||'').trim().toLowerCase();
   try{
     const d=JSON.parse(String(p.description||''));
-    if(d&&Array.isArray(d.options))return true;
-  }catch(e){}
-  // Rosemoon category products are the main bouquet/basket price categories.
-  // Keep every Rosemoon price/category group visible in Admin, including legacy Others entries that may not have options yet.
-  return ['small','medium','large','flower basket','others','small bouquet','medium bouquet','large bouquet'].some(k=>name===k||category===k);
+    return !!(d&&d.rosemoonCategory===true&&Array.isArray(d.options));
+  }catch(e){
+    return false;
+  }
 }
 function categoryData(p){
   try{
-    const d=JSON.parse(String(p?.description||''));    if(d&&Array.isArray(d.options))return d;
+    const d=JSON.parse(String(p?.description||''));
+    if(d&&Array.isArray(d.options))return d;
   }catch(e){}
-  // Match the customer website's legacy category data without inventing admin-only images.
-  return {
-    rosemoonCategory:true,
-    options:Array.from({length:5},(_,i)=>({
-      type:'Flower '+(i+1),
-      emoji:'',
-      stock:Math.max(0,Number(p?.stock)||0),
-      price:Math.max(0,Number(p?.price)||0),
-      imageUrl:p?.imageUrl||''
-    }))
-  };
+  return {rosemoonCategory:false,options:[]};
 }
 function populateCategoryManager(){
   const s=$('manageCategorySelect');
