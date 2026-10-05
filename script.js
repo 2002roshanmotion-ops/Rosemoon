@@ -234,7 +234,7 @@
     const colorId='flowerColor_'+popupProduct.id+'_'+categoryOptions(popupProduct).indexOf(o);
     const art=imageUrl?`<img class="${isDecoration?'decoration-full-image':''}" data-color-image="${escapeAttr(colorId)}" src="${escapeAttr(imageUrl)}" alt="${escapeAttr(o.type)}">`:emoji;
     const stockClass=stock===0?"out":stock<=2?"low":"";
-    const colorHtml=`<div class="flower-color-label">Color</div><div class="flower-color-options">${colors.map((c,ci)=>`<button type="button" class="flower-color-choice ${ci===0?"selected":""}" data-color-choice="${escapeAttr(colorId)}" data-color-index="${ci}" data-type="${escapeAttr(o.type)}">${escapeHtml(c.name)} · ${Math.max(0,Number(c.stock)||0)} left</button>`).join("")}</div>`;
+    const colorHtml=`<div class="flower-color-label">Color</div><div class="flower-color-options">${colors.map((c,ci)=>`<button type="button" class="flower-color-choice ${ci===0?"selected":""}" ${Math.max(0,Number(c.stock)||0)<=0?"disabled":""} data-color-choice="${escapeAttr(colorId)}" data-color-index="${ci}" data-type="${escapeAttr(o.type)}">${escapeHtml(c.name)} · ${Math.max(0,Number(c.stock)||0)} left</button>`).join("")}</div>`;
     sub.innerHTML=`<span>${escapeHtml(popupProduct.name)} · ${escapeHtml(o.type)}</span>`;
     grid.innerHTML=`<article class="flower-popup-card flower-popup-detail-card" data-flower-type="${escapeAttr(o.type)}" data-selected-color="${escapeAttr(colors[0]?.name||'Color 1')}" data-selected-color-image="${escapeAttr(colors[0]?.imageUrl||imageUrl)}">
       <div class="flower-popup-art">${art}</div>
@@ -630,7 +630,7 @@
     const deliveryCharge=deliveryLocation==="Pokhara"?150:0;
     const subtotal=cart.reduce((s,x)=>s+x.qty*x.price,0),total=subtotal+deliveryCharge;for(const x of cart)if(x.qty>itemStockFor(x)){note.textContent=`Not enough stock for ${x.name}.`;return}
     const items=cart.map(x=>({productId:x.id,name:x.name,type:x.type,color:x.color||'',qty:x.qty,price:x.price}));
-    try{const response=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"placeOrder",customer:{name:document.getElementById("name").value,phone:document.getElementById("phone").value,note:document.getElementById("note").value,payment:document.getElementById("payment").value,deliveryLocation,deliveryCharge},items,total})});const result=await response.json();if(!result.success)throw new Error(result.message||"Order failed");if(Array.isArray(result.products)){products=result.products.filter(p=>String(p?.category||p?.name||"").trim().toLowerCase()!=="others");renderProducts()}await syncProducts();playUISound('order');note.textContent=`Order ${result.orderId||""} received.`;cart.length=0;saveCart();renderCart()}catch(err){note.textContent="Order could not be confirmed. Please try again."}
+    try{const response=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"placeOrder",customer:{name:document.getElementById("name").value,phone:document.getElementById("phone").value,note:document.getElementById("note").value,payment:document.getElementById("payment").value,deliveryLocation,deliveryCharge},items,total})});const result=await response.json();if(!result.success)throw new Error(result.message||"Order failed");if(Array.isArray(result.products)){products=result.products.filter(p=>p&&p.active!==false);renderProducts()}await syncProducts();playUISound('order');note.textContent=`Order ${result.orderId||""} received.`;cart.length=0;saveCart();renderCart()}catch(err){note.textContent="Order could not be confirmed. Please try again."}
   });
 
   async function fetchWithTimeout(url,options={},timeoutMs=8000){
@@ -645,7 +645,7 @@
       const r=await fetchWithTimeout(`${API_URL}?action=products&_=${Date.now()}`,{cache:"no-store"},8000);
       const d=await r.json();
       if(d.success&&Array.isArray(d.products)){
-        products=d.products.filter(p=>String(p?.category||p?.name||"").trim().toLowerCase()!=="others");
+        products=d.products.filter(p=>p&&p.active!==false);
       }
     }catch(e){console.warn("Rosemoon products sync unavailable; using current products.",e)}
     window.rosemoonProducts=products;
