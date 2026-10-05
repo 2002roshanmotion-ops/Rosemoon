@@ -45,7 +45,7 @@
         }));
       }
     }catch(e){}
-    return choices.map(([type,emoji])=>({type,emoji,stock:stockFor(product?.id),price:Number(product?.price||0),imageUrl:product?.imageUrl||''}));
+    return [];
   }
   function enterShop(){
     playUISound('breeze');
