@@ -35,7 +35,8 @@ body{background:radial-gradient(circle at 10% 0%,#ffe8f0 0,#fff7f9 32%,#f8f2f5 1
     <div class="side-brand"><img class="admin-side-logo" src="https://d2ol7oe51mr4n9.cloudfront.net/user_3JYbYCHyy3naSeG6RhPtSZPxh49/ec2e63b0-a983-4186-a3da-ad6c75b1acf7.png" alt="RoseMmoon"><span>OWNER CONTROL CENTER</span></div>
     <nav class="side-nav">
       <button class="tab active" data-tab="dashboard">📊 <span>Dashboard</span></button>
-      <button class="tab" data-tab="inventory">📦 <span>Inventory</span></button>\n      <button class="tab" data-tab="websiteOrder">↕️ <span>Website Order</span></button>
+      <button class="tab" data-tab="inventory">📦 <span>Inventory</span></button>
+      <button class="tab" data-tab="websiteOrder">↕️ <span>Website Order</span></button>
       <button class="tab" data-tab="photos">🌸 <span>Add Flowers</span></button>
       <button class="tab" data-tab="editFlowers">✏️ <span>Edit Flowers</span></button>
       <button class="tab" data-tab="orders">📋 <span>Orders</span></button>
@@ -85,6 +86,19 @@ body{background:radial-gradient(circle at 10% 0%,#ffe8f0 0,#fff7f9 32%,#f8f2f5 1
     </div>
   </section>
 
+  <section class="panel" id="websiteOrder">
+    <div class="card">
+      <h2>↕️ Category Order</h2>
+      <p class="hint">Use ↑ and ↓ to arrange the category order. The customer website follows this order automatically.</p>
+      <div id="websiteCategoryOrder" class="category-order-list"></div>
+    </div>
+    <div class="card">
+      <h2>↕️ Flower Order</h2>
+      <p class="hint">Use ↑ and ↓ to arrange the flowers inside each category. The customer website follows this order automatically.</p>
+      <div id="websiteFlowerOrder" class="category-order-list"></div>
+    </div>
+  </section>
+
   <section class="panel" id="photos">
   <div class="card category-builder">
     <h2>🌸 Add New Flower Category</h2>
@@ -92,7 +106,7 @@ body{background:radial-gradient(circle at 10% 0%,#ffe8f0 0,#fff7f9 32%,#f8f2f5 1
     <div class="form-grid">
       <div class="field"><label>CATEGORY NAME</label><input id="categoryName" placeholder="e.g. Premium Bouquet"></div>
       <div class="field"><label>PRICE (Rs.)</label><input id="categoryPrice" type="number" min="0" step="1" placeholder="2500"></div>
-      <div class="field full"><label>CATEGORY / MAIN P<section class="panel" id="websiteOrder">\n    <div class="card" style="margin-top:18px"><h3 style="margin:0 0 6px">↕️ Category Order</h3><p class="hint">Use ↑ and ↓ to arrange the category order. The customer website follows this order automatically.</p><div id="websiteCategoryOrder" class="category-order-list"></div></div><div class="card" style="margin-top:18px"><h3 style="margin:0 0 6px">↕️ Flower Order</h3><p class="hint">Use ↑ and ↓ to arrange the flowers inside each category. The customer website follows this order automatically.</p><div id="websiteFlowerOrder" class="category-order-list"></div></div>\n  </section>\n\n  HOTO</label><input id="categoryPhoto" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></div>
+      <div class="field full"><label>CATEGORY / MAIN PHOTO</label><input id="categoryPhoto" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></div>
       
       <div class="field full"><h3 style="margin:4px 0">Flowers in this category</h3><div class="hint">Every flower below has independent stock. Add or remove rows as needed.</div></div>
       <div class="field full" id="newCategoryFlowers"></div>
