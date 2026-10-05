@@ -375,8 +375,20 @@
     setTimeout(()=>flyer.remove(),900);
   }
 
+  function itemStockFor(item){
+    const p=products.find(x=>String(x.id)===String(item?.id));
+    if(!p)return 0;
+    try{
+      const d=JSON.parse(String(p.description||''));
+      if(d?.rosemoonCategory&&Array.isArray(d.options)){
+        const opt=d.options.find(o=>String(o?.type||'')===String(item?.type||''));
+        if(opt)return Math.max(0,Number(opt.stock)||0);
+      }
+    }catch(e){}
+    return stockFor(item.id);
+  }
   function addItem(item,silent=false,source=null){
-    const stock=stockFor(item.id), existing=cart.find(x=>x.id===item.id&&x.type===item.type);
+    const stock=itemStockFor(item), existing=cart.find(x=>x.id===item.id&&x.type===item.type);
     if((existing?.qty||0)>=stock){toast("Stock limit reached");return false}
     if(existing)existing.qty++;else cart.push({...item,qty:1});
     saveCart();renderCart();playUISound('cartSparkle');animateCartAdd(source);if(!silent)toast("Added to cart");return true;
@@ -419,7 +431,7 @@
     box.innerHTML=cart.map((x,i)=>{const cartImage=cartImageFor(x);return `<div class="cart-item"><div class="cart-icon">${cartImage?`<img src="${escapeAttr(cartImage)}" alt="" style="width:42px;height:42px;object-fit:contain;border-radius:10px">`:x.emoji}</div><div class="cart-info"><strong>${escapeHtml(x.name||x.size)}</strong><small>${escapeHtml(x.type)} · ${money(x.price)}</small></div><div class="qty"><button data-q="-" data-i="${i}">−</button><b>${x.qty}</b><button data-q="+" data-i="${i}">+</button></div><button class="remove" data-q="x" data-i="${i}">×</button></div>`}).join("");
   }
   document.getElementById("deliveryLocation")?.addEventListener("change",()=>renderCart());
-  document.getElementById("cartItems")?.addEventListener("click",e=>{const b=e.target.closest("[data-q]");if(!b)return;const i=+b.dataset.i,x=cart[i];if(!x)return;if(b.dataset.q==="+"&&x.qty<stockFor(x.id))x.qty++;if(b.dataset.q==="-")x.qty--;if(b.dataset.q==="x"||x.qty<=0)cart.splice(i,1);saveCart();renderCart()});
+  document.getElementById("cartItems")?.addEventListener("click",e=>{const b=e.target.closest("[data-q]");if(!b)return;const i=+b.dataset.i,x=cart[i];if(!x)return;if(b.dataset.q==="+"&&x.qty<itemStockFor(x))x.qty++;if(b.dataset.q==="-")x.qty--;if(b.dataset.q==="x"||x.qty<=0)cart.splice(i,1);saveCart();renderCart()});
   function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove("show"),1800)}
   document.getElementById("openGuide")?.addEventListener("click",()=>document.getElementById("guideModal").classList.add("open"));
   document.getElementById("closeGuide")?.addEventListener("click",()=>document.getElementById("guideModal").classList.remove("open"));
@@ -535,7 +547,7 @@
     const deliveryLocation=document.getElementById("deliveryLocation").value;
     if(!deliveryLocation){note.textContent="Choose a delivery location.";return}
     const deliveryCharge=deliveryLocation==="Pokhara"?150:0;
-    const subtotal=cart.reduce((s,x)=>s+x.qty*x.price,0),total=subtotal+deliveryCharge;for(const x of cart)if(x.qty>stockFor(x.id)){note.textContent=`Not enough stock for ${x.name}.`;return}
+    const subtotal=cart.reduce((s,x)=>s+x.qty*x.price,0),total=subtotal+deliveryCharge;for(const x of cart)if(x.qty>itemStockFor(x)){note.textContent=`Not enough stock for ${x.name}.`;return}
     const items=cart.map(x=>({productId:x.id,name:x.name,type:x.type,qty:x.qty,price:x.price}));
     try{const response=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"placeOrder",customer:{name:document.getElementById("name").value,phone:document.getElementById("phone").value,note:document.getElementById("note").value,payment:document.getElementById("payment").value,deliveryLocation,deliveryCharge},items,total})});const result=await response.json();if(!result.success)throw new Error(result.message||"Order failed");if(Array.isArray(result.products)){products=result.products;renderProducts()}await syncProducts();playUISound('order');note.textContent=`Order ${result.orderId||""} received.`;cart.length=0;saveCart();renderCart()}catch(err){note.textContent="Order could not be confirmed. Please try again."}
   });
