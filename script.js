@@ -2,13 +2,8 @@
   const API_URL = "https://script.google.com/macros/s/AKfycbw3ovS6hIwHLhp50Xrs-6ejMxZkI_q-AhB-Mz6JXbsIRKSphJcMoqBELVY4nUogRR__/exec";
   const CART_KEY = "rosemoonCartV4";
   const localFallback = {
-    products: [
-      {id:"small",category:"Small",name:"Small Bouquet",price:500,stock:8,imageUrl:"",active:true},
-      {id:"medium",category:"Medium",name:"Medium Bouquet",price:800,stock:5,imageUrl:"",active:true},
-      {id:"large",category:"Large",name:"Large Bouquet",price:1500,stock:3,imageUrl:"",active:true},
-      {id:"flower-basket",category:"Flower Basket",name:"Flower Basket",price:1800,stock:6,imageUrl:"",active:true},
-      {id:"others",category:"Others",name:"Others",price:0,stock:0,imageUrl:"",active:true},
-    ],
+    // The API is the single source of truth. Never invent default products in the customer site.
+    products: [],
     music: []
   };
 
