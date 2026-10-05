@@ -342,7 +342,8 @@ function isCategoryProduct(p){
     if(d&&Array.isArray(d.options))return true;
   }catch(e){}
   // Rosemoon category products are the main bouquet/basket price categories.
-  return ['small','medium','large','flower basket','small bouquet','medium bouquet','large bouquet'].some(k=>name===k||category===k);
+  // Keep every Rosemoon price/category group visible in Admin, including legacy Others entries that may not have options yet.
+  return ['small','medium','large','flower basket','small bouquet','medium bouquet','large bouquet','others','other'].some(k=>name===k||category===k);
 }
 function categoryData(p){
   try{
