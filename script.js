@@ -672,15 +672,11 @@
 
   async function prepareFirstMusic(){
     if(!music.songs.length){setLoading(76,"No music yet");return;}
-    setLoading(60,"Preparing first 5 songs…");
-    const firstFive=[];
-    for(let i=0;i<Math.min(5,music.songs.length);i++) firstFive.push(music.prepare(i));
-    await Promise.race([Promise.all(firstFive),new Promise(r=>setTimeout(r,8000))]);
-    setLoading(78,"Getting music ready…");
-    // Prepare any remaining tracks in the background; do not block the shop.
-    for(let i=5;i<music.songs.length;i++){
-      music.prepare(i).catch(()=>{});
-    }
+    setLoading(60,"Preparing all songs…");
+    const allSongs=[];
+    for(let i=0;i<music.songs.length;i++) allSongs.push(music.prepare(i));
+    await Promise.race([Promise.all(allSongs),new Promise(r=>setTimeout(r,12000))]);
+    setLoading(78,"All music ready…");
   }
 
 
