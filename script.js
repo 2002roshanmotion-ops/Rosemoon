@@ -49,7 +49,8 @@
           emoji:String(o?.emoji||choices[i]?.[1]||'🌸'),
           stock:Math.max(0,Number(o?.stock)||0),
           price:Math.max(0,Number(o?.price ?? product?.price ?? 0)),
-          imageUrl:(driveImageUrl(o?.imageUrl)||((String(o?.type||'').trim().toLowerCase()==='decoration')?'assets/Decoration.webp':driveImageUrl(product?.imageUrl)||categoryImageFor(product)||'')),colors:(()=>{const base=Array.isArray(o?.colors)?o.colors.slice():[];while(base.length<3)base.push({name:'Color '+(base.length+1),imageUrl:''});return base.map(c=>({name:String(c?.name||'Color'),imageUrl:driveImageUrl(c?.imageUrl)||driveImageUrl(o?.imageUrl)||driveImageUrl(product?.imageUrl)||categoryImageFor(product)||''}))})()
+          imageUrl:(driveImageUrl(o?.imageUrl)||((String(o?.type||'').trim().toLowerCase()==='decoration')?'assets/Decoration.webp':driveImageUrl(product?.imageUrl)||categoryImageFor(product)||'')),
+          colors:(Array.isArray(o?.colors)&&o.colors.length?o.colors:[]).map(c=>({name:String(c?.name||'Color'),imageUrl:driveImageUrl(c?.imageUrl)||''}))
         }));
       }
     }catch(e){}
