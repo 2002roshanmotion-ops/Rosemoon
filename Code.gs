@@ -356,6 +356,14 @@ function placeOrder_(payload) {
         if(option){
           const optionStock=Math.max(0,Number(option.stock)||0);
           if(qty>optionStock) throw new Error(String(item.type)+' has only '+optionStock+' left.');
+          if(item.color){
+            const colors=Array.isArray(option.colors)?option.colors:[];
+            const color=colors.find(c=>String(c?.name||'Default').trim()===String(item.color||'Default').trim());
+            if(color&&Object.prototype.hasOwnProperty.call(color,'stock')){
+              const colorStock=Math.max(0,Number(color.stock)||0);
+              if(qty>colorStock) throw new Error(String(item.type)+' / '+String(item.color)+' has only '+colorStock+' left.');
+            }
+          }
         }
       }
     });
@@ -370,14 +378,22 @@ function placeOrder_(payload) {
         const options=parseCategoryOptions_(descCell.getValue());
         if(options){
           const option=options.find(o=>String(o.type||'').trim()===String(item.type||'').trim());
-          if(option){option.stock=Math.max(0,(Number(option.stock)||0)-qty);descCell.setValue(JSON.stringify({rosemoonCategory:true,options:options}));}
+          if(option){
+            option.stock=Math.max(0,(Number(option.stock)||0)-qty);
+            if(item.color){
+              const colors=Array.isArray(option.colors)?option.colors:[];
+              const color=colors.find(c=>String(c?.name||'Default').trim()===String(item.color||'Default').trim());
+              if(color&&Object.prototype.hasOwnProperty.call(color,'stock')) color.stock=Math.max(0,(Number(color.stock)||0)-qty);
+            }
+            descCell.setValue(JSON.stringify({rosemoonCategory:true,options:options}));
+          }
         }
       }
     });
 
     const customerId=upsertCustomer_(Object.assign({},customer,{total:Number(payload.total)||0}));
     const orderId='RM-'+Utilities.getUuid().slice(0,8).toUpperCase();
-    const itemText=payload.items.map(item=>`${item.qty||item.quantity}x ${item.name||item.product}${item.type?' ('+item.type+')':''}`).join(', ');
+    const itemText=payload.items.map(item=>`${item.qty||item.quantity}x ${item.name||item.product}${item.type?' ('+item.type+')':''}${item.color?' ['+item.color+']':''}`).join(', ');
 
     orders.appendRow([
       orderId,new Date(),customerId,clean_(customer.name),clean_(customer.phone),
