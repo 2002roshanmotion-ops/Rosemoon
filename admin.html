@@ -474,28 +474,94 @@ function adminFlowerImageFor(o,p){
   return String(p?.imageUrl||'').trim();
 }
 function getCategoryOrderValue(p){try{const d=categoryData(p);const n=Number(d.categorySort);return Number.isFinite(n)?n:9999}catch(e){return 9999}}
+function websiteCategorySortKey(p){
+  const sort=getCategoryOrderValue(p);
+  const order=['small','medium','large','flower basket','others'];
+  const key=String(p?.category||p?.name||'').trim().toLowerCase();
+  const fallback=order.indexOf(key);
+  return {sort,fallback:fallback<0?99:fallback};
+}
 function getFlowerOrderValue(o,i){const n=Number(o&&o.sort);return Number.isFinite(n)?n:i+1}
 function renderWebsiteCategoryOrder(){
  const catBox=$('websiteCategoryOrder'),flowerBox=$('websiteFlowerOrder');if(!catBox&&!flowerBox)return;
- const cats=products.filter(isCategoryProduct).slice().sort((a,b)=>{const x=getCategoryOrderValue(a),y=getCategoryOrderValue(b);return x-y||String(a.name||'').localeCompare(String(b.name||''))});
+ // This uses the same rules as the customer website: active categories only,
+ // categorySort first, then the website's fixed category tie-breaker.
+ const cats=products.filter(p=>p.active!==false&&isCategoryProduct(p)).slice().sort((a,b)=>{
+   const x=websiteCategorySortKey(a),y=websiteCategorySortKey(b);
+   return x.sort-y.sort||x.fallback-y.fallback;
+ });
  if(!cats.length){
    if(catBox)catBox.innerHTML='<div class="empty">No categories yet.</div>';
    if(flowerBox)flowerBox.innerHTML='<div class="empty">No flowers yet.</div>';
    return;
  }
- if(catBox)catBox.innerHTML=cats.map((p,i)=>'<div class="order-category"><div>'+(adminCategoryImageFor(p)?'<img src="'+esc(adminCategoryImageFor(p))+'" alt="">':'')+'</div><div><div class="order-category-title">'+esc(p.name||p.category)+'</div><small>'+money(p.price)+'</small></div><div class="order-buttons"><button class="secondary" type="button" onclick="moveWebsiteCategory('+i+',-1)" '+(i===0?'disabled':'')+'>↑</button><button class="secondary" type="button" onclick="moveWebsiteCategory('+i+',1)" '+(i===cats.length-1?'disabled':'')+'>↓</button></div></div>').join('');
+ if(catBox)catBox.innerHTML=cats.map((p,i)=>
+   '<div class="order-category"><div>'+(adminCategoryImageFor(p)?'<img src="'+esc(adminCategoryImageFor(p))+'" alt="">':'')+'</div>'+
+   '<div><div class="order-category-title">'+esc(p.name||p.category)+'</div><small>'+money(p.price)+'</small></div>'+
+   '<div class="order-buttons">'+
+   '<button class="secondary" type="button" data-web-cat-move="-1" data-web-cat-index="'+i+'" '+(i===0?'disabled':'')+'>↑</button>'+
+   '<button class="secondary" type="button" data-web-cat-move="1" data-web-cat-index="'+i+'" '+(i===cats.length-1?'disabled':'')+'>↓</button>'+
+   '</div></div>'
+ ).join('');
  if(flowerBox)flowerBox.innerHTML=cats.map(p=>{
-   const opts=(categoryData(p).options||[]).slice().sort((a,b)=>getFlowerOrderValue(a,0)-getFlowerOrderValue(b,0));
-   return '<div class="order-category"><div>'+(adminCategoryImageFor(p)?'<img src="'+esc(adminCategoryImageFor(p))+'" alt="">':'')+'</div><div><div class="order-category-title">'+esc(p.name||p.category)+'</div><small>Arrange flowers in this category</small><div class="order-flower-list">'+(opts.length?opts.map((o,j)=>'<div class="order-flower"><div>'+(adminFlowerImageFor(o,p)?'<img src="'+esc(adminFlowerImageFor(o,p))+'" alt="">':'')+'</div><div><div class="order-flower-title">'+esc(o.type||('Flower '+(j+1)))+'</div><small>Flower '+(j+1)+'</small></div><div class="order-buttons"><button class="secondary" type="button" onclick="moveWebsiteFlower(&quot;'+esc(p.id)+'&quot;,'+j+',-1)" '+(j===0?'disabled':'')+'>↑</button><button class="secondary" type="button" onclick="moveWebsiteFlower(&quot;'+esc(p.id)+'&quot;,'+j+',1)" '+(j===opts.length-1?'disabled':'')+'>↓</button></div></div>').join(''):'<div class="empty">No flowers in this category.</div>')+'</div></div><div></div></div>';
+   // IMPORTANT: the customer website displays d.options in ARRAY order.
+   // Do not sort flowers by a separate field, otherwise Admin and Shop disagree.
+   const opts=Array.isArray(categoryData(p).options)?categoryData(p).options:[];
+   return '<div class="order-category"><div>'+(adminCategoryImageFor(p)?'<img src="'+esc(adminCategoryImageFor(p))+'" alt="">':'')+'</div>'+
+   '<div><div class="order-category-title">'+esc(p.name||p.category)+'</div><small>Same order as the customer website</small>'+
+   '<div class="order-flower-list">'+
+   (opts.length?opts.map((o,j)=>
+     '<div class="order-flower"><div>'+(adminFlowerImageFor(o,p)?'<img src="'+esc(adminFlowerImageFor(o,p))+'" alt="">':'')+'</div>'+
+     '<div><div class="order-flower-title">'+esc(o.type||('Flower '+(j+1)))+'</div><small>Website position '+(j+1)+'</small></div>'+
+     '<div class="order-buttons">'+
+     '<button class="secondary" type="button" data-web-flower-move="-1" data-web-category-id="'+esc(p.id)+'" data-web-flower-index="'+j+'" '+(j===0?'disabled':'')+'>↑</button>'+
+     '<button class="secondary" type="button" data-web-flower-move="1" data-web-category-id="'+esc(p.id)+'" data-web-flower-index="'+j+'" '+(j===opts.length-1?'disabled':'')+'>↓</button>'+
+     '</div></div>'
+   ).join(''):'<div class="empty">No flowers in this category.</div>')+
+   '</div></div><div></div></div>';
  }).join('');
+ // Use real event listeners instead of fragile inline onclick JavaScript.
+ document.querySelectorAll('[data-web-cat-move]').forEach(btn=>{
+   btn.addEventListener('click',()=>moveWebsiteCategory(Number(btn.dataset.webCatIndex),Number(btn.dataset.webCatMove)));
+ });
+ document.querySelectorAll('[data-web-flower-move]').forEach(btn=>{
+   btn.addEventListener('click',()=>moveWebsiteFlower(btn.dataset.webCategoryId,Number(btn.dataset.webFlowerIndex),Number(btn.dataset.webFlowerMove)));
+ });
 }
 async function moveWebsiteCategory(i,dir){
- const cats=products.filter(isCategoryProduct).slice().sort((a,b)=>getCategoryOrderValue(a)-getCategoryOrderValue(b)||String(a.name||'').localeCompare(String(b.name||'')));const j=i+dir;if(j<0||j>=cats.length)return;[cats[i],cats[j]]=[cats[j],cats[i]];
- try{for(let k=0;k<cats.length;k++){const p=cats[k],raw=categoryData(p);await api('updateProduct',{id:p.id,name:p.name,category:p.category||p.name,price:Number(p.price||0),stock:Number(p.stock||0),imageUrl:p.imageUrl||'',description:JSON.stringify({...raw,rosemoonCategory:true,categorySort:k+1})})}const d=await api('inventory');products=d.products||products;renderWebsiteCategoryOrder();renderInventory();}catch(e){alert(e.message);renderWebsiteCategoryOrder()}
+ const cats=products.filter(p=>p.active!==false&&isCategoryProduct(p)).slice().sort((a,b)=>{
+   const x=websiteCategorySortKey(a),y=websiteCategorySortKey(b);
+   return x.sort-y.sort||x.fallback-y.fallback;
+ });
+ const j=i+dir;if(j<0||j>=cats.length)return;
+ [cats[i],cats[j]]=[cats[j],cats[i]];
+ try{
+   for(let k=0;k<cats.length;k++){
+     const p=cats[k],raw=categoryData(p);
+     await api('updateProduct',{id:p.id,name:p.name,category:p.category||p.name,price:Number(p.price||0),stock:Number(p.stock||0),imageUrl:p.imageUrl||'',description:JSON.stringify({...raw,rosemoonCategory:true,categorySort:k+1})});
+   }
+   const d=await api('products');
+   products=d.products||products;
+   renderWebsiteCategoryOrder();renderInventory();
+ }catch(e){alert(e.message);renderWebsiteCategoryOrder()}
 }
 async function moveWebsiteFlower(categoryId,i,dir){
- const p=products.find(x=>String(x.id)===String(categoryId));if(!p)return;const raw=categoryData(p),opts=(raw.options||[]).slice().sort((a,b)=>getFlowerOrderValue(a,0)-getFlowerOrderValue(b,0));const j=i+dir;if(j<0||j>=opts.length)return;[opts[i],opts[j]]=[opts[j],opts[i]];opts.forEach((o,k)=>o.sort=k+1);
- try{const d=await api('updateProduct',{id:p.id,name:p.name,category:p.category||p.name,price:Number(p.price||0),stock:Number(p.stock||0),imageUrl:p.imageUrl||'',description:JSON.stringify({...raw,rosemoonCategory:true,options:opts})});products=d.products||products;renderWebsiteCategoryOrder();renderInventory();}catch(e){alert(e.message);renderWebsiteCategoryOrder()}
+ const p=products.find(x=>String(x.id)===String(categoryId));if(!p)return;
+ const raw=categoryData(p);
+ // The customer shop uses raw.options.map(...), so this is the exact order we save.
+ const opts=Array.isArray(raw.options)?raw.options.slice():[];
+ const j=i+dir;if(j<0||j>=opts.length)return;
+ [opts[i],opts[j]]=[opts[j],opts[i]];
+ // Keep a readable position too, but ARRAY ORDER is the source of truth for the website.
+ opts.forEach((o,k)=>{if(o&&typeof o==='object')o.sort=k+1});
+ try{
+   const d=await api('updateProduct',{
+     id:p.id,name:p.name,category:p.category||p.name,price:Number(p.price||0),stock:Number(p.stock||0),
+     imageUrl:p.imageUrl||'',description:JSON.stringify({...raw,rosemoonCategory:true,options:opts})
+   });
+   products=d.products||products;
+   renderWebsiteCategoryOrder();renderInventory();
+ }catch(e){alert(e.message);renderWebsiteCategoryOrder()}
 }
 function renderInventory(){
   const box=$('categoryInventoryList');if(!box)return;
