@@ -99,15 +99,17 @@
   const categoryOrder=["Small","Medium","Large","Flower Basket","Others"];
   function categoryImageFor(p){
     let savedCategoryImage='';
-    try{
-      const d=JSON.parse(String(p?.description||''));
-      savedCategoryImage=driveImageUrl(d?.categoryImageUrl);
-    }catch(e){}
+    try{const d=JSON.parse(String(p?.description||''));savedCategoryImage=driveImageUrl(d?.categoryImageUrl)}catch(e){}
     if(savedCategoryImage)return savedCategoryImage;
     const custom=driveImageUrl(p?.imageUrl);
     if(custom)return custom;
     const key=String(p?.category||p?.name||'').trim().toLowerCase();
     return categoryImages[key]||categoryImages[String(p?.name||'').trim().toLowerCase()]||"";
+  }
+  function categoryPopupImageFor(p){
+    let saved='';
+    try{const d=JSON.parse(String(p?.description||''));saved=driveImageUrl(d?.popupCategoryImageUrl)}catch(e){}
+    return saved||categoryImageFor(p);
   }
   function categoryPriceVisible(p){
     try{const d=JSON.parse(String(p?.description||''));return d?.priceVisible!==false}catch(e){return true}
@@ -210,7 +212,7 @@
     if(!popupProduct||!grid||!sub)return;
     sub.textContent=categoryPriceVisible(popupProduct)?`${popupProduct.name} · ${money(popupProduct.price)}. Choose a flower.`:`${popupProduct.name}. Choose a flower.`;
     const options=categoryOptions(popupProduct);
-    const categoryImage=categoryImageFor(popupProduct);
+    const categoryImage=categoryPopupImageFor(popupProduct);
     // The image at the top of the opened category must always be the same saved
     // category image used on the shop card. Add a cache-buster so a replaced
     // image cannot remain stuck in the browser's old image cache.
