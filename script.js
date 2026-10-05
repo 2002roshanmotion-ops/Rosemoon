@@ -145,9 +145,13 @@
       grid.innerHTML='<div class="product" style="grid-column:1/-1;text-align:center;padding:35px"><div style="font-size:38px;margin-bottom:8px">🌸</div>No bouquets found.<br><small style="color:#9b7d88">Try another name, category or price.</small></div>';
       return;
     }
-    const order=categoryOrder.map(x=>x.toLowerCase());
     active.sort((a,b)=>{
-      const ai=order.indexOf(String(a.category||a.name||"").toLowerCase()), bi=order.indexOf(String(b.category||b.name||"").toLowerCase());
+      let as=9999,bs=9999;
+      try{as=Number(JSON.parse(String(a.description||"")).categorySort);if(!Number.isFinite(as))as=9999}catch(e){}
+      try{bs=Number(JSON.parse(String(b.description||"")).categorySort);if(!Number.isFinite(bs))bs=9999}catch(e){}
+      if(as!==bs)return as-bs;
+      const ai=categoryOrder.map(x=>x.toLowerCase()).indexOf(String(a.category||a.name||"").toLowerCase());
+      const bi=categoryOrder.map(x=>x.toLowerCase()).indexOf(String(b.category||b.name||"").toLowerCase());
       return (ai<0?99:ai)-(bi<0?99:bi);
     });
     grid.innerHTML=active.map(p=>{
