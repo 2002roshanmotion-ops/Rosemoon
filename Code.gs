@@ -236,7 +236,7 @@ function uploadMedia_(payload,type) {
   const meta={title:title,active:true,sort:Date.now()};
   try{file.setDescription(JSON.stringify(meta));}catch(e){}
   logActivity_('ADD_MUSIC',title);
-  return {success:true,type:'music',url:file.getDownloadUrl(),fileId:file.getId(),music:getMusic_().music,message:'Music added to Rosemoon Music Drive folder.'};
+  return {success:true,type:'music',url:'https://drive.google.com/uc?export=download&id='+encodeURIComponent(file.getId()),fileId:file.getId(),music:getMusic_().music,message:'Music added to Rosemoon Music Drive folder.'};
 }
 
 function getMusicFile_(fileId) {
@@ -255,7 +255,7 @@ function musicMeta_(file) {
   return {
     id:'music-'+file.getId().slice(-12),
     title:String(meta.title||file.getName().replace(/\.mp3$/i,'')),
-    url:file.getDownloadUrl(),
+    url:'https://drive.google.com/uc?export=download&id='+encodeURIComponent(file.getId()),
     fileId:file.getId(),
     active:meta.active!==false,
     sort:Number(meta.sort)||file.getDateCreated().getTime()
