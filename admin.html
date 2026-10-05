@@ -472,15 +472,13 @@ async function saveCategoryManager(){
 $('manageCategorySelect')?.addEventListener('change',renderCategoryManager);
 $('saveCategoryBtn')?.addEventListener('click',saveCategoryManager);
 $('manageCategoryPhoto')?.addEventListener('change',async()=>{const file=$('manageCategoryPhoto').files?.[0],box=$('manageCategoryPhotoPreview');if(!box)return;if(!file){box.innerHTML='';return}try{const url=await readDataUrl(file);box.innerHTML='<img src="'+esc(url)+'" alt="" style="width:120px;height:120px;object-fit:contain;border-radius:14px;background:#fff;border:1px solid #f0e2e7">'}catch(e){box.innerHTML=''}});
-function renderDashboardInventory(){const t=$('dashboardInventoryTable');if(!t)return;t.innerHTML=products.slice(0,12).map(p=>`<tr><td>${esc(p.name)}</td><td>${esc(p.category)}</td><td>${money(p.price)}</td><td class="${p.stock===0?'status-out':p.stock<=2?'status-low':'status-ok'}">${p.stock}</td></tr>`).join('')||'<tr><td colspan="4" class="empty">No products yet.</td></tr>'}
-function driveAdminImageUrl(url){
-  const s=String(url||'').trim();
-  if(!s)return '';
-  const m=s.match(/[?&](?:id|fileId)=([^&]+)/i)||s.match(/\/d\/([a-zA-Z0-9_-]+)/);
-  if((s.includes('drive.google.com')||s.includes('docs.google.com'))&&m?.[1]){
-    return 'https://drive.google.com/thumbnail?id='+encodeURIComponent(m[1])+'&sz=w1600';
-  }
-  return s;
+function renderDashboardInventory(){
+  const t=$('dashboardInventoryTable');if(!t)return;
+  t.innerHTML=products.slice(0,12).map(p=>{
+    const stock=categoryStockTotal(p);
+    const status=stock===0?'status-out':stock<=2?'status-low':'status-ok';
+    return `<tr><td>${esc(p.name)}</td><td>${esc(p.category)}</td><td>${money(p.price)}</td><td class="${status}">${stock}</td></tr>`;
+  }).join('')||'<tr><td colspan="4" class="empty">No products yet.</td></tr>';
 }
 function adminCategoryImageFor(p){
   const custom=driveAdminImageUrl(p?.imageUrl);
@@ -628,7 +626,7 @@ function renderInventory(){
     const pid=esc(p.id);
     return '<div class="inventory-category-card">'+
       '<div class="inventory-category-head">'+
-      '<div style="display:flex;align-items:center;gap:12px"><div>'+(adminCategoryImageFor(p)?'<img src="'+esc(adminCategoryImageFor(p))+'" alt="" style="width:72px;height:72px;object-fit:contain;border-radius:14px;background:#fff8fa;border:1px solid #f0e2e7">':'')+'</div><div><div class="inventory-category-title">'+esc(p.name||p.category)+'</div><div class="inventory-category-meta">'+money(p.price)+' · '+opts.length+' flowers</div></div>'+
+      '<div style="display:flex;align-items:center;gap:12px"><div>'+(adminCategoryImageFor(p)?'<img src="'+esc(adminCategoryImageFor(p))+'" alt="" style="width:72px;height:72px;object-fit:contain;border-radius:14px;background:#fff8fa;border:1px solid #f0e2e7">':'')+'</div><div><div class="inventory-category-title">'+esc(p.name||p.category)+'</div><div class="inventory-category-meta">'+money(p.price)+' · '+opts.length+' flowers+' · Stock: '+categoryStockTotal(p)+'</div></div>'+
       '<div><label class="hint">PRICE (Rs.)</label><input id="cat-price-'+pid+'" type="number" min="0" value="'+Number(p.price||0)+'"></div>'+
       '<button class="secondary inventory-open-btn" type="button" onclick="toggleCategoryInventory(\''+pid+'\')">🌸 Open Flowers</button>'+
       '</div>'+
@@ -704,9 +702,16 @@ function openCategoryEditor(id){
 async function saveInventory(id){try{const price=Math.max(0,Math.floor(Number($('price-'+id).value)||0));const stock=Math.max(0,Math.floor(Number($('stock-'+id).value)||0));const d=await api('updateProduct',{id,price,stock});products=d.products||products;await refreshAdminData();}catch(e){alert(e.message)}}
 async function saveStock(id){try{const v=Math.max(0,Math.floor(Number($('stock-'+id).value)||0));const d=await api('updateStock',{productId:id,stock:v});products=d.products||products;await refreshAdminData();}catch(e){alert(e.message)}}
 async function deleteProduct(id){if(!confirm('Delete this product?'))return;try{const d=await api('deleteProduct',{id});products=(d.products||[]).filter(p=>String(p?.category||p?.name||"").trim().toLowerCase()!=="__removed__);await refreshAdminData();}catch(e){alert(e.message)}}
+function flowerStockValue(o){
+  const direct=Math.max(0,Number(o?.stock)||0);
+  if(direct>0)return direct;
+  const colors=Array.isArray(o?.colors)?o.colors:[];
+  const colorTotal=colors.reduce((sum,c)=>sum+Math.max(0,Number(c?.stock)||0),0);
+  return colorTotal>0?colorTotal:direct;
+}
 function categoryStockTotal(p){
   const opts=categoryData(p).options||[];
-  if(opts.length)return opts.reduce((sum,o)=>sum+Math.max(0,Number(o.stock)||0),0);
+  if(opts.length)return opts.reduce((sum,o)=>sum+flowerStockValue(o),0);
   return Math.max(0,Number(p.stock)||0);
 }
 function updateStats(){
