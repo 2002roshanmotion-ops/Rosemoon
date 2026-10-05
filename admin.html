@@ -328,7 +328,7 @@ async function refreshAdminData(preferredCategoryId){
 async function loadProducts(){
   try{
     const d=await api('products');
-    products=(d.products||[]).filter(p=>String(p?.category||p?.name||"").trim().toLowerCase()!=="others");
+    products=(d.products||[]).filter(p=>String(p?.category||p?.name||"").trim().toLowerCase()!=="__removed__);
     renderInventory();
     renderDashboardInventory();
     updateStats();
@@ -718,7 +718,7 @@ function openCategoryEditor(id){
 }
 async function saveInventory(id){try{const price=Math.max(0,Math.floor(Number($('price-'+id).value)||0));const stock=Math.max(0,Math.floor(Number($('stock-'+id).value)||0));const d=await api('updateProduct',{id,price,stock});products=d.products||products;await refreshAdminData();}catch(e){alert(e.message)}}
 async function saveStock(id){try{const v=Math.max(0,Math.floor(Number($('stock-'+id).value)||0));const d=await api('updateStock',{productId:id,stock:v});products=d.products||products;await refreshAdminData();}catch(e){alert(e.message)}}
-async function deleteProduct(id){if(!confirm('Delete this product?'))return;try{const d=await api('deleteProduct',{id});products=(d.products||[]).filter(p=>String(p?.category||p?.name||"").trim().toLowerCase()!=="others");await refreshAdminData();}catch(e){alert(e.message)}}
+async function deleteProduct(id){if(!confirm('Delete this product?'))return;try{const d=await api('deleteProduct',{id});products=(d.products||[]).filter(p=>String(p?.category||p?.name||"").trim().toLowerCase()!=="__removed__);await refreshAdminData();}catch(e){alert(e.message)}}
 function categoryStockTotal(p){
   const opts=categoryData(p).options||[];
   if(opts.length)return opts.reduce((sum,o)=>sum+Math.max(0,Number(o.stock)||0),0);
