@@ -441,6 +441,17 @@ async function studioReplaceFlower(pi,i){
     products=saved.products||products;renderInventory();renderDashboardInventory();updateStats();populateCategoryManager();
   }catch(e){if(msg)msg.textContent='❌ '+(e.message||e);else alert(e.message||e)}
 }
+async function replaceManageFlowerImage(index){
+  const input=$('manageFlowerPhoto'+index),preview=input?.closest('.flower-image-section')?.querySelector('.flower-photo-preview'),msg=$('manageFlowerPhotoMsg'+index),file=input?.files?.[0];
+  if(!file)return;
+  if(!preview)return;
+  try{
+    preview.innerHTML='<span>Preview</span>';
+    const url=await readDataUrl(file);
+    preview.innerHTML='<img src="'+esc(url)+'" alt="" style="width:100%;height:100%;object-fit:contain">';
+    if(msg)msg.textContent='New image selected. Save Changes to replace the current image.';
+  }catch(e){if(msg)msg.textContent='❌ '+e.message}
+}
 async function saveCategoryManager(){
   const msg=$('manageCategoryMessage'),btn=$('saveCategoryBtn'),s=$('manageCategorySelect');
   const p=products.find(x=>String(x.id)===String(s?.value));
