@@ -50,12 +50,7 @@
           stock:Math.max(0,Number(o?.stock)||0),
           price:Math.max(0,Number(o?.price ?? product?.price ?? 0)),
           imageUrl:(driveImageUrl(o?.imageUrl)||((String(o?.type||'').trim().toLowerCase()==='decoration')?'assets/Decoration.webp':driveImageUrl(product?.imageUrl)||categoryImageFor(product)||'')),
-          colors:(()=>{
-          const saved=Array.isArray(o?.colors)?o.colors:[];
-          const colors=saved.map(c=>({name:String(c?.name||'Color'),imageUrl:driveImageUrl(c?.imageUrl)||''}));
-          while(colors.length<3) colors.push({name:'Color '+(colors.length+1),imageUrl:''});
-          return colors;
-        })()
+          colors:(()=>{const saved=Array.isArray(o?.colors)?o.colors:[];const colors=saved.map(c=>({name:String(c?.name||'Color'),stock:Object.prototype.hasOwnProperty.call(c,'stock')?Math.max(0,Number(c.stock)||0):Math.max(0,Number(o?.stock)||0),imageUrl:driveImageUrl(c?.imageUrl)||''}));while(colors.length<3) colors.push({name:'Color '+(colors.length+1),stock:Math.max(0,Number(o?.stock)||0),imageUrl:''});return colors;})()
         }));
       }
     }catch(e){}
@@ -207,7 +202,7 @@
       const type=String(o.type||'Flower 1'),emoji=String(o.emoji||'🌸'),stock=Math.max(0,Number(o.stock)||0),price=Math.max(0,Number(o.price ?? popupProduct.price ?? 0)),imageUrl=driveImageUrl(o.imageUrl);
       const isDecoration=type.trim().toLowerCase()==='decoration';
       const colors=Array.isArray(o.colors)&&o.colors.length?o.colors:[{name:'Default',imageUrl:imageUrl}]; const colorId='flowerColor_'+popupProduct.id+'_'+i; const art=imageUrl?`<img class="${isDecoration?'decoration-full-image':''}" data-color-image="${escapeAttr(colorId)}" src="${escapeAttr(imageUrl)}" alt="${escapeAttr(type)}">`:emoji;
-      const stockClass=stock===0?"out":stock<=2?"low":""; const colorHtml=`<div class="flower-color-label">Color</div><div class="flower-color-options">${colors.map((c,ci)=>`<button type="button" class="flower-color-choice ${ci===0?"selected":""}" data-color-choice="${escapeAttr(colorId)}" data-color-index="${ci}" data-type="${escapeAttr(type)}">${escapeHtml(c.name)}</button>`).join("")}</div>`;
+      const stockClass=stock===0?"out":stock<=2?"low":""; const colorHtml=`<div class="flower-color-label">Color</div><div class="flower-color-options">${colors.map((c,ci)=>`<button type="button" class="flower-color-choice ${ci===0?"selected":""}" data-color-choice="${escapeAttr(colorId)}" data-color-index="${ci}" data-type="${escapeAttr(type)}">${escapeHtml(c.name)} · ${Math.max(0,Number(c.stock)||0)} left</button>`).join("")}</div>`;
       return `<article class="flower-popup-card" data-flower-type="${escapeAttr(type)}" data-selected-color="${escapeAttr(colors[0]?.name||'Default')}" data-selected-color-image="${escapeAttr(colors[0]?.imageUrl||imageUrl)}"><div class="flower-popup-art">${art}</div><h3>${escapeHtml(type)}</h3><div class="flower-popup-price">${money(price)}</div>${colorHtml}<div class="flower-popup-stock ${stockClass}">${stock===0?"Sold out":stock+" in stock"}</div><button type="button" data-popup-buy data-type="${escapeAttr(type)}" data-emoji="${escapeAttr(emoji)}" ${stock===0?'disabled':''}>🛒 Add to Cart</button></article>`;
     }).join("");
     popup.classList.add("open"); popup.setAttribute("aria-hidden","false"); lockBackgroundScroll();
@@ -398,7 +393,7 @@
       const d=JSON.parse(String(p.description||''));
       if(d?.rosemoonCategory&&Array.isArray(d.options)){
         const opt=d.options.find(o=>String(o?.type||'')===String(item?.type||''));
-        if(opt)return Math.max(0,Number(opt.stock)||0);
+        if(opt){const colors=Array.isArray(opt.colors)?opt.colors:[];const color=colors.find(c=>String(c?.name||'Default')===String(item?.color||'Default'));if(color&&Object.prototype.hasOwnProperty.call(color,'stock'))return Math.max(0,Number(color.stock)||0);return Math.max(0,Number(opt.stock)||0);}
       }
     }catch(e){}
     return stockFor(item.id);
