@@ -206,12 +206,12 @@
       const type=String(o.type||'Flower 1'),emoji=String(o.emoji||'🌸'),stock=Math.max(0,Number(o.stock)||0),imageUrl=driveImageUrl(o.imageUrl);
       const isDecoration=type.trim().toLowerCase()==='decoration';
       const art=imageUrl?`<img class="${isDecoration?'decoration-full-image':''}" src="${escapeAttr(imageUrl)}" alt="${escapeAttr(type)}">`:emoji;
-      const stockClass=stock===0?"out":stock<=2?"low":"";
+      const selectedColorStock=Math.max(0,Number(colors[0]?.stock ?? stock)||0); const stockClass=selectedColorStock===0?"out":selectedColorStock<=2?"low":"";
       return `<article class="flower-popup-card flower-popup-choice-card" data-flower-type="${escapeAttr(type)}" data-open-flower="${escapeAttr(type)}" tabindex="0" role="button" aria-label="Open ${escapeAttr(type)}">
         <div class="flower-popup-art">${art}</div>
         <h3>${escapeHtml(type)}</h3>
         <div class="flower-popup-price">${money(Math.max(0,Number(o.price ?? popupProduct.price ?? 0)))}</div>
-        <div class="flower-popup-stock ${stockClass}">${stock===0?"Sold out":stock+" in stock"}</div>
+        <div class="flower-popup-stock ${stockClass}" data-selected-stock="${escapeAttr(colorId)}">${selectedColorStock===0?"Sold out":selectedColorStock+" in stock"}</div>
         <button type="button" class="flower-popup-view-button">View Flower →</button>
       </article>`;
     }).join("");
@@ -237,7 +237,7 @@
       <div class="flower-popup-price">${money(price)}</div>
       ${colorHtml}
       <div class="flower-popup-stock ${stockClass}">${stock===0?"Sold out":stock+" in stock"}</div>
-      <button type="button" data-popup-buy data-type="${escapeAttr(o.type)}" data-emoji="${escapeAttr(emoji)}" ${stock===0?'disabled':''}>🛒 Add to Cart</button>
+      <button type="button" data-popup-buy data-type="${escapeAttr(o.type)}" data-emoji="${escapeAttr(emoji)}" ${selectedColorStock===0?'disabled':''}>🛒 Add to Cart</button>
     </article>`;
   }
 
@@ -254,7 +254,7 @@
   }
   function closeFlowerPopup(){popup.classList.remove("open");popup.setAttribute("aria-hidden","true");flowerDetailOpen=false;unlockBackgroundScroll()}
   closePopup?.addEventListener("click",()=>{if(flowerDetailOpen){renderFlowerChoices();flowerDetailOpen=false;}else{closeFlowerPopup();}}); popup?.addEventListener("click",e=>{if(e.target===popup)closeFlowerPopup()});  sub?.addEventListener("click",e=>{const back=e.target.closest("[data-flower-back]");if(back){renderFlowerChoices();}});
-  grid?.addEventListener("click",e=>{const choice=e.target.closest("[data-open-flower]");if(choice&&!e.target.closest("[data-popup-buy]")&&!e.target.closest("[data-color-choice]")){openFlowerDetailPopup(choice.dataset.openFlower);return;}const cb=e.target.closest("[data-color-choice]");if(cb&&popupProduct){const card=cb.closest("[data-flower-type]"),o=categoryOptions(popupProduct).find(x=>String(x.type)===String(cb.dataset.type));const c=(o?.colors||[])[Number(cb.dataset.colorIndex)]||(o?.colors||[])[0];if(card&&c){const img=card.querySelector("[data-color-image=\""+cb.dataset.colorChoice+"\"]");if(img&&c.imageUrl)img.src=c.imageUrl;card.dataset.selectedColor=c.name||"Color 1";card.dataset.selectedColorImage=c.imageUrl||"";card.querySelectorAll("[data-color-choice]").forEach(x=>x.classList.toggle("selected",x===cb));}return;}const b=e.target.closest("[data-popup-buy]");if(!b||!popupProduct)return;const card=b.closest("[data-flower-type]");const options=categoryOptions(popupProduct);const selected=options.find(o=>String(o.type||'')===String(b.dataset.type));const ok=addItem({id:popupProduct.id,size:popupProduct.category,name:popupProduct.name,price:Math.max(0,Number(selected?.price ?? popupProduct.price ?? 0)),type:b.dataset.type,emoji:b.dataset.emoji,imageUrl:(card?.dataset.selectedColorImage||selected?.imageUrl||popupProduct.imageUrl),color:card?.dataset.selectedColor||'Color 1'},true,b);if(ok){b.textContent="✓ Added";b.disabled=true;setTimeout(closeFlowerPopup,300)}});
+  grid?.addEventListener("click",e=>{const choice=e.target.closest("[data-open-flower]");if(choice&&!e.target.closest("[data-popup-buy]")&&!e.target.closest("[data-color-choice]")){openFlowerDetailPopup(choice.dataset.openFlower);return;}const cb=e.target.closest("[data-color-choice]");if(cb&&popupProduct){const card=cb.closest("[data-flower-type]"),o=categoryOptions(popupProduct).find(x=>String(x.type)===String(cb.dataset.type));const c=(o?.colors||[])[Number(cb.dataset.colorIndex)]||(o?.colors||[])[0];if(card&&c){const img=card.querySelector("[data-color-image=\""+cb.dataset.colorChoice+"\"]");if(img&&c.imageUrl)img.src=c.imageUrl;card.dataset.selectedColor=c.name||"Color 1";card.dataset.selectedColorImage=c.imageUrl||"";const colorStock=Math.max(0,Number(c.stock)||0);const stockEl=card.querySelector("[data-selected-stock]");if(stockEl){stockEl.textContent=colorStock===0?"Sold out":colorStock+" in stock";stockEl.classList.toggle("out",colorStock===0);stockEl.classList.toggle("low",colorStock>0&&colorStock<=2)}const buy=card.querySelector("[data-popup-buy]");if(buy)buy.disabled=colorStock===0;card.querySelectorAll("[data-color-choice]").forEach(x=>x.classList.toggle("selected",x===cb));}return;}const b=e.target.closest("[data-popup-buy]");if(!b||!popupProduct)return;const card=b.closest("[data-flower-type]");const options=categoryOptions(popupProduct);const selected=options.find(o=>String(o.type||'')===String(b.dataset.type));const ok=addItem({id:popupProduct.id,size:popupProduct.category,name:popupProduct.name,price:Math.max(0,Number(selected?.price ?? popupProduct.price ?? 0)),type:b.dataset.type,emoji:b.dataset.emoji,imageUrl:(card?.dataset.selectedColorImage||selected?.imageUrl||popupProduct.imageUrl),color:card?.dataset.selectedColor||'Color 1'},true,b);if(ok){b.textContent="✓ Added";b.disabled=true;setTimeout(closeFlowerPopup,300)}});
 
   let uiSoundCtx=null;
   function playUISound(kind='normal'){
