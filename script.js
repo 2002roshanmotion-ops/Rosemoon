@@ -675,7 +675,7 @@
     setLoading(60,"Preparing all songs…");
     const allSongs=[];
     for(let i=0;i<music.songs.length;i++) allSongs.push(music.prepare(i));
-    await Promise.race([Promise.all(allSongs),new Promise(r=>setTimeout(r,12000))]);
+    await Promise.race([Promise.all(allSongs),new Promise(r=>setTimeout(r,30000))]);
     setLoading(78,"All music ready…");
   }
 
