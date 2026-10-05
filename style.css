@@ -421,3 +421,7 @@ body.flower-popup-open{
 
 /* Flower color options */
 .flower-color-label{font-size:12px;font-weight:800;color:#80636e;margin:8px 0 5px}.flower-color-options{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}.flower-color-choice{border:1px solid #ead3dc;background:#fff;border-radius:999px;padding:6px 10px;font-size:12px;color:#5b3a46}.flower-color-choice.selected{border-color:#d94f70;background:#fff0f4;color:#b83258;font-weight:800}
+
+
+/* Flower color selector */
+.flower-color-label{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#8b6572;margin:8px 0 6px}.flower-color-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-bottom:10px}.flower-color-choice{width:100%!important;margin:0!important;padding:8px 5px!important;border:1px solid #ead5de!important;border-radius:10px!important;background:#fff!important;color:#6c4654!important;font-size:11px!important;font-weight:700!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.flower-color-choice:hover,.flower-color-choice.selected{border-color:#b65d7b!important;background:#fff0f5!important;color:#7e3e58!important;transform:none!important}
