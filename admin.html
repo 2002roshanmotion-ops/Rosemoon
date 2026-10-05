@@ -229,10 +229,15 @@ function money(n){return 'Rs. '+Number(n||0).toLocaleString('en-IN')}
 function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 async function api(action,body){
   const url=API_URL+(body?'':`?action=${encodeURIComponent(action)}&_=${Date.now()}`);
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),15000);
   let r;
   try{
-    r=await fetch(url,body?{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action,adminKey:ADMIN_KEY,...body}),cache:'no-store'}:{method:'GET',cache:'no-store'});
-  }catch(e){throw new Error('Rosemoon API connection failed. Check the Apps Script deployment.')}
+    r=await fetch(url,body?{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action,adminKey:ADMIN_KEY,...body}),cache:'no-store',signal:controller.signal}:{method:'GET',cache:'no-store',signal:controller.signal});
+  }catch(e){
+    if(e&&e.name==='AbortError')throw new Error('Rosemoon API timed out. The live inventory server did not respond.');
+    throw new Error('Rosemoon API connection failed. Check the Apps Script deployment.');
+  }finally{clearTimeout(timer)}
   let d;
   try{d=await r.json()}catch(e){throw new Error('Rosemoon API returned an invalid response. Check the Apps Script deployment.')}
   if(!d.success&&d.ok!==true)throw new Error(d.message||'Rosemoon API request failed.');
@@ -248,7 +253,6 @@ function showAdmin(){
   $('adminPanel').style.display='block';
   $('loginMessage').textContent='';
   try{setTab('dashboard')}catch(e){console.error('Dashboard startup:',e)}
-  try{loadProducts()}catch(e){console.error('Products startup:',e)}
   try{loadMusic()}catch(e){console.error('Music startup:',e)}
   if(typeof loadOrders==='function'){try{loadOrders()}catch(e){console.error('Orders startup:',e)}}
 }
@@ -346,7 +350,18 @@ async function loadProducts(){
     // The Edit Flowers tab depends on the freshly loaded product list.
     // Refresh its category selector after the async products request finishes.
     if(document.getElementById('editFlowers')?.classList.contains('active')) populateCategoryManager();
-  }catch(e){console.error(e)}
+  }catch(e){
+    console.error('Rosemoon products load:',e);
+    const msg=esc(e.message||'Could not load live inventory.');
+    const legend=$('stockLegend'),pie=$('stockPie'),center=$('pieTotal'),box=$('categoryInventoryList');
+    if(legend)legend.innerHTML='<div class="empty">⚠️ '+msg+'</div>';
+    if(pie)pie.style.background='#ead2dc';
+    if(center)center.innerHTML='—<small>API</small>';
+    if(box)box.innerHTML='<div class="empty">⚠️ '+msg+'</div>';
+    $('statProducts').textContent='—';
+    $('statStock').textContent='—';
+    $('statLow').textContent='—';
+  }
 }
 function isCategoryProduct(p){
   if(!p)return false;
@@ -773,54 +788,6 @@ $('addMusicBtn').addEventListener('click',async()=>{
  }finally{btn.disabled=false}
 });
 </script>
-<script>
-/* ROSEMOON ADMIN EMERGENCY BOOT — keeps navigation/data alive even if a later admin module fails. */
-(function(){
-  const API="https://script.google.com/macros/s/AKfycbw3ovS6hIwHLhp50Xrs-6ejMxZkI_q-AhB-Mz6JXbsIRKSphJcMoqBELVY4nUogRR__/exec";
-  const escA=v=>String(v??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
-  function openTab(name){
-    document.querySelectorAll('.side-nav .tab,.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));
-    document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===name));
-    if(name==='inventory') loadEmergencyProducts();
-    if(name==='dashboard') loadEmergencyProducts();
-  }
-  window.setTab=window.setTab||openTab;
-  document.querySelectorAll('.side-nav .tab,.quick-btn').forEach(b=>{
-    b.addEventListener('click',function(e){
-      const n=this.dataset.tab||this.dataset.jump;
-      if(n){e.preventDefault();openTab(n);}
-    });
-  });
-  async function loadEmergencyProducts(){
-    try{
-      const r=await fetch(API+'?action=products&_='+Date.now(),{cache:'no-store'});
-      const d=await r.json();
-      if(!d||!d.success)return;
-      const ps=Array.isArray(d.products)?d.products:[];
-      let total=0,low=0;
-      ps.forEach(p=>{
-        let n=Number(p.stock)||0;
-        try{
-          const x=JSON.parse(String(p.description||''));
-          if(Array.isArray(x.options)&&x.options.length)n=x.options.reduce((s,o)=>s+Math.max(0,Number(o.stock)||0),0);
-        }catch(e){}
-        total+=n;if(n<=2)low++;
-      });
-      const a=document.getElementById('statProducts'),b=document.getElementById('statStock'),q=document.getElementById('statLow');
-      if(a)a.textContent=ps.filter(p=>p.active!==false).length;
-      if(b)b.textContent=total;
-      if(q)q.textContent=low;
-      const box=document.getElementById('categoryInventoryList');
-      if(box&&!ps.length)box.innerHTML='<div class="empty">No categories/products are saved in the live website data.</div>';
-      else if(box&&!box.children.length)box.innerHTML=ps.map(p=>{
-        let opts=[];
-        try{const x=JSON.parse(String(p.description||''));opts=Array.isArray(x.options)?x.options:[]}catch(e){}
-        return '<div class="inventory-category-card"><div class="inventory-category-head"><div><div class="inventory-category-title">'+escA(p.name||p.category)+'</div><div class="inventory-category-meta">Rs. '+Number(p.price||0).toLocaleString('en-IN')+' · '+opts.length+' flowers · Stock: '+(opts.length?opts.reduce((s,o)=>s+Math.max(0,Number(o.stock)||0),0):Number(p.stock||0))+'</div></div><button class="secondary inventory-open-btn" type="button">🌸 Open Flowers</button></div></div>';
-      }).join('');
-    }catch(e){console.error('Rosemoon emergency data boot:',e);}
-  }
-  window.addEventListener('load',()=>{if(document.getElementById('adminPanel')?.style.display!=='none')loadEmergencyProducts();});
-})();
-</script>
+
 <script src="crop-editor.js?v=2"></script>
 </body></html>
