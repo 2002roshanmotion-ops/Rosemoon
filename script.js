@@ -641,11 +641,13 @@
 
   async function prepareFirstMusic(){
     if(!music.songs.length){setLoading(76,"No music yet");return;}
-    setLoading(60,"Preparing first song…");
-    await Promise.race([music.prepare(0),new Promise(r=>setTimeout(r,3000))]);
+    setLoading(60,"Preparing first 3 songs…");
+    const firstThree=[];
+    for(let i=0;i<Math.min(3,music.songs.length);i++) firstThree.push(music.prepare(i));
+    await Promise.race([Promise.all(firstThree),new Promise(r=>setTimeout(r,5000))]);
     setLoading(78,"Getting music ready…");
-    // Start preparing the remaining tracks in the background; do not block the shop.
-    for(let i=1;i<music.songs.length;i++){
+    // Prepare any remaining tracks in the background; do not block the shop.
+    for(let i=3;i<music.songs.length;i++){
       music.prepare(i).catch(()=>{});
     }
   }
