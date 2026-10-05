@@ -311,7 +311,7 @@ async function createCategory(){
 }
 async function refreshAdminData(preferredCategoryId){
   const d=await api('products');
-  products=(d.products||[]).filter(p=>String(p?.category||p?.name||"").trim().toLowerCase()!=="__removed__");
+  products=(d.products||[]).filter(p=>p&&p.active!==false&&String(p?.category||p?.name||"").trim().toLowerCase()!=="__removed__");
   renderInventory();
   renderDashboardInventory();
   updateStats();
