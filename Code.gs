@@ -245,7 +245,7 @@ function getMusicFile_(fileId) {
   const file=DriveApp.getFileById(id);
   if(!/\.mp3$/i.test(file.getName())) throw new Error('Only MP3 music files are allowed.');
   const bytes=file.getBlob().getBytes();
-  if(bytes.length>12*1024*1024) throw new Error('Music file is too large.');
+  if(bytes.length>30*1024*1024) throw new Error('Music file is too large. Maximum 30 MB.');
   return {success:true,fileId:id,name:file.getName(),mime:'audio/mpeg',base64:Utilities.base64Encode(bytes)};
 }
 
