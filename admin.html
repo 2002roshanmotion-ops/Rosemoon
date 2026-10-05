@@ -171,7 +171,7 @@ function rosemoonQuickLogin(){
           <div class="field"><label>CATEGORY NAME</label><input id="manageCategoryName" type="text"></div>
           <div class="field"><label>CATEGORY PRICE (Rs.)</label><input id="manageCategoryPrice" type="number" min="0" step="1"></div>
           <div class="field"><label>SHOW CATEGORY PRICE</label><label style="display:flex;align-items:center;gap:9px;padding:11px 0"><input id="manageCategoryPriceVisible" type="checkbox" checked style="width:auto"> Show price to customers</label></div>
-          <div class="field"><label>CATEGORY TOTAL STOCK (AUTO)</label><input id="manageCategoryStock" type="number" min="0" step="1" readonly title="Automatically calculated from flower stock"></div>
+          <div class="field"><label>CATEGORY TOTAL STOCK</label><input id="manageCategoryStock" type="number" min="0" step="1"></div>
         </div>
       </div>
 
@@ -385,7 +385,7 @@ function renderCategoryManager(){
   }
   $('manageCategoryName').value=p.name||p.category||'';
   $('manageCategoryPrice').value=Number(p.price||0);
-  $('manageCategoryStock').value=categoryStockTotal(p);
+  $('manageCategoryStock').value=Number(p.stock||0);
   let priceVisible=true;
   try{const cd=JSON.parse(String(p.description||''));if(cd&&Object.prototype.hasOwnProperty.call(cd,'priceVisible'))priceVisible=cd.priceVisible!==false}catch(e){}
   $('manageCategoryPriceVisible').checked=priceVisible;
@@ -402,7 +402,7 @@ function renderCategoryManager(){
   });
   html+='</div><button class="secondary" type="button" style="margin-top:10px" onclick="addManageFlowerRow()">＋ Add Flower</button><div class="hint" style="margin-top:10px">Category total stock and every flower stock are independent. You can have different stock numbers for every flower.</div>';
   box.innerHTML=html;
-  opts.forEach((o,i)=>{const b=$('manageFlowerColors'+i);if(!b)return;(Array.isArray(o.colors)&&o.colors.length?o.colors:[{name:'Color 1',stock:o.stock,imageUrl:o.imageUrl||''},{name:'Color 2',stock:o.stock,imageUrl:''},{name:'Color 3',stock:o.stock,imageUrl:''}]).concat((Array.isArray(o.colors)&&o.colors.length&&o.colors.length<3)?Array.from({length:3-o.colors.length},(_,k)=>({name:'Color '+(o.colors.length+k+1),stock:o.stock,imageUrl:''})):[]).slice(0,Math.max(3,Array.isArray(o.colors)?o.colors.length:0)).forEach((c,j)=>{b.insertAdjacentHTML('beforeend','<div class="color-option-row" data-manage-color="'+j+'"><div class="color-option-title">Color '+(j+1)+'</div><input id="manageFlowerColorName'+i+'_'+j+'" type="text" value="'+esc(c.name||'')+'" placeholder="Color e.g. Red"><input id="manageFlowerColorStock'+i+'_'+j+'" type="number" min="0" step="1" value="'+(Object.prototype.hasOwnProperty.call(c,'stock')?Math.max(0,Math.floor(Number(c.stock)||0)):Math.max(0,Math.floor(Number(o.stock)||0)))+'" placeholder="Stock"><span><img src="'+esc(driveAdminImageUrl(c.imageUrl)||'')+'" style="width:42px;height:42px;object-fit:contain"></span><input id="manageFlowerColorPhoto'+i+'_'+j+'" type="file" accept="image/*"><button class="secondary" type="button" onclick="removeManageFlowerColorRow('+i+','+j+')">Remove</button></div>');});});
+  opts.forEach((o,i)=>{const b=$('manageFlowerColors'+i);if(!b)return;(Array.isArray(o.colors)&&o.colors.length?o.colors:[{name:'Color 1',imageUrl:o.imageUrl||''},{name:'Color 2',imageUrl:''},{name:'Color 3',imageUrl:''}]).concat((Array.isArray(o.colors)&&o.colors.length&&o.colors.length<3)?Array.from({length:3-o.colors.length},(_,k)=>({name:'Color '+(o.colors.length+k+1),imageUrl:''})):[]).slice(0,Math.max(3,Array.isArray(o.colors)?o.colors.length:0)).forEach((c,j)=>{b.insertAdjacentHTML('beforeend','<div class="color-option-row" data-manage-color="'+j+'"><div class="color-option-title">Color '+(j+1)+'</div><input id="manageFlowerColorName'+i+'_'+j+'" type="text" value="'+esc(c.name||'')+'" placeholder="Color e.g. Red"><input id="manageFlowerColorStock'+i+'_'+j+'" type="number" min="0" step="1" value="'+(Object.prototype.hasOwnProperty.call(c,'stock')?Math.max(0,Math.floor(Number(c.stock)||0)):Math.max(0,Math.floor(Number(o.stock)||0)))+'" placeholder="Stock"><span><img src="'+esc(driveAdminImageUrl(c.imageUrl)||'')+'" style="width:42px;height:42px;object-fit:contain"></span><input id="manageFlowerColorPhoto'+i+'_'+j+'" type="file" accept="image/*"><button class="secondary" type="button" onclick="removeManageFlowerColorRow('+i+','+j+')">Remove</button></div>');});});
 }
 function removeManageFlowerColorRow(i,j){document.querySelector('#manageFlowerColors'+i+' [data-manage-color="'+j+'"]').remove();}
 function addManageFlowerColorRow(i){const b=$('manageFlowerColors'+i);if(!b)return;const j=b.querySelectorAll('[data-manage-color]').length;b.insertAdjacentHTML('beforeend','<div class="color-option-row" data-manage-color="'+j+'"><div class="color-option-title">Color '+(j+1)+'</div><input id="manageFlowerColorName'+i+'_'+j+'" type="text" placeholder="Color e.g. Red"><input id="manageFlowerColorStock'+i+'_'+j+'" type="number" min="0" step="1" value="0" placeholder="Stock"><input id="manageFlowerColorPhoto'+i+'_'+j+'" type="file" accept="image/*"><button class="secondary" type="button" onclick="removeManageFlowerColorRow('+i+','+j+')">Remove</button></div>');}
@@ -484,7 +484,7 @@ function adminCategoryImageFor(p){
   const custom=driveAdminImageUrl(p?.imageUrl);
   if(custom)return custom;
   const key=String(p?.category||p?.name||'').trim().toLowerCase();
-  const fixed={small:'https://drive.google.com/thumbnail?id=1ylFqs2sOR4cD1qiSim2WA8j4vzOpxLbF&sz=w1600',medium:'https://drive.google.com/thumbnail?id=1XnzoVMRUHLgt3NX6rYGOEdrajW0i3eTf&sz=w1600',large:'https://drive.google.com/thumbnail?id=1SdKdIhQbWoJTCQa2s1R7_5rxsufpz0wp&sz=w1600','flower basket':'https://drive.google.com/thumbnail?id=1Kx5wAgLI21Whr5spBHJLJITkx7p3Vnfy&sz=w1600'};
+  const fixed={small:'assets/500.png',medium:'assets/medium.webp',large:'assets/large.webp','flower basket':'assets/basket.webp'};
   return fixed[key]||fixed[String(p?.name||'').trim().toLowerCase()]||'';
 }
 function adminFlowerImageFor(o,p){
@@ -626,7 +626,7 @@ function renderInventory(){
     const pid=esc(p.id);
     return '<div class="inventory-category-card">'+
       '<div class="inventory-category-head">'+
-      '<div style="display:flex;align-items:center;gap:12px"><div>'+(adminCategoryImageFor(p)?'<img src="'+esc(adminCategoryImageFor(p))+'" alt="" style="width:72px;height:72px;object-fit:contain;border-radius:14px;background:#fff8fa;border:1px solid #f0e2e7">':'')+'</div><div><div class="inventory-category-title">'+esc(p.name||p.category)+'</div><div class="inventory-category-meta">'+money(p.price)+' · '+opts.length+' flowers+' · Stock: '+categoryStockTotal(p)+'</div></div>'+
+      '<div style="display:flex;align-items:center;gap:12px"><div>'+(adminCategoryImageFor(p)?'<img src="'+esc(adminCategoryImageFor(p))+'" alt="" style="width:72px;height:72px;object-fit:contain;border-radius:14px;background:#fff8fa;border:1px solid #f0e2e7">':'')+'</div><div><div class="inventory-category-title">'+esc(p.name||p.category)+'</div><div class="inventory-category-meta">'+money(p.price)+' · '+opts.length+' flowers · Stock: '+categoryStockTotal(p)+'</div></div>'+
       '<div><label class="hint">PRICE (Rs.)</label><input id="cat-price-'+pid+'" type="number" min="0" value="'+Number(p.price||0)+'"></div>'+
       '<button class="secondary inventory-open-btn" type="button" onclick="toggleCategoryInventory(\''+pid+'\')">🌸 Open Flowers</button>'+
       '</div>'+
