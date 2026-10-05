@@ -80,7 +80,7 @@ body{background:radial-gradient(circle at 10% 0%,#ffe8f0 0,#fff7f9 32%,#f8f2f5 1
     <div class="card">
       <h2>📦 Inventory</h2>
       <p class="hint">Each category shows its price. Open a category to manage the stock of each flower type.</p>
-      <div class="actions"><button class="secondary" id="refreshProducts">🔄 Refresh</button></div><div class="card" style="margin-top:18px"><h3 style="margin:0 0 6px">↕️ Customer Website Order</h3><p class="hint">Use ↑ and ↓ to arrange the category order. The customer website follows this order automatically. You can also arrange the flowers inside each category.</p><div id="websiteCategoryOrder" class="category-order-list"></div></div>
+      <div class="actions"><button class="secondary" id="refreshProducts">🔄 Refresh</button></div><div class="card" style="margin-top:18px"><h3 style="margin:0 0 6px">↕️ Category Order</h3><p class="hint">Use ↑ and ↓ to arrange the category order. The customer website follows this order automatically.</p><div id="websiteCategoryOrder" class="category-order-list"></div></div><div class="card" style="margin-top:18px"><h3 style="margin:0 0 6px">↕️ Flower Order</h3><p class="hint">Use ↑ and ↓ to arrange the flowers inside each category. The customer website follows this order automatically.</p><div id="websiteFlowerOrder" class="category-order-list"></div></div>
       <div id="categoryInventoryList" class="category-inventory-list"></div>
     </div>
   </section>
@@ -460,11 +460,18 @@ function adminFlowerImageFor(o,p){
 function getCategoryOrderValue(p){try{const d=categoryData(p);const n=Number(d.categorySort);return Number.isFinite(n)?n:9999}catch(e){return 9999}}
 function getFlowerOrderValue(o,i){const n=Number(o&&o.sort);return Number.isFinite(n)?n:i+1}
 function renderWebsiteCategoryOrder(){
- const box=$('websiteCategoryOrder');if(!box)return;
+ const catBox=$('websiteCategoryOrder'),flowerBox=$('websiteFlowerOrder');if(!catBox&&!flowerBox)return;
  const cats=products.filter(isCategoryProduct).slice().sort((a,b)=>{const x=getCategoryOrderValue(a),y=getCategoryOrderValue(b);return x-y||String(a.name||'').localeCompare(String(b.name||''))});
- if(!cats.length){box.innerHTML='<div class="empty">No categories yet.</div>';return}
- box.innerHTML=cats.map((p,i)=>{const opts=(categoryData(p).options||[]).slice().sort((a,b)=>getFlowerOrderValue(a,0)-getFlowerOrderValue(b,0));const img=adminCategoryImageFor(p);
- return '<div class="order-category"><div>'+(img?'<img src="'+esc(img)+'" alt="">':'')+'</div><div><div class="order-category-title">'+esc(p.name||p.category)+'</div><small>'+money(p.price)+' · '+opts.length+' flowers</small><div class="order-flower-list">'+opts.map((o,j)=>'<div class="order-flower"><div>'+(adminFlowerImageFor(o,p)?'<img src="'+esc(adminFlowerImageFor(o,p))+'" alt="">':'')+'</div><div><div class="order-flower-title">'+esc(o.type||('Flower '+(j+1)))+'</div><small>Flower '+(j+1)+'</small></div><div class="order-buttons"><button class="secondary" type="button" onclick="moveWebsiteFlower(\''+esc(p.id)+'\','+j+',-1)" '+(j===0?'disabled':'')+'>↑</button><button class="secondary" type="button" onclick="moveWebsiteFlower(\''+esc(p.id)+'\','+j+',1)" '+(j===opts.length-1?'disabled':'')+'>↓</button></div></div>').join('')+'</div></div><div class="order-buttons"><button class="secondary" type="button" onclick="moveWebsiteCategory('+i+',-1)" '+(i===0?'disabled':'')+'>↑</button><button class="secondary" type="button" onclick="moveWebsiteCategory('+i+',1)" '+(i===cats.length-1?'disabled':'')+'>↓</button></div></div>'}).join('');
+ if(!cats.length){
+   if(catBox)catBox.innerHTML='<div class="empty">No categories yet.</div>';
+   if(flowerBox)flowerBox.innerHTML='<div class="empty">No flowers yet.</div>';
+   return;
+ }
+ if(catBox)catBox.innerHTML=cats.map((p,i)=>'<div class="order-category"><div>'+(adminCategoryImageFor(p)?'<img src="'+esc(adminCategoryImageFor(p))+'" alt="">':'')+'</div><div><div class="order-category-title">'+esc(p.name||p.category)+'</div><small>'+money(p.price)+'</small></div><div class="order-buttons"><button class="secondary" type="button" onclick="moveWebsiteCategory('+i+',-1)" '+(i===0?'disabled':'')+'>↑</button><button class="secondary" type="button" onclick="moveWebsiteCategory('+i+',1)" '+(i===cats.length-1?'disabled':'')+'>↓</button></div></div>').join('');
+ if(flowerBox)flowerBox.innerHTML=cats.map(p=>{
+   const opts=(categoryData(p).options||[]).slice().sort((a,b)=>getFlowerOrderValue(a,0)-getFlowerOrderValue(b,0));
+   return '<div class="order-category"><div>'+(adminCategoryImageFor(p)?'<img src="'+esc(adminCategoryImageFor(p))+'" alt="">':'')+'</div><div><div class="order-category-title">'+esc(p.name||p.category)+'</div><small>Arrange flowers in this category</small><div class="order-flower-list">'+(opts.length?opts.map((o,j)=>'<div class="order-flower"><div>'+(adminFlowerImageFor(o,p)?'<img src="'+esc(adminFlowerImageFor(o,p))+'" alt="">':'')+'</div><div><div class="order-flower-title">'+esc(o.type||('Flower '+(j+1)))+'</div><small>Flower '+(j+1)+'</small></div><div class="order-buttons"><button class="secondary" type="button" onclick="moveWebsiteFlower(\\''+esc(p.id)+'\\','+j+',-1)" '+(j===0?'disabled':'')+'>↑</button><button class="secondary" type="button" onclick="moveWebsiteFlower(\\''+esc(p.id)+'\\','+j+',1)" '+(j===opts.length-1?'disabled':'')+'>↓</button></div></div>').join(''):'<div class="empty">No flowers in this category.</div>')+'</div></div><div></div></div>';
+ }).join('');
 }
 async function moveWebsiteCategory(i,dir){
  const cats=products.filter(isCategoryProduct).slice().sort((a,b)=>getCategoryOrderValue(a)-getCategoryOrderValue(b)||String(a.name||'').localeCompare(String(b.name||'')));const j=i+dir;if(j<0||j>=cats.length)return;[cats[i],cats[j]]=[cats[j],cats[i]];
