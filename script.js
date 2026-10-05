@@ -519,6 +519,27 @@
           // regardless of file size. The server/base64 path is only a fallback.
           if(s[1]){
             this.cache[key]=s[1];
+            // Actually preload each track, not just save its URL.
+            // This makes every Admin-added song ready to start when selected.
+            const preloader=new Audio();
+            preloader.preload="auto";
+            preloader.src=s[1];
+            this.preloaders=this.preloaders||{};
+            this.preloaders[key]=preloader;
+            await new Promise(resolve=>{
+              let done=false;
+              const finish=()=>{if(done)return;done=true;cleanup();resolve()};
+              const cleanup=()=>{
+                preloader.removeEventListener("canplaythrough",finish);
+                preloader.removeEventListener("loadeddata",finish);
+                preloader.removeEventListener("error",finish);
+              };
+              preloader.addEventListener("canplaythrough",finish,{once:true});
+              preloader.addEventListener("loadeddata",finish,{once:true});
+              preloader.addEventListener("error",finish,{once:true});
+              setTimeout(finish,30000);
+              preloader.load();
+            });
             return s[1];
           }
           if(s[2]){
