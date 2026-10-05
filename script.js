@@ -515,9 +515,15 @@
       if(this.loading[key])return this.loading[key];
       this.loading[key]=(async()=>{
         try{
+          // Use the Drive download URL directly so every MP3 added in Admin can play,
+          // regardless of file size. The server/base64 path is only a fallback.
+          if(s[1]){
+            this.cache[key]=s[1];
+            return s[1];
+          }
           if(s[2]){
             const controller=new AbortController();
-            const timer=setTimeout(()=>controller.abort(),8000);
+            const timer=setTimeout(()=>controller.abort(),30000);
             try{
               const r=await fetch(`${API_URL}?action=musicFile&fileId=${encodeURIComponent(s[2])}&_=${Date.now()}`,{cache:"no-store",signal:controller.signal});
               const d=await r.json();
@@ -525,7 +531,7 @@
               const src=`data:audio/mpeg;base64,${d.base64}`;this.cache[key]=src;return src;
             }finally{clearTimeout(timer)}
           }
-          this.cache[key]=s[1];return s[1];
+          return null;
         }catch(e){return null}finally{delete this.loading[key]}})();
       return this.loading[key];
     },
