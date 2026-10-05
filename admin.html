@@ -232,7 +232,7 @@ function setupOthersPreset(){
 }
 $('categoryName')?.addEventListener('change',setupOthersPreset);
 $('categoryName')?.addEventListener('input',()=>{if(String($('categoryName').value||'').trim().toLowerCase()==='others')setupOthersPreset()});
-async function createCategory(){
+async async function createCategory(){
   const msg=$('categoryMessage'),btn=$('addCategoryBtn');
   try{
     const name=String($('categoryName').value||'').trim(),price=Number($('categoryPrice').value);
@@ -249,12 +249,11 @@ async function createCategory(){
       const file=$('newFlowerPhoto'+i)?.files?.[0];
       if(!type&&!file)continue;
       if(!type)throw new Error('Every added flower needs a name.');
-      if(!file)throw new Error(type+' needs a photo.');
-      msg.textContent='Uploading '+type+'…';
-      const url=await uploadCategoryPhoto(file,type);
+      msg.textContent=file?'Uploading '+type+'…':'Saving '+type+'…';
+      const url=file?await uploadCategoryPhoto(file,type):'';
       const colors=[]; for(const cr of row.querySelectorAll('[data-new-color]')){const j=cr.dataset.newColor,n=String($('newFlowerColorName'+i+'_'+j)?.value||'').trim(),cs=Math.max(0,Math.floor(Number($('newFlowerColorStock'+i+'_'+j)?.value)||0)),f=$('newFlowerColorPhoto'+i+'_'+j)?.files?.[0];if(!n)continue;if(!f)throw new Error(type+' color '+n+' needs a photo.');colors.push({name:n,stock:cs,imageUrl:await uploadCategoryPhoto(f,type+' '+n)});} if(!colors.length)colors.push({name:'Default',stock:qty,imageUrl:url}); options.push({type,stock:qty,imageUrl:url,colors});
     }
-    if(!options.length)throw new Error('Add at least one flower with a photo.');
+    if(!options.length)throw new Error('Add at least one flower.');
     msg.textContent='Saving category…';
     const d=await api('addProduct',{category:name,name,price,stock:0,imageUrl:mainUrl,description:JSON.stringify({rosemoonCategory:true,options,priceVisible:true})});
     products=d.products||products;loadProducts();
