@@ -416,21 +416,6 @@ function addManageFlowerRow(){
 function removeManageFlowerRow(i){const row=document.querySelector('#manageFlowerOptions [data-manage-flower="'+i+'"]');if(row)row.remove()}
 $('addCategoryFlowerRow')?.addEventListener('click',()=>addNewFlowerRow());
 resetNewCategoryFlowers();
-async function replaceManageFlowerImage(i){
-  const msg=$('manageFlowerPhotoMsg'+i),file=$('manageFlowerPhoto'+i)?.files?.[0];
-  const input=$('manageFlowerPhoto'+i);
-  const row=document.querySelector('#manageFlowerOptions [data-manage-flower="'+i+'"]');
-  const preview=row?.querySelector('.flower-photo-preview');
-  if(!file)return;
-  try{
-    if(msg)msg.textContent='Selected: '+file.name+' — click Save Changes to upload.';
-    const dataUrl=await readDataUrl(file);
-    if(preview)preview.innerHTML='<img src="'+esc(dataUrl)+'" alt="" style="width:64px;height:64px;object-fit:contain;border-radius:12px;background:#fff">';
-    if(input)input.title=file.name;
-  }catch(e){
-    if(msg)msg.textContent='❌ Could not preview '+file.name;
-  }
-}
 async function studioReplaceFlower(pi,i){
   const p=products[pi],o=(categoryData(p).options||[])[i],file=$('studioFlowerFile'+pi+'_'+i),msg=$('studioFlowerMsg'+pi+'_'+i);
   if(!p||!o||!file?.files?.[0])return;
