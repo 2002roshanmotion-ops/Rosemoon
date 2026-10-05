@@ -396,7 +396,7 @@ async function studioReplaceFlower(pi,i){
     const d=categoryData(p),opts=Array.isArray(d.options)?d.options.map(x=>({...x})):[];
     if(!opts[i])throw new Error('Flower not found.');
     opts[i].imageUrl=uploaded;
-    const saved=await api('updateProduct',{id:p.id,name:p.name,category:p.category||p.name,price:Number(p.price||0),stock:Number(p.stock||0),imageUrl:p.imageUrl||'',description:JSON.stringify({rosemoonCategory:true,options:opts,categoryEditorState:d.categoryEditorState||null})});
+    const saved=await api('updateProduct',{id:p.id,name:p.name,category:p.category||p.name,price:Number(p.price||0),stock:Number(p.stock||0),imageUrl:p.imageUrl||'',description:JSON.stringify({...d,rosemoonCategory:true,options:opts,priceVisible:d.priceVisible!==false})});
     products=saved.products||products;renderInventory();renderDashboardInventory();updateStats();populateCategoryManager();
   }catch(e){if(msg)msg.textContent='❌ '+(e.message||e);else alert(e.message||e)}
 }
