@@ -515,39 +515,31 @@
       if(this.loading[key])return this.loading[key];
       this.loading[key]=(async()=>{
         try{
-          // Use the Drive download URL directly so every MP3 added in Admin can play,
-          // regardless of file size. The server/base64 path is only a fallback.
-          if(s[1]){
-            // Keep the saved Drive URL immediately usable. Do not mark a song
-            // unavailable just because a background preload event is slow.
-            this.cache[key]=s[1];
-            const preloader=new Audio();
-            preloader.preload="auto";
-            preloader.src=s[1];
-            this.preloaders=this.preloaders||{};
-            this.preloaders[key]=preloader;
-            preloader.load();
-            await new Promise(resolve=>{
-              let done=false;
-              const finish=()=>{if(done)return;done=true;resolve()};
-              preloader.addEventListener("canplay",finish,{once:true});
-              preloader.addEventListener("loadeddata",finish,{once:true});
-              setTimeout(finish,30000);
-            });
-            return s[1];
-          }
+          // Use the Apps Script music endpoint first. This avoids Google Drive
+          // download/redirect problems that can make HTML audio report "unavailable".
           if(s[2]){
             const controller=new AbortController();
             const timer=setTimeout(()=>controller.abort(),30000);
             try{
               const r=await fetch(`${API_URL}?action=musicFile&fileId=${encodeURIComponent(s[2])}&_=${Date.now()}`,{cache:"no-store",signal:controller.signal});
               const d=await r.json();
-              if(!d.success||!d.base64)throw new Error("Music file unavailable");
-              const src=`data:audio/mpeg;base64,${d.base64}`;this.cache[key]=src;return src;
+              if(d.success&&d.base64){
+                const src=`data:audio/mpeg;base64,${d.base64}`;
+                this.cache[key]=src;
+                return src;
+              }
             }finally{clearTimeout(timer)}
           }
+          // Fall back to the saved Admin URL if the server proxy cannot return the file.
+          if(s[1]){
+            this.cache[key]=s[1];
+            return s[1];
+          }
           return null;
-        }catch(e){return null}finally{delete this.loading[key]}})();
+        }catch(e){
+          if(s[1]){this.cache[key]=s[1];return s[1];}
+          return null;
+        }finally{delete this.loading[key]}})();
       return this.loading[key];
     },
     startFromUserGesture(){
