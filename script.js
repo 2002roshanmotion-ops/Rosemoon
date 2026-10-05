@@ -7,6 +7,7 @@
       {id:"medium",category:"Medium",name:"Medium Bouquet",price:800,stock:5,imageUrl:"",active:true},
       {id:"large",category:"Large",name:"Large Bouquet",price:1500,stock:3,imageUrl:"",active:true},
       {id:"flower-basket",category:"Flower Basket",name:"Flower Basket",price:1800,stock:6,imageUrl:"",active:true},
+      {id:"others",category:"Others",name:"Others",price:0,stock:0,imageUrl:"",active:true},
     ],
     music: []
   };
@@ -90,7 +91,7 @@
     large:"https://drive.google.com/thumbnail?id=1SdKdIhQbWoJTCQa2s1R7_5rxsufpz0wp&sz=w1600",
     "flower basket":"https://drive.google.com/thumbnail?id=1Kx5wAgLI21Whr5spBHJLJITkx7p3Vnfy&sz=w1600"
   };
-  const categoryOrder=["Small","Medium","Large","Flower Basket"];
+  const categoryOrder=["Small","Medium","Large","Flower Basket","Others"];
   function categoryImageFor(p){
     let savedCategoryImage='';
     try{const d=JSON.parse(String(p?.description||''));savedCategoryImage=driveImageUrl(d?.categoryImageUrl)}catch(e){}
