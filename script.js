@@ -618,23 +618,34 @@
 
   renderProducts();renderCart();window.rosemoonProducts=products;
 
-  // Startup must never wait for Google Apps Script, Drive, music, or color data.
-  // Render the local shop first, dismiss the loader, then sync remote data in the background.
-  setLoading(70,"Opening Rosemoon…");
-  renderProducts();
-  renderCart();
-  if(start)start.disabled=false;
-  setTimeout(()=>finishLoading(),120);
+  // Keep the loading screen as the real startup sequence.
+  // Products load first, then music is fetched/prepared while the loader remains visible.
+  (async()=>{
+    setLoading(8,"Loading Rosemoon…");
+    try{
+      try{
+        await syncProducts();
+        setLoading(42,"Loading music…");
+      }catch(e){
+        console.warn("Rosemoon product startup sync failed; using local products.",e);
+        setLoading(42,"Loading music…");
+      }
 
-  // Remote data is enhancement only. A slow API must never block the website.
-  Promise.resolve().then(async()=>{
-    try{
-      await syncProducts();
-    }catch(e){console.warn("Rosemoon background product sync failed.",e)}
-    try{
-      await syncMusic();
-    }catch(e){console.warn("Rosemoon background music sync failed.",e)}
-  });
+      try{
+        await syncMusic();
+        await prepareFirstMusic();
+      }catch(e){
+        console.warn("Rosemoon music startup sync failed; continuing without music.",e);
+        setLoading(82,"Finishing Rosemoon…");
+      }
+    }catch(e){
+      console.error("Rosemoon startup error:",e);
+    }finally{
+      try{renderProducts();renderCart();}catch(e){console.warn("Rosemoon final render failed.",e)}
+      if(start)start.disabled=false;
+      finishLoading();
+    }
+  })();
   setInterval(syncProducts,30000);setInterval(syncMusic,30000);
   document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeFlowerPopup();document.getElementById("guideModal").classList.remove("open");closeCart()}});
 })();
