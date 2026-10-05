@@ -311,7 +311,7 @@ async function createCategory(){
 }
 async function refreshAdminData(preferredCategoryId){
   const d=await api('products');
-  products=(d.products||[]).filter(p=>p&&p.active!==false&&String(p?.category||p?.name||"").trim().toLowerCase()!=="__removed__");
+  products=(d.products||[]).filter(p=>String(p?.category||p?.name||"").trim().toLowerCase()!=="__removed__");
   renderInventory();
   renderDashboardInventory();
   updateStats();
@@ -484,7 +484,7 @@ function adminCategoryImageFor(p){
   const custom=driveAdminImageUrl(p?.imageUrl);
   if(custom)return custom;
   const key=String(p?.category||p?.name||'').trim().toLowerCase();
-  const fixed={small:'assets/500.png',medium:'assets/medium.webp',large:'assets/large.webp','flower basket':'assets/basket.webp'};
+  const fixed={small:'https://drive.google.com/thumbnail?id=1ylFqs2sOR4cD1qiSim2WA8j4vzOpxLbF&sz=w1600',medium:'https://drive.google.com/thumbnail?id=1XnzoVMRUHLgt3NX6rYGOEdrajW0i3eTf&sz=w1600',large:'https://drive.google.com/thumbnail?id=1SdKdIhQbWoJTCQa2s1R7_5rxsufpz0wp&sz=w1600','flower basket':'https://drive.google.com/thumbnail?id=1Kx5wAgLI21Whr5spBHJLJITkx7p3Vnfy&sz=w1600'};
   return fixed[key]||fixed[String(p?.name||'').trim().toLowerCase()]||'';
 }
 function adminFlowerImageFor(o,p){
