@@ -773,5 +773,54 @@ $('addMusicBtn').addEventListener('click',async()=>{
  }finally{btn.disabled=false}
 });
 </script>
+<script>
+/* ROSEMOON ADMIN EMERGENCY BOOT — keeps navigation/data alive even if a later admin module fails. */
+(function(){
+  const API="https://script.google.com/macros/s/AKfycbw3ovS6hIwHLhp50Xrs-6ejMxZkI_q-AhB-Mz6JXbsIRKSphJcMoqBELVY4nUogRR__/exec";
+  const escA=v=>String(v??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+  function openTab(name){
+    document.querySelectorAll('.side-nav .tab,.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===name));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===name));
+    if(name==='inventory') loadEmergencyProducts();
+    if(name==='dashboard') loadEmergencyProducts();
+  }
+  window.setTab=window.setTab||openTab;
+  document.querySelectorAll('.side-nav .tab,.quick-btn').forEach(b=>{
+    b.addEventListener('click',function(e){
+      const n=this.dataset.tab||this.dataset.jump;
+      if(n){e.preventDefault();openTab(n);}
+    });
+  });
+  async function loadEmergencyProducts(){
+    try{
+      const r=await fetch(API+'?action=products&_='+Date.now(),{cache:'no-store'});
+      const d=await r.json();
+      if(!d||!d.success)return;
+      const ps=Array.isArray(d.products)?d.products:[];
+      let total=0,low=0;
+      ps.forEach(p=>{
+        let n=Number(p.stock)||0;
+        try{
+          const x=JSON.parse(String(p.description||''));
+          if(Array.isArray(x.options)&&x.options.length)n=x.options.reduce((s,o)=>s+Math.max(0,Number(o.stock)||0),0);
+        }catch(e){}
+        total+=n;if(n<=2)low++;
+      });
+      const a=document.getElementById('statProducts'),b=document.getElementById('statStock'),q=document.getElementById('statLow');
+      if(a)a.textContent=ps.filter(p=>p.active!==false).length;
+      if(b)b.textContent=total;
+      if(q)q.textContent=low;
+      const box=document.getElementById('categoryInventoryList');
+      if(box&&!ps.length)box.innerHTML='<div class="empty">No categories/products are saved in the live website data.</div>';
+      else if(box&&!box.children.length)box.innerHTML=ps.map(p=>{
+        let opts=[];
+        try{const x=JSON.parse(String(p.description||''));opts=Array.isArray(x.options)?x.options:[]}catch(e){}
+        return '<div class="inventory-category-card"><div class="inventory-category-head"><div><div class="inventory-category-title">'+escA(p.name||p.category)+'</div><div class="inventory-category-meta">Rs. '+Number(p.price||0).toLocaleString('en-IN')+' · '+opts.length+' flowers · Stock: '+(opts.length?opts.reduce((s,o)=>s+Math.max(0,Number(o.stock)||0),0):Number(p.stock||0))+'</div></div><button class="secondary inventory-open-btn" type="button">🌸 Open Flowers</button></div></div>';
+      }).join('');
+    }catch(e){console.error('Rosemoon emergency data boot:',e);}
+  }
+  window.addEventListener('load',()=>{if(document.getElementById('adminPanel')?.style.display!=='none')loadEmergencyProducts();});
+})();
+</script>
 <script src="crop-editor.js?v=2"></script>
 </body></html>
