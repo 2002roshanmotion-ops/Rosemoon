@@ -291,6 +291,7 @@ async function refreshAdminData(preferredCategoryId){
   renderDashboardInventory();
   updateStats();
   populateCategoryManager();
+  renderWebsiteCategoryOrder();
   if(preferredCategoryId!==undefined && preferredCategoryId!==null){
     const sel=$('manageCategorySelect');
     if(sel){
@@ -307,6 +308,7 @@ async function loadProducts(){
     renderInventory();
     renderDashboardInventory();
     updateStats();
+    renderWebsiteCategoryOrder();
     // The Edit Flowers tab depends on the freshly loaded product list.
     // Refresh its category selector after the async products request finishes.
     if(document.getElementById('editFlowers')?.classList.contains('active')) populateCategoryManager();
