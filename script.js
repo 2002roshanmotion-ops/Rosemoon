@@ -393,6 +393,22 @@
     const location=document.getElementById("deliveryLocation")?.value||"";
     return location==="Pokhara"?150:0;
   }
+  function cartImageFor(item){
+    const direct=driveImageUrl(item?.imageUrl);
+    if(direct)return direct;
+    const p=products.find(x=>String(x.id)===String(item?.id));
+    if(p){
+      try{
+        const d=JSON.parse(String(p.description||''));
+        const opt=Array.isArray(d?.options)?d.options.find(o=>String(o?.type||'')===String(item?.type||'')):null;
+        const flower=driveImageUrl(opt?.imageUrl);
+        if(flower)return flower;
+      }catch(e){}
+      const category=driveImageUrl(p.imageUrl);
+      if(category)return category;
+    }
+    return categoryImageFor(p||{});
+  }
   function renderCart(){
     const box=document.getElementById("cartItems"),count=cart.reduce((s,x)=>s+x.qty,0),subtotal=cart.reduce((s,x)=>s+x.qty*x.price,0),delivery=getDeliveryCharge(),total=subtotal+delivery;
     document.getElementById("headerCartCount").textContent=count;
@@ -400,7 +416,7 @@
     const dc=document.getElementById("deliveryCharge");if(dc)dc.textContent=money(delivery);
     document.getElementById("cartTotal").textContent=money(total);
     if(!cart.length){box.innerHTML='<p class="cart-empty">Your cart is empty. 🌷</p>';return}
-    box.innerHTML=cart.map((x,i)=>`<div class="cart-item"><div class="cart-icon">${x.imageUrl?`<img src="${escapeAttr(x.imageUrl)}" alt="" style="width:42px;height:42px;object-fit:cover;border-radius:10px">`:x.emoji}</div><div class="cart-info"><strong>${escapeHtml(x.name||x.size)}</strong><small>${escapeHtml(x.type)} · ${money(x.price)}</small></div><div class="qty"><button data-q="-" data-i="${i}">−</button><b>${x.qty}</b><button data-q="+" data-i="${i}">+</button></div><button class="remove" data-q="x" data-i="${i}">×</button></div>`).join("");
+    box.innerHTML=cart.map((x,i)=>{const cartImage=cartImageFor(x);return `<div class="cart-item"><div class="cart-icon">${cartImage?`<img src="${escapeAttr(cartImage)}" alt="" style="width:42px;height:42px;object-fit:contain;border-radius:10px">`:x.emoji}</div><div class="cart-info"><strong>${escapeHtml(x.name||x.size)}</strong><small>${escapeHtml(x.type)} · ${money(x.price)}</small></div><div class="qty"><button data-q="-" data-i="${i}">−</button><b>${x.qty}</b><button data-q="+" data-i="${i}">+</button></div><button class="remove" data-q="x" data-i="${i}">×</button></div>`}).join("");
   }
   document.getElementById("deliveryLocation")?.addEventListener("change",()=>renderCart());
   document.getElementById("cartItems")?.addEventListener("click",e=>{const b=e.target.closest("[data-q]");if(!b)return;const i=+b.dataset.i,x=cart[i];if(!x)return;if(b.dataset.q==="+"&&x.qty<stockFor(x.id))x.qty++;if(b.dataset.q==="-")x.qty--;if(b.dataset.q==="x"||x.qty<=0)cart.splice(i,1);saveCart();renderCart()});
