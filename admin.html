@@ -189,7 +189,7 @@ async function fileData(file){if(!file)return '';return await new Promise((resol
 async function uploadCategoryPhoto(file,label){if(!file)return '';const dataUrl=await fileData(file);const d=await api('uploadPhoto',{dataUrl,fileName:file.name});if(!d.url)throw new Error(label+' photo upload failed.');return d.url}
 let newCategoryFlowerCount=0;
 function newFlowerColorRowHtml(i,j,color){const c=color||{};return '<div class="color-option-row" data-new-color="'+j+'"><input id="newFlowerColorName'+i+'_'+j+'" type="text" value="'+esc(c.name||'')+'" placeholder="Color e.g. Red"><input id="newFlowerColorPhoto'+i+'_'+j+'" type="file" accept="image/*"><button class="secondary" type="button" onclick="removeNewFlowerColorRow('+i+','+j+')">Remove</button></div>';} function addNewFlowerColorRow(i,prefill){const box=$('newFlowerColors'+i);if(!box)return;const j=box.querySelectorAll('[data-new-color]').length;box.insertAdjacentHTML('beforeend',newFlowerColorRowHtml(i,j,prefill));} function removeNewFlowerColorRow(i,j){document.querySelector('#newFlowerColors'+i+' [data-new-color="'+j+'"]').remove();} function newFlowerRowHtml(i){
-  return '<div class="flower-manager-row" data-new-flower="'+i+'"><div class="flower-photo-preview" id="newFlowerPreview'+i+'">🌸</div><div><label>FLOWER NAME</label><input id="newFlowerName'+i+'" type="text" placeholder="e.g. Pink Lily"><input <div class="color-options-editor"><label>COLOR OPTIONS</label><div id="newFlowerColors'+i+'"></div><button class="secondary" type="button" onclick="addNewFlowerColorRow('+i+')">＋ Add Color</button></div></div><div class="stock-field"><label>INDIVIDUAL STOCK</label><input id="newFlowerStock'+i+'" type="number" min="0" step="1" value="0"></div><button class="danger remove-flower" type="button" onclick="removeNewFlowerRow('+i+')">Remove</button></div>';
+  return '<div class="flower-manager-row" data-new-flower="'+i+'"><div class="flower-photo-preview" id="newFlowerPreview'+i+'">🌸</div><div><label>FLOWER NAME</label><input id="newFlowerName'+i+'" type="text" placeholder="e.g. Pink Lily"><div class="color-options-editor"><label>COLOR OPTIONS</label><div id="newFlowerColors'+i+'"></div><button class="secondary" type="button" onclick="addNewFlowerColorRow('+i+')">＋ Add Color</button></div></div><div class="stock-field"><label>INDIVIDUAL STOCK</label><input id="newFlowerStock'+i+'" type="number" min="0" step="1" value="0"></div><button class="danger remove-flower" type="button" onclick="removeNewFlowerRow('+i+')">Remove</button></div>';
 }
 function addNewFlowerRow(prefill){
   const box=$('newCategoryFlowers');if(!box)return;
@@ -242,7 +242,7 @@ async function createCategory(){
     }
     if(!options.length)throw new Error('Add at least one flower with a photo.');
     msg.textContent='Saving category…';
-    const d=await api('addProduct',{category:name,name,price,stock:0,imageUrl:mainUrl,description:JSON.stringify({rosemoonCategory:true,options,priceVisible})});
+    const d=await api('addProduct',{category:name,name,price,stock:0,imageUrl:mainUrl,description:JSON.stringify({rosemoonCategory:true,options,priceVisible:true})});
     products=d.products||products;loadProducts();
     msg.textContent='✅ Category created.';
     prepareNewCategory();
