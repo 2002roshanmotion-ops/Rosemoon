@@ -191,7 +191,7 @@
   document.addEventListener('click',e=>{if(!e.target.closest('.rosemoon-search'))document.getElementById('searchRecommendations')?.classList.remove('show')});
 
   const popup=document.getElementById("flowerPopup"), grid=document.getElementById("flowerPopupGrid"), sub=document.getElementById("flowerPopupSub"), closePopup=document.getElementById("closeFlowerPopup");
-  let popupProduct=null;
+  let popupProduct=null,flowerDetailOpen=false;
   const choices=[["Flower 1","🌹"],["Flower 2","🌸"],["Flower 3","🌼"],["Flower 4","🌷"],["Flower 5","🌻"]];
   function playCategorySound(product){
     const text=(product?.category||product?.name||'').toLowerCase();
@@ -203,6 +203,7 @@
   function openFlowerPopup(id){
     if(!popup||!grid||!sub)return;
     popupProduct=products.find(p=>p.id===id); if(!popupProduct)return;
+  flowerDetailOpen=false;
     playCategorySound(popupProduct);
     renderFlowerChoices();
     popup.classList.add("open"); popup.setAttribute("aria-hidden","false"); lockBackgroundScroll();
@@ -228,6 +229,7 @@
   }
 
   function openFlowerDetailPopup(type){
+    flowerDetailOpen=true;
     if(!popupProduct||!grid||!sub)return;
     const option=categoryOptions(popupProduct).find(o=>String(o.type||'')===String(type||''));
     if(!option)return;
@@ -261,8 +263,8 @@
     document.body.classList.remove("flower-popup-open");
     window.scrollTo(0,lockedScrollY);
   }
-  function closeFlowerPopup(){popup.classList.remove("open");popup.setAttribute("aria-hidden","true");unlockBackgroundScroll()}
-  closePopup?.addEventListener("click",()=>{if(popupProduct){renderFlowerChoices();}else{closeFlowerPopup();}}); popup?.addEventListener("click",e=>{if(e.target===popup)closeFlowerPopup()});  sub?.addEventListener("click",e=>{const back=e.target.closest("[data-flower-back]");if(back){renderFlowerChoices();}});
+  function closeFlowerPopup(){popup.classList.remove("open");popup.setAttribute("aria-hidden","true");flowerDetailOpen=false;unlockBackgroundScroll()}
+  closePopup?.addEventListener("click",()=>{if(flowerDetailOpen){renderFlowerChoices();flowerDetailOpen=false;}else{closeFlowerPopup();}}); popup?.addEventListener("click",e=>{if(e.target===popup)closeFlowerPopup()});  sub?.addEventListener("click",e=>{const back=e.target.closest("[data-flower-back]");if(back){renderFlowerChoices();}});
   grid?.addEventListener("click",e=>{const choice=e.target.closest("[data-open-flower]");if(choice&&!e.target.closest("[data-popup-buy]")&&!e.target.closest("[data-color-choice]")){openFlowerDetailPopup(choice.dataset.openFlower);return;}const cb=e.target.closest("[data-color-choice]");if(cb&&popupProduct){const card=cb.closest("[data-flower-type]"),o=categoryOptions(popupProduct).find(x=>String(x.type)===String(cb.dataset.type));const c=(o?.colors||[])[Number(cb.dataset.colorIndex)]||(o?.colors||[])[0];if(card&&c){const img=card.querySelector("[data-color-image=\""+cb.dataset.colorChoice+"\"]");if(img&&c.imageUrl)img.src=c.imageUrl;card.dataset.selectedColor=c.name||"Default";card.dataset.selectedColorImage=c.imageUrl||"";card.querySelectorAll("[data-color-choice]").forEach(x=>x.classList.toggle("selected",x===cb));}return;}const b=e.target.closest("[data-popup-buy]");if(!b||!popupProduct)return;const card=b.closest("[data-flower-type]");const options=categoryOptions(popupProduct);const selected=options.find(o=>String(o.type||'')===String(b.dataset.type));const ok=addItem({id:popupProduct.id,size:popupProduct.category,name:popupProduct.name,price:Math.max(0,Number(selected?.price ?? popupProduct.price ?? 0)),type:b.dataset.type,emoji:b.dataset.emoji,imageUrl:(card?.dataset.selectedColorImage||selected?.imageUrl||popupProduct.imageUrl),color:card?.dataset.selectedColor||'Default'},true,b);if(ok){b.textContent="✓ Added";b.disabled=true;setTimeout(closeFlowerPopup,300)}});
 
   let uiSoundCtx=null;
