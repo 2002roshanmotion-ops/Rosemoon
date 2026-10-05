@@ -479,20 +479,13 @@ function renderDashboardInventory(){
   }).join('')||'<tr><td colspan="4" class="empty">No products yet.</td></tr>';
 }
 function adminCategoryImageFor(p){
-  const custom=driveAdminImageUrl(p?.imageUrl);
-  if(custom)return custom;
-  const key=String(p?.category||p?.name||'').trim().toLowerCase();
-  const fixed={small:'assets/500.png',medium:'assets/medium.webp',large:'assets/large.webp','flower basket':'assets/basket.webp'};
-  return fixed[key]||fixed[String(p?.name||'').trim().toLowerCase()]||'';
+  let saved='';
+  try{saved=driveAdminImageUrl(JSON.parse(String(p?.description||'')).categoryImageUrl)}catch(e){}
+  if(saved)return saved;
+  return driveAdminImageUrl(p?.imageUrl)||'';
 }
 function adminFlowerImageFor(o,p){
-  // A saved custom flower image always wins. The Decoration asset is only a fallback
-  // for legacy Decoration flowers that do not yet have their own imageUrl.
-  const custom=driveAdminImageUrl(o?.imageUrl);
-  if(custom)return custom;
-  const type=String(o?.type||'').trim().toLowerCase();
-  if(type==='decoration')return 'assets/Decoration.webp';
-  return String(p?.imageUrl||'').trim();
+  return driveAdminImageUrl(o?.imageUrl)||'';
 }
 function getCategoryOrderValue(p){try{const d=categoryData(p);const n=Number(d.categorySort);return Number.isFinite(n)?n:9999}catch(e){return 9999}}
 function websiteCategorySortKey(p){
