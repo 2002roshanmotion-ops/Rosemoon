@@ -311,7 +311,7 @@ async function createCategory(){
 }
 async function refreshAdminData(preferredCategoryId){
   const d=await api('products');
-  products=(d.products||[]).filter(p=>String(p?.category||p?.name||"").trim().toLowerCase()!=="others");
+  products=(d.products||[]).filter(p=>String(p?.category||p?.name||"").trim().toLowerCase()!=="__removed__");
   renderInventory();
   renderDashboardInventory();
   updateStats();
@@ -348,7 +348,7 @@ function isCategoryProduct(p){
   }catch(e){}
   // Rosemoon category products are the main bouquet/basket price categories.
   // Keep every Rosemoon price/category group visible in Admin, including legacy Others entries that may not have options yet.
-  return ['small','medium','large','flower basket','small bouquet','medium bouquet','large bouquet'].some(k=>name===k||category===k);
+  return ['small','medium','large','flower basket','others','small bouquet','medium bouquet','large bouquet'].some(k=>name===k||category===k);
 }
 function categoryData(p){
   try{
@@ -516,7 +516,7 @@ function adminFlowerImageFor(o,p){
 function getCategoryOrderValue(p){try{const d=categoryData(p);const n=Number(d.categorySort);return Number.isFinite(n)?n:9999}catch(e){return 9999}}
 function websiteCategorySortKey(p){
   const sort=getCategoryOrderValue(p);
-  const order=['small','medium','large','flower basket'];
+  const order=['small','medium','large','flower basket','others'];
   const key=String(p?.category||p?.name||'').trim().toLowerCase();
   const fallback=order.indexOf(key);
   return {sort,fallback:fallback<0?99:fallback};
