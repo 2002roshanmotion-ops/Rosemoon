@@ -224,19 +224,6 @@ function addNewFlowerRow(prefill){
 function removeNewFlowerRow(i){const row=document.querySelector('[data-new-flower="'+i+'"]');if(row)row.remove()}
 function resetNewCategoryFlowers(){newCategoryFlowerCount=0;$('newCategoryFlowers').innerHTML='';addNewFlowerRow()}
 function prepareNewCategory(){['categoryName','categoryPrice'].forEach(id=>$(id).value='');$('categoryPhoto').value='';$('categoryMessage').textContent='';resetNewCategoryFlowers();setTab('photos')}
-function setupOthersPreset(){
-  const name=$('categoryName');
-  if(String(name?.value||'').trim().toLowerCase()!=='others')return;
-  const box=$('newCategoryFlowers');
-  if(!box)return;
-  const existing=[...box.querySelectorAll('input[id^="newFlowerName"]')].map(x=>String(x.value||'').trim().toLowerCase());
-  [['Key Ring',0],['Decoration',0],['Clips',0]].forEach(([type,stock])=>{
-    if(existing.includes(type.toLowerCase()))return;
-    addNewFlowerRow({type,stock});
-  });
-}
-$('categoryName')?.addEventListener('change',setupOthersPreset);
-$('categoryName')?.addEventListener('input',()=>{if(String($('categoryName').value||'').trim().toLowerCase()==='others')setupOthersPreset()});
 async function createCategory(){
   const msg=$('categoryMessage'),btn=$('addCategoryBtn');
   try{
@@ -267,45 +254,9 @@ async function createCategory(){
   }catch(e){msg.textContent='❌ '+e.message}
   finally{btn.disabled=false}
 }
-async function ensureOthersCategory(){
-  const others=products.filter(p=>String(p?.category||p?.name||'').trim().toLowerCase()==='others');
-  try{
-    if(!others.length){
-      const d=await api('addProduct',{
-        category:'Others',
-        name:'Others',
-        price:0,
-        stock:0,
-        imageUrl:'',
-        description:JSON.stringify({
-          rosemoonCategory:true,
-          options:[
-            {type:'Key Ring',emoji:'🔑',stock:0,imageUrl:''},
-            {type:'Decoration',emoji:'🎀',stock:0,imageUrl:''},
-            {type:'Clips',emoji:'📎',stock:0,imageUrl:''}
-          ]
-        })
-      });
-      if(Array.isArray(d.products)) products=d.products;
-      return;
-    }
-    // Keep exactly one Others category in Admin; its three items stay inside that category.
-    if(others.length>1){
-      const keep=others.find(p=>{
-        try{return Array.isArray(JSON.parse(String(p.description||'')).options)}catch(e){return false}
-      })||others[0];
-      for(const p of others){
-        if(p.id===keep.id)continue;
-        try{await api('deleteProduct',{id:p.id})}catch(e){console.error('Could not remove duplicate Others',e)}
-      }
-      const d=await api('products');
-      if(Array.isArray(d.products)) products=d.products;
-    }
-  }catch(e){console.error('Others category setup failed',e)}
-}
 async function refreshAdminData(preferredCategoryId){
   const d=await api('products');
-  products=d.products||[];
+  products=(d.products||[]).filter(p=>String(p?.category||p?.name||"").trim().toLowerCase()!=="others");
   renderInventory();
   renderDashboardInventory();
   updateStats();
@@ -322,8 +273,7 @@ async function refreshAdminData(preferredCategoryId){
 async function loadProducts(){
   try{
     const d=await api('products');
-    products=d.products||[];
-    await ensureOthersCategory();
+    products=(d.products||[]).filter(p=>String(p?.category||p?.name||"").trim().toLowerCase()!=="others");
     renderInventory();
     renderDashboardInventory();
     updateStats();
@@ -343,7 +293,7 @@ function isCategoryProduct(p){
   }catch(e){}
   // Rosemoon category products are the main bouquet/basket price categories.
   // Keep every Rosemoon price/category group visible in Admin, including legacy Others entries that may not have options yet.
-  return ['small','medium','large','flower basket','small bouquet','medium bouquet','large bouquet','others','other'].some(k=>name===k||category===k);
+  return ['small','medium','large','flower basket','small bouquet','medium bouquet','large bouquet'].some(k=>name===k||category===k);
 }
 function categoryData(p){
   try{
@@ -513,7 +463,7 @@ function adminFlowerImageFor(o,p){
 function getCategoryOrderValue(p){try{const d=categoryData(p);const n=Number(d.categorySort);return Number.isFinite(n)?n:9999}catch(e){return 9999}}
 function websiteCategorySortKey(p){
   const sort=getCategoryOrderValue(p);
-  const order=['small','medium','large','flower basket','others'];
+  const order=['small','medium','large','flower basket'];
   const key=String(p?.category||p?.name||'').trim().toLowerCase();
   const fallback=order.indexOf(key);
   return {sort,fallback:fallback<0?99:fallback};
@@ -717,7 +667,7 @@ function openCategoryEditor(id){
 }
 async function saveInventory(id){try{const price=Math.max(0,Math.floor(Number($('price-'+id).value)||0));const stock=Math.max(0,Math.floor(Number($('stock-'+id).value)||0));const d=await api('updateProduct',{id,price,stock});products=d.products||products;await refreshAdminData();}catch(e){alert(e.message)}}
 async function saveStock(id){try{const v=Math.max(0,Math.floor(Number($('stock-'+id).value)||0));const d=await api('updateStock',{productId:id,stock:v});products=d.products||products;await refreshAdminData();}catch(e){alert(e.message)}}
-async function deleteProduct(id){if(!confirm('Delete this product?'))return;try{const d=await api('deleteProduct',{id});products=d.products||[];await refreshAdminData();}catch(e){alert(e.message)}}
+async function deleteProduct(id){if(!confirm('Delete this product?'))return;try{const d=await api('deleteProduct',{id});products=(d.products||[]).filter(p=>String(p?.category||p?.name||"").trim().toLowerCase()!=="others");await refreshAdminData();}catch(e){alert(e.message)}}
 function categoryStockTotal(p){
   const opts=categoryData(p).options||[];
   if(opts.length)return opts.reduce((sum,o)=>sum+Math.max(0,Number(o.stock)||0),0);
