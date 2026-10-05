@@ -69,7 +69,9 @@
     music.startFromUserGesture();
   }
   start?.addEventListener("click",enterShop);
-  if(start)start.disabled=true;
+  // The Start Shopping button must never be trapped behind a slow/unavailable API.
+  // Product/music syncing runs in the background and has its own timeout below.
+  if(start)start.disabled=false;
   if(new URLSearchParams(location.search).get("returnShop")==="1") { enterShop(); history.replaceState(null,"",location.pathname+"#shopPage"); }
   // Keep header logo anchored to the left; layout behavior is controlled by style.css.
   // Keep header logo sizing/positioning in sync with the header layout.
@@ -190,6 +192,7 @@
     return playUISound('small');
   }
   function openFlowerPopup(id){
+    if(!popup||!grid||!sub)return;
     popupProduct=products.find(p=>p.id===id); if(!popupProduct)return;
     playCategorySound(popupProduct);
     sub.textContent=categoryPriceVisible(popupProduct)?`${popupProduct.name} · ${money(popupProduct.price)}. Choose a flower.`:`${popupProduct.name}. Choose a flower.`;
@@ -559,27 +562,35 @@
     try{const response=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"placeOrder",customer:{name:document.getElementById("name").value,phone:document.getElementById("phone").value,note:document.getElementById("note").value,payment:document.getElementById("payment").value,deliveryLocation,deliveryCharge},items,total})});const result=await response.json();if(!result.success)throw new Error(result.message||"Order failed");if(Array.isArray(result.products)){products=result.products;renderProducts()}await syncProducts();playUISound('order');note.textContent=`Order ${result.orderId||""} received.`;cart.length=0;saveCart();renderCart()}catch(err){note.textContent="Order could not be confirmed. Please try again."}
   });
 
+  async function fetchWithTimeout(url,options={},timeoutMs=8000){
+    const controller=new AbortController();
+    const timer=setTimeout(()=>controller.abort(),timeoutMs);
+    try{return await fetch(url,{...options,signal:controller.signal});}
+    finally{clearTimeout(timer)}
+  }
+
   async function syncProducts(){
-    try{const r=await fetch(`${API_URL}?action=products&_=${Date.now()}`,{cache:"no-store"});const d=await r.json();if(d.success&&Array.isArray(d.products)){
+    try{
+      const r=await fetchWithTimeout(`${API_URL}?action=products&_=${Date.now()}`,{cache:"no-store"},8000);
+      const d=await r.json();
+      if(d.success&&Array.isArray(d.products)){
         products=d.products;
         if(!products.some(p=>String(p?.category||"").trim().toLowerCase()==="others")){
           products.push(localFallback.products.find(p=>p.id==="others"));
         }
-        window.rosemoonProducts=products;renderProducts()
-      }}
-    catch(e){window.rosemoonProducts=products;renderProducts()}
+      }
+    }catch(e){console.warn("Rosemoon products sync unavailable; using current products.",e)}
+    window.rosemoonProducts=products;
+    renderProducts();
   }
   async function syncMusic(){
     try{
-      const r=await fetch(`${API_URL}?action=music&_=${Date.now()}`,{cache:"no-store"});
+      const r=await fetchWithTimeout(`${API_URL}?action=music&_=${Date.now()}`,{cache:"no-store"},8000);
       const d=await r.json();
       if(d.success&&Array.isArray(d.music)){
         window.rosemoonMusic=d.music.filter(x=>x.active!==false).sort((a,b)=>a.sort-b.sort).map(x=>[x.title||"",x.url,x.fileId]);
-        music.init();
-        music.loadMusic();
-        return music.songs.length;
       }
-    }catch(e){}
+    }catch(e){console.warn("Rosemoon music sync unavailable; using current music.",e)}
     music.init();
     music.loadMusic();
     return music.songs.length;
@@ -601,12 +612,13 @@
 
   (async()=>{
     setLoading(8,"Loading Rosemoon…");
-    await syncProducts();
-    setLoading(42,"Loading music…");
-    await syncMusic();
-    await prepareFirstMusic();
-    if(start)start.disabled=false;
-    finishLoading();
+    try{
+      await syncProducts();
+      setLoading(42,"Loading music…");
+      await syncMusic();
+      await prepareFirstMusic();
+    }catch(e){console.warn("Rosemoon startup sync failed; keeping the shop usable.",e)}
+    finally{if(start)start.disabled=false;finishLoading()}
   })();
   setInterval(syncProducts,30000);setInterval(syncMusic,30000);
   document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeFlowerPopup();document.getElementById("guideModal").classList.remove("open");closeCart()}});
