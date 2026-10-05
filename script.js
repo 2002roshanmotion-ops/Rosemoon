@@ -500,7 +500,7 @@
       this.audio.addEventListener("error",()=>{this.state(false);document.getElementById("songStatus").textContent="Music unavailable"});
     },
     loadMusic(){
-      const list=(window.rosemoonMusic||localFallback.music).map(x=>Array.isArray(x)?x:[x.title,x.url,x.fileId]).filter(x=>x&&x[1]);
+      const list=(window.rosemoonMusic||localFallback.music).map(x=>{if(Array.isArray(x))return x;const fileId=String(x?.fileId||"");const url=String(x?.url||"")|| (fileId ? "https://drive.google.com/uc?export=download&id="+encodeURIComponent(fileId) : "");return [x?.title||"",url,fileId];}).filter(x=>x&&x[1]);
       this.songs=list;
       if(!this.songs.length){this.audio.removeAttribute("src");this.audio.load();document.getElementById("songTitle").textContent="No music yet";document.getElementById("songStatus").textContent="Add music from Admin";document.getElementById("toggleMusic").disabled=true;return;}
       document.getElementById("toggleMusic").disabled=false;
@@ -518,27 +518,21 @@
           // Use the Drive download URL directly so every MP3 added in Admin can play,
           // regardless of file size. The server/base64 path is only a fallback.
           if(s[1]){
+            // Keep the saved Drive URL immediately usable. Do not mark a song
+            // unavailable just because a background preload event is slow.
             this.cache[key]=s[1];
-            // Actually preload each track, not just save its URL.
-            // This makes every Admin-added song ready to start when selected.
             const preloader=new Audio();
             preloader.preload="auto";
             preloader.src=s[1];
             this.preloaders=this.preloaders||{};
             this.preloaders[key]=preloader;
+            preloader.load();
             await new Promise(resolve=>{
               let done=false;
-              const finish=()=>{if(done)return;done=true;cleanup();resolve()};
-              const cleanup=()=>{
-                preloader.removeEventListener("canplaythrough",finish);
-                preloader.removeEventListener("loadeddata",finish);
-                preloader.removeEventListener("error",finish);
-              };
-              preloader.addEventListener("canplaythrough",finish,{once:true});
+              const finish=()=>{if(done)return;done=true;resolve()};
+              preloader.addEventListener("canplay",finish,{once:true});
               preloader.addEventListener("loadeddata",finish,{once:true});
-              preloader.addEventListener("error",finish,{once:true});
               setTimeout(finish,30000);
-              preloader.load();
             });
             return s[1];
           }
@@ -658,7 +652,11 @@
       const r=await fetchWithTimeout(`${API_URL}?action=music&_=${Date.now()}`,{cache:"no-store"},8000);
       const d=await r.json();
       if(d.success&&Array.isArray(d.music)){
-        window.rosemoonMusic=d.music.filter(x=>x.active!==false).sort((a,b)=>a.sort-b.sort).map(x=>[x.title||"",x.url,x.fileId]);
+        window.rosemoonMusic=d.music.filter(x=>x.active!==false).sort((a,b)=>a.sort-b.sort).map(x=>{
+          const fileId=String(x.fileId||"");
+          const url=String(x.url||"") || (fileId ? "https://drive.google.com/uc?export=download&id="+encodeURIComponent(fileId) : "");
+          return [x.title||"",url,fileId];
+        }).filter(x=>x[1]);
       }
     }catch(e){console.warn("Rosemoon music sync unavailable; using current music.",e)}
     music.init();
