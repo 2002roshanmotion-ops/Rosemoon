@@ -434,3 +434,124 @@ body.flower-popup-open{
 
 /* Flower color selector */
 .flower-color-label{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#8b6572;margin:8px 0 6px}.flower-color-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-bottom:10px}.flower-color-choice{width:100%!important;margin:0!important;padding:8px 6px!important;border:1px solid #ead5de!important;border-radius:10px!important;background:#fff!important;color:#6c4654!important;font-size:11px!important;font-weight:700!important;white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;line-height:1.25;min-height:34px}.flower-color-choice:hover,.flower-color-choice.selected{border-color:#b65d7b!important;background:#fff0f5!important;color:#7e3e58!important;transform:none!important}
+
+
+/* Premium How to Order: opens near the top with floral motion and sparkle decoration */
+.guide-modal{
+  align-items:flex-start !important;
+  justify-items:center !important;
+  overflow-y:auto;
+  padding:76px 16px 28px;
+  box-sizing:border-box;
+}
+.guide-card{
+  width:min(520px,92vw) !important;
+  padding:30px 28px 26px !important;
+  overflow:visible;
+  transform-origin:top center;
+  animation:guideTopReveal .62s cubic-bezier(.16,.82,.22,1) both !important;
+}
+.guide-card::before{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  border-radius:30px;
+  pointer-events:none;
+  background:linear-gradient(120deg,rgba(255,255,255,.75),rgba(255,220,234,.18),rgba(255,255,255,.7));
+  opacity:.65;
+  z-index:-1;
+}
+.guide-badge{
+  width:54px;
+  height:54px;
+  margin:-6px auto 10px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  font-size:28px;
+  color:#a94f72;
+  background:radial-gradient(circle,#fff,#ffe8f0);
+  border:1px solid #efd1dc;
+  box-shadow:0 10px 28px rgba(126,62,88,.14);
+  animation:guideBadgeBloom .9s cubic-bezier(.2,.8,.2,1) .12s both;
+}
+.guide-card .eyebrow{
+  margin-bottom:5px;
+  letter-spacing:.16em;
+}
+.guide-card h2{
+  margin-bottom:14px !important;
+}
+.guide-decor{
+  position:absolute;
+  pointer-events:none;
+  font-size:48px;
+  filter:drop-shadow(0 8px 10px rgba(126,62,88,.14));
+  animation:guideFlowerFloat 3.4s ease-in-out infinite;
+}
+.guide-decor-left{left:-29px;top:58px;transform:rotate(-18deg)}
+.guide-decor-right{right:-29px;top:105px;animation-delay:-1.2s;transform:rotate(15deg)}
+.guide-spark{
+  position:absolute;
+  pointer-events:none;
+  color:#c56b8a;
+  font-size:18px;
+  animation:guideSparkFloat 2.4s ease-in-out infinite;
+}
+.guide-spark-1{left:22px;top:35px}
+.guide-spark-2{right:25px;top:42px;animation-delay:-.8s}
+.guide-spark-3{left:40px;bottom:28px;animation-delay:-1.5s}
+.guide-steps div{
+  position:relative;
+  overflow:hidden;
+  border:1px solid rgba(234,213,222,.75);
+  transition:transform .22s ease,box-shadow .22s ease;
+  animation:guideStepIn .5s cubic-bezier(.2,.8,.2,1) both;
+}
+.guide-steps div:nth-child(2){animation-delay:.08s}
+.guide-steps div:nth-child(3){animation-delay:.16s}
+.guide-steps div:hover{
+  transform:translateX(5px);
+  box-shadow:0 10px 24px rgba(126,62,88,.10);
+}
+.guide-steps div::after{
+  content:"✦";
+  position:absolute;
+  right:14px;
+  opacity:.22;
+  font-size:18px;
+  animation:guideTwinkle 1.8s ease-in-out infinite;
+}
+@keyframes guideTopReveal{
+  from{opacity:0;transform:translateY(-32px) scale(.94)}
+  65%{opacity:1;transform:translateY(4px) scale(1.01)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+@keyframes guideBadgeBloom{
+  from{opacity:0;transform:scale(.45) rotate(-18deg)}
+  70%{opacity:1;transform:scale(1.08) rotate(5deg)}
+  to{opacity:1;transform:scale(1) rotate(0)}
+}
+@keyframes guideFlowerFloat{
+  0%,100%{margin-top:0;rotate:0deg}
+  50%{margin-top:-9px;rotate:7deg}
+}
+@keyframes guideSparkFloat{
+  0%,100%{opacity:.25;transform:translateY(0) scale(.8) rotate(0)}
+  50%{opacity:1;transform:translateY(-8px) scale(1.15) rotate(18deg)}
+}
+@keyframes guideStepIn{
+  from{opacity:0;transform:translateY(12px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes guideTwinkle{
+  0%,100%{opacity:.18;transform:scale(.8)}
+  50%{opacity:.7;transform:scale(1.15)}
+}
+@media(max-width:600px){
+  .guide-modal{padding:64px 12px 22px}
+  .guide-card{width:min(500px,94vw) !important;padding:26px 20px 22px !important}
+  .guide-decor{font-size:38px}
+  .guide-decor-left{left:-18px;top:52px}
+  .guide-decor-right{right:-18px;top:94px}
+}
