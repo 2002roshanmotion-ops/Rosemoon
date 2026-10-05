@@ -388,10 +388,13 @@ function isCategoryProduct(p){
   if(!p)return false;
   try{
     const d=JSON.parse(String(p.description||''));
-    return !!(d&&d.rosemoonCategory===true&&Array.isArray(d.options));
-  }catch(e){
-    return false;
-  }
+    if(d&&d.rosemoonCategory===true&&Array.isArray(d.options))return true;
+  }catch(e){}
+  // Mirror the real customer-facing "Others" product when it exists.
+  // Do not create or invent an Others category here.
+  const name=String(p.name||'').trim().toLowerCase();
+  const category=String(p.category||'').trim().toLowerCase();
+  return name==='others'||category==='others';
 }
 function categoryData(p){
   try{
