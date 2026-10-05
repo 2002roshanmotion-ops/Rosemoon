@@ -212,13 +212,7 @@
     if(!popupProduct||!grid||!sub)return;
     sub.textContent=categoryPriceVisible(popupProduct)?`${popupProduct.name} · ${money(popupProduct.price)}. Choose a flower.`:`${popupProduct.name}. Choose a flower.`;
     const options=categoryOptions(popupProduct);
-    const categoryImage=categoryPopupImageFor(popupProduct);
-    // The image at the top of the opened category must always be the same saved
-    // category image used on the shop card. Add a cache-buster so a replaced
-    // image cannot remain stuck in the browser's old image cache.
-    const categoryImageFresh=categoryImage?(categoryImage+(categoryImage.includes('?')?'&':'?')+'rmcat='+encodeURIComponent(String(popupProduct?.id||popupProduct?.category||''))+'-'+encodeURIComponent(String(popupProduct?.updatedAt||popupProduct?.imageUrl||categoryImage).slice(-80))):'';
-    const categoryHero=categoryImageFresh?'<div class="flower-popup-card" style="grid-column:1/-1;padding:10px;background:#fff7fa"><div class="flower-popup-art" style="height:min(30vh,300px);min-height:180px;margin:0;background:#fff7fa"><img src="'+escapeAttr(categoryImageFresh)+'" alt="'+escapeAttr(categoryLabel(popupProduct))+'" style="width:100%;height:100%;object-fit:contain;display:block"></div></div>':'';
-    grid.innerHTML=categoryHero+options.map((o,i)=>{
+    grid.innerHTML=options.map((o,i)=>{
       const type=String(o.type||'Flower 1'),emoji=String(o.emoji||'🌸'),stock=Math.max(0,Number(o.stock)||0),imageUrl=driveImageUrl(o.imageUrl);
       const isDecoration=type.trim().toLowerCase()==='decoration';
       const art=imageUrl?`<img class="${isDecoration?'decoration-full-image':''}" src="${escapeAttr(imageUrl)}" alt="${escapeAttr(type)}">`:emoji;
