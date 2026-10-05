@@ -215,7 +215,7 @@ function addNewFlowerRow(prefill){
   const i=++newCategoryFlowerCount;
   box.insertAdjacentHTML('beforeend',newFlowerRowHtml(i));
   const row=box.querySelector('[data-new-flower="'+i+'"]');
-  addNewFlowerColorRow(i,{name:'Default'});
+  addNewFlowerColorRow(i,{name:'Color 1'});
   if(prefill){
     $('newFlowerName'+i).value=prefill.type||'';
     $('newFlowerStock'+i).value=Number(prefill.stock||0);
@@ -256,7 +256,7 @@ async function createCategory(){
       if(!type)throw new Error('Every added flower needs a name.');
       msg.textContent=file?'Uploading '+type+'…':'Saving '+type+'…';
       const url=file?await uploadCategoryPhoto(file,type):'';
-      const colors=[]; for(const cr of row.querySelectorAll('[data-new-color]')){const j=cr.dataset.newColor,n=String($('newFlowerColorName'+i+'_'+j)?.value||'').trim(),cs=Math.max(0,Math.floor(Number($('newFlowerColorStock'+i+'_'+j)?.value)||0)),f=$('newFlowerColorPhoto'+i+'_'+j)?.files?.[0];if(!n)continue;if(!f)throw new Error(type+' color '+n+' needs a photo.');colors.push({name:n,stock:cs,imageUrl:await uploadCategoryPhoto(f,type+' '+n)});} if(!colors.length)colors.push({name:'Default',stock:qty,imageUrl:url}); options.push({type,stock:qty,imageUrl:url,colors});
+      const colors=[]; for(const cr of row.querySelectorAll('[data-new-color]')){const j=cr.dataset.newColor,n=String($('newFlowerColorName'+i+'_'+j)?.value||'').trim(),cs=Math.max(0,Math.floor(Number($('newFlowerColorStock'+i+'_'+j)?.value)||0)),f=$('newFlowerColorPhoto'+i+'_'+j)?.files?.[0];if(!n)continue;if(!f)throw new Error(type+' color '+n+' needs a photo.');colors.push({name:n,stock:cs,imageUrl:await uploadCategoryPhoto(f,type+' '+n)});} if(!colors.length)colors.push({name:'Color 1',stock:qty,imageUrl:url}); options.push({type,stock:qty,imageUrl:url,colors});
     }
     if(!options.length)throw new Error('Add at least one flower.');
     msg.textContent='Saving category…';
