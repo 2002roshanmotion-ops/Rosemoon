@@ -369,7 +369,9 @@ function renderCategoryManager(){
   $('manageCategoryPriceVisible').checked=priceVisible;
   $('manageCategoryPhoto').value='';
   const d=categoryData(p),opts=Array.isArray(d.options)?d.options:[];
-  const categoryImage=adminCategoryImageFor(p);\n  let popupImage='';try{const cd=JSON.parse(String(p.description||''));popupImage=driveAdminImageUrl(cd?.popupCategoryImageUrl||'')}catch(e){}\n  const popupPreview=$('manageCategoryPopupPhotoPreview');if(popupPreview)popupPreview.innerHTML=popupImage?'<img src="'+esc(popupImage)+'" alt="" style="width:120px;height:120px;object-fit:contain;border-radius:14px;background:#fff;border:1px solid #f0e2e7">':'';
+  const categoryImage=adminCategoryImageFor(p);
+  let popupImage='';try{const cd=JSON.parse(String(p.description||''));popupImage=driveAdminImageUrl(cd?.popupCategoryImageUrl||'')}catch(e){}
+  const popupPreview=$('manageCategoryPopupPhotoPreview');if(popupPreview)popupPreview.innerHTML=popupImage?'<img src="'+esc(popupImage)+'" alt="" style="width:120px;height:120px;object-fit:contain;border-radius:14px;background:#fff;border:1px solid #f0e2e7">':'';
   const categoryPreview=$('manageCategoryPhotoPreview');
   if(categoryPreview) categoryPreview.innerHTML=categoryImage?'<img src="'+esc(categoryImage)+'" alt="" style="width:120px;height:120px;object-fit:contain;border-radius:14px;background:#fff;border:1px solid #f0e2e7">':'';
   let html='<div style="display:grid;gap:10px">';
@@ -444,7 +446,8 @@ async function saveCategoryManager(){
     if(!options.length)throw new Error('Add at least one flower.');
     let imageUrl=p.imageUrl||'';const mainFile=$('manageCategoryPhoto')?.files?.[0];
     if(mainFile){msg.textContent='Uploading category photo…';imageUrl=(await api('uploadPhoto',{dataUrl:await readDataUrl(mainFile),fileName:mainFile.name})).url||imageUrl}
-    let popupCategoryImage='';const popupFile=$('manageCategoryPopupPhoto')?.files?.[0];if(popupFile){msg.textContent='Uploading inside-popup image…';popupCategoryImage=(await api('uploadPhoto',{dataUrl:await readDataUrl(popupFile),fileName:'popup-'+popupFile.name})).url||''}else{try{popupCategoryImage=JSON.parse(String(p.description||'')).popupCategoryImageUrl||''}catch(e){}}\n    const saved=await api('updateProduct',{id:p.id,name,category:name,price,stock,imageUrl,description:JSON.stringify({...categoryData(p),rosemoonCategory:true,options,priceVisible,categoryImageUrl:imageUrl,popupCategoryImageUrl:popupCategoryImage})});
+    let popupCategoryImage='';const popupFile=$('manageCategoryPopupPhoto')?.files?.[0];if(popupFile){msg.textContent='Uploading inside-popup image…';popupCategoryImage=(await api('uploadPhoto',{dataUrl:await readDataUrl(popupFile),fileName:'popup-'+popupFile.name})).url||''}else{try{popupCategoryImage=JSON.parse(String(p.description||'')).popupCategoryImageUrl||''}catch(e){}}
+    const saved=await api('updateProduct',{id:p.id,name,category:name,price,stock,imageUrl,description:JSON.stringify({...categoryData(p),rosemoonCategory:true,options,priceVisible,categoryImageUrl:imageUrl,popupCategoryImageUrl:popupCategoryImage})});
     products=saved.products||products;await refreshAdminData(p.id);renderWebsiteCategoryOrder();msg.textContent='✅ Category saved.';
   }catch(e){msg.textContent='❌ '+e.message}
   finally{btn.disabled=false}
