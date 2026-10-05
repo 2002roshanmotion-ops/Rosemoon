@@ -98,6 +98,12 @@
   };
   const categoryOrder=["Small","Medium","Large","Flower Basket","Others"];
   function categoryImageFor(p){
+    let savedCategoryImage='';
+    try{
+      const d=JSON.parse(String(p?.description||''));
+      savedCategoryImage=driveImageUrl(d?.categoryImageUrl);
+    }catch(e){}
+    if(savedCategoryImage)return savedCategoryImage;
     const custom=driveImageUrl(p?.imageUrl);
     if(custom)return custom;
     const key=String(p?.category||p?.name||'').trim().toLowerCase();
