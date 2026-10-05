@@ -169,6 +169,12 @@ function getProducts_() {
   return {success:true,products:products,inventory:products};
 }
 
+function categoryOptionsStock_(description) {
+  const options=parseCategoryOptions_(description);
+  if(!options||!options.length) return null;
+  return options.reduce((sum,o)=>sum+Math.max(0,Number(o&&o.stock)||0),0);
+}
+
 function addProduct_(payload) {
   requireAdmin_(payload);
   const sheet=ensureSheet_(getSpreadsheet_(),'Products',PRODUCT_HEADERS,DEFAULT_PRODUCTS);
@@ -180,7 +186,10 @@ function addProduct_(payload) {
   if(!Number.isFinite(price)||price<0) throw new Error('Price must be 0 or higher.');
   if(!Number.isFinite(stock)||stock<0) throw new Error('Stock must be 0 or higher.');
   const id=slug_(category+'-'+name)+'-'+Utilities.getUuid().slice(0,6).toLowerCase();
-  sheet.appendRow([id,category,name,Math.round(price),Math.floor(stock),String(payload.imageUrl||''),true,bool_(payload.featured,false),bool_(payload.isNew,false),clean_(payload.description||'')]);
+  const description=clean_(payload.description||'');
+  const optionStock=categoryOptionsStock_(description);
+  const finalStock=optionStock===null?Math.floor(stock):optionStock;
+  sheet.appendRow([id,category,name,Math.round(price),finalStock,String(payload.imageUrl||''),true,bool_(payload.featured,false),bool_(payload.isNew,false),description]);
   logActivity_('ADD_PRODUCT',name+' ('+id+')');
   return {success:true,message:'Product added.',products:getProducts_().products};
 }
@@ -200,7 +209,12 @@ function updateProduct_(payload) {
       if(payload.active!==undefined) sheet.getRange(i+1,7).setValue(bool_(payload.active,true));
       if(payload.featured!==undefined) sheet.getRange(i+1,8).setValue(bool_(payload.featured,false));
       if(payload.isNew!==undefined) sheet.getRange(i+1,9).setValue(bool_(payload.isNew,false));
-      if(payload.description!==undefined) sheet.getRange(i+1,10).setValue(clean_(payload.description));
+      if(payload.description!==undefined) {
+        const description=clean_(payload.description);
+        sheet.getRange(i+1,10).setValue(description);
+        const optionStock=categoryOptionsStock_(description);
+        if(optionStock!==null) sheet.getRange(i+1,5).setValue(optionStock);
+      }
       logActivity_('UPDATE_PRODUCT',id);
       return {success:true,message:'Product updated.',products:getProducts_().products};
     }
@@ -361,51 +375,62 @@ function placeOrder_(payload) {
       if(id) rows[id]=r+1;
     }
 
+    const requested={};
     payload.items.forEach(item=>{
       const productId=String(item.productId||item.id||'');
       const row=rows[productId];
       if(!row) throw new Error('Product not found: '+productId);
       const qty=Math.max(1,Number(item.qty||item.quantity)||1);
-      const totalStock=Number(inv.getRange(row,5).getValue())||0;
-      if(qty>totalStock) throw new Error(String(item.name||'Product')+' has only '+totalStock+' left.');
+      const type=String(item.type||'').trim();
+      const color=String(item.color||'').trim();
+      const key=productId+'|'+type+'|'+color;
+      requested[key]=(requested[key]||0)+qty;
+    });
+    Object.keys(requested).forEach(key=>{
+      const [productId,type,color]=key.split('|');
+      const row=rows[productId];
+      const qty=requested[key];
       const options=parseCategoryOptions_(inv.getRange(row,10).getValue());
-      if(options && item.type){
-        const option=options.find(o=>String(o.type||'').trim()===String(item.type||'').trim());
-        if(option){
-          const optionStock=Math.max(0,Number(option.stock)||0);
-          if(qty>optionStock) throw new Error(String(item.type)+' has only '+optionStock+' left.');
-          if(item.color){
-            const colors=Array.isArray(option.colors)?option.colors:[];
-            const color=colors.find(c=>String(c?.name||'Default').trim()===String(item.color||'Default').trim());
-            if(color&&Object.prototype.hasOwnProperty.call(color,'stock')){
-              const colorStock=Math.max(0,Number(color.stock)||0);
-              if(qty>colorStock) throw new Error(String(item.type)+' / '+String(item.color)+' has only '+colorStock+' left.');
-            }
+      if(options && type){
+        const option=options.find(o=>String(o.type||'').trim()===type);
+        if(!option) throw new Error(type+' is not available.');
+        const optionStock=Math.max(0,Number(option.stock)||0);
+        if(qty>optionStock) throw new Error(type+' has only '+optionStock+' left.');
+        if(color){
+          const colors=Array.isArray(option.colors)?option.colors:[];
+          const colorEntry=colors.find(c=>String(c?.name||'Default').trim()===color);
+          if(colorEntry&&Object.prototype.hasOwnProperty.call(colorEntry,'stock')){
+            const colorStock=Math.max(0,Number(colorEntry.stock)||0);
+            if(qty>colorStock) throw new Error(type+' / '+color+' has only '+colorStock+' left.');
           }
         }
+      } else {
+        const totalStock=Math.max(0,Number(inv.getRange(row,5).getValue())||0);
+        if(qty>totalStock) throw new Error(String(inv.getRange(row,3).getValue()||'Product')+' has only '+totalStock+' left.');
       }
     });
 
     payload.items.forEach(item=>{
       const row=rows[String(item.productId||item.id)];
       const qty=Math.max(1,Number(item.qty||item.quantity)||1);
-      const stockCell=inv.getRange(row,5);
-      stockCell.setValue((Number(stockCell.getValue())||0)-qty);
-      if(item.type){
-        const descCell=inv.getRange(row,10);
-        const options=parseCategoryOptions_(descCell.getValue());
-        if(options){
-          const option=options.find(o=>String(o.type||'').trim()===String(item.type||'').trim());
-          if(option){
-            option.stock=Math.max(0,(Number(option.stock)||0)-qty);
-            if(item.color){
-              const colors=Array.isArray(option.colors)?option.colors:[];
-              const color=colors.find(c=>String(c?.name||'Default').trim()===String(item.color||'Default').trim());
-              if(color&&Object.prototype.hasOwnProperty.call(color,'stock')) color.stock=Math.max(0,(Number(color.stock)||0)-qty);
-            }
-            descCell.setValue(JSON.stringify({rosemoonCategory:true,options:options}));
+      const descCell=inv.getRange(row,10);
+      const options=parseCategoryOptions_(descCell.getValue());
+      if(options && item.type){
+        const option=options.find(o=>String(o.type||'').trim()===String(item.type||'').trim());
+        if(option){
+          option.stock=Math.max(0,(Number(option.stock)||0)-qty);
+          if(item.color){
+            const colors=Array.isArray(option.colors)?option.colors:[];
+            const color=colors.find(c=>String(c?.name||'Default').trim()===String(item.color||'Default').trim());
+            if(color&&Object.prototype.hasOwnProperty.call(color,'stock')) color.stock=Math.max(0,(Number(color.stock)||0)-qty);
           }
+          descCell.setValue(JSON.stringify({rosemoonCategory:true,options:options,priceVisible:true}));
+          const total=categoryOptionsStock_(JSON.stringify({rosemoonCategory:true,options:options}));
+          inv.getRange(row,5).setValue(total===null?0:total);
         }
+      } else {
+        const stockCell=inv.getRange(row,5);
+        stockCell.setValue(Math.max(0,(Number(stockCell.getValue())||0)-qty));
       }
     });
 
