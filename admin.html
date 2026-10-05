@@ -216,7 +216,7 @@ function addNewFlowerRow(prefill){
   const i=++newCategoryFlowerCount;
   box.insertAdjacentHTML('beforeend',newFlowerRowHtml(i));
   const row=box.querySelector('[data-new-flower="'+i+'"]');
-  addNewFlowerColorRow(i,{name:'Color 1'});
+  addNewFlowerColorRow(i,{name:'Default',stock:0});
   if(prefill){
     $('newFlowerName'+i).value=prefill.type||'';
     $('newFlowerStock'+i).value=Number(prefill.stock||0);
@@ -257,7 +257,7 @@ async function createCategory(){
       if(!type)throw new Error('Every added flower needs a name.');
       msg.textContent=file?'Uploading '+type+'…':'Saving '+type+'…';
       const url=file?await uploadCategoryPhoto(file,type):'';
-      const colors=[]; for(const cr of row.querySelectorAll('[data-new-color]')){const j=cr.dataset.newColor,n=String($('newFlowerColorName'+i+'_'+j)?.value||'').trim(),cs=Math.max(0,Math.floor(Number($('newFlowerColorStock'+i+'_'+j)?.value)||0)),f=$('newFlowerColorPhoto'+i+'_'+j)?.files?.[0];if(!n)continue;if(!f)throw new Error(type+' color '+n+' needs a photo.');colors.push({name:n,stock:cs,imageUrl:await uploadCategoryPhoto(f,type+' '+n)});} if(!colors.length)colors.push({name:'Color 1',stock:qty,imageUrl:url}); options.push({type,stock:qty,imageUrl:url,colors});
+      const colors=[]; for(const cr of row.querySelectorAll('[data-new-color]')){const j=cr.dataset.newColor,n=String($('newFlowerColorName'+i+'_'+j)?.value||'').trim(),cs=Math.max(0,Math.floor(Number($('newFlowerColorStock'+i+'_'+j)?.value)||0)),f=$('newFlowerColorPhoto'+i+'_'+j)?.files?.[0];if(!n)continue;if(!f)throw new Error(type+' color '+n+' needs a photo.');colors.push({name:n,stock:cs,imageUrl:await uploadCategoryPhoto(f,type+' '+n)});} if(!colors.length)colors.push({name:'Default',stock:qty,imageUrl:url}); options.push({type,stock:qty,imageUrl:url,colors});
     }
     if(!options.length)throw new Error('Add at least one flower.');
     msg.textContent='Saving category…';
@@ -399,8 +399,8 @@ function renderCategoryManager(){
   });
   html+='</div><button class="secondary" type="button" style="margin-top:10px" onclick="addManageFlowerRow()">＋ Add Flower</button><div class="hint" style="margin-top:10px">Category total stock and every flower stock are independent. You can have different stock numbers for every flower.</div>';
   box.innerHTML=html;
-  opts.forEach((o,i)=>{const b=$('manageFlowerColors'+i);if(!b)return;(Array.isArray(o.colors)&&o.colors.length?o.colors.map((c,j)=>({...c,name:'Color '+(j+1)})):[{name:'Color 1',imageUrl:o.imageUrl||''},{name:'Color 2',imageUrl:''},{name:'Color 3',imageUrl:''}]).concat((Array.isArray(o.colors)&&o.colors.length&&o.colors.length<3)?Array.from({length:3-o.colors.length},(_,k)=>({name:'Color '+(o.colors.length+k+1),imageUrl:''})):[]).slice(0,Math.max(3,Array.isArray(o.colors)?o.colors.length:0)).forEach((c,j)=>{b.insertAdjacentHTML('beforeend','<div class="color-option-row" data-manage-color="'+j+'"><input id="manageFlowerColorName'+i+'_'+j+'" type="text" value="'+esc(c.name||'')+'" placeholder="Color e.g. Red"><input id="manageFlowerColorStock'+i+'_'+j+'" type="number" min="0" step="1" value="'+(Object.prototype.hasOwnProperty.call(c,'stock')?Math.max(0,Math.floor(Number(c.stock)||0)):Math.max(0,Math.floor(Number(o.stock)||0)))+'" placeholder="Stock"><span><img src="'+esc(driveAdminImageUrl(c.imageUrl)||'')+'" style="width:42px;height:42px;object-fit:contain"></span><input id="manageFlowerColorPhoto'+i+'_'+j+'" type="file" accept="image/*"><button class="secondary" type="button" onclick="removeManageFlowerColorRow('+i+','+j+')">Remove</button></div>');});});
-}  document.querySelectorAll('#manageFlowerOptions [id^="manageFlowerColorName"]').forEach((input)=>{const m=input.id.match(/^manageFlowerColorName(\\d+)_(\\d+)$/);if(m)input.value='Color '+(Number(m[2])+1);});
+  opts.forEach((o,i)=>{const b=$('manageFlowerColors'+i);if(!b)return;[{name:'Default',stock:Math.max(0,Math.floor(Number(o.stock)||0)),imageUrl:o.imageUrl||''}].forEach((c,j)=>{b.insertAdjacentHTML('beforeend','<div class="color-option-row" data-manage-color="'+j+'"><input id="manageFlowerColorName'+i+'_'+j+'" type="text" value="'+esc(c.name||'')+'" placeholder="Color e.g. Red"><input id="manageFlowerColorStock'+i+'_'+j+'" type="number" min="0" step="1" value="'+(Object.prototype.hasOwnProperty.call(c,'stock')?Math.max(0,Math.floor(Number(c.stock)||0)):Math.max(0,Math.floor(Number(o.stock)||0)))+'" placeholder="Stock"><span><img src="'+esc(driveAdminImageUrl(c.imageUrl)||'')+'" style="width:42px;height:42px;object-fit:contain"></span><input id="manageFlowerColorPhoto'+i+'_'+j+'" type="file" accept="image/*"><button class="secondary" type="button" onclick="removeManageFlowerColorRow('+i+','+j+')">Remove</button></div>');});});
+}  document.querySelectorAll('#manageFlowerOptions [id^="manageFlowerColorName"]').forEach((input)=>{const m=input.id.match(/^manageFlowerColorName(\\d+)_(\\d+)$/);if(m)input.value='Default';});
 }
 function removeManageFlowerColorRow
 function removeManageFlowerColorRow(i,j){document.querySelector('#manageFlowerColors'+i+' [data-manage-color="'+j+'"]').remove();}
@@ -473,7 +473,7 @@ async function saveCategoryManager(){
       let imageUrl=old.imageUrl||'';
       if(file){msg.textContent='Uploading '+type+'…';imageUrl=(await api('uploadPhoto',{dataUrl:await readDataUrl(file),fileName:file.name})).url||imageUrl}
       // Photo replacement is optional; keep the existing image when no new file is selected.
-      const colors=[]; row.querySelectorAll('[data-manage-color]').forEach(cr=>{const j=Number(cr.dataset.manageColor),n=String($('manageFlowerColorName'+i+'_'+j)?.value||'').trim(),cs=Math.max(0,Math.floor(Number($('manageFlowerColorStock'+i+'_'+j)?.value)||0)),f=$('manageFlowerColorPhoto'+i+'_'+j)?.files?.[0];if(n)colors.push({name:n,stock:cs,file:f,old:(old.colors||[])[j]||{}})}); for(const c of colors){if(c.file)c.imageUrl=(await api('uploadPhoto',{dataUrl:await readDataUrl(c.file),fileName:c.file.name})).url||c.old.imageUrl||'';else c.imageUrl=c.old.imageUrl||'';} if(!colors.length)colors.push({name:'Color 1',stock:qty,imageUrl:old.imageUrl||''}); options.push({...old,type,price,stock:qty,imageUrl,colors:colors.map(c=>({name:c.name,stock:c.stock,imageUrl:c.imageUrl}))});
+      const colors=[]; row.querySelectorAll('[data-manage-color]').forEach(cr=>{const j=Number(cr.dataset.manageColor),n=String($('manageFlowerColorName'+i+'_'+j)?.value||'').trim(),cs=Math.max(0,Math.floor(Number($('manageFlowerColorStock'+i+'_'+j)?.value)||0)),f=$('manageFlowerColorPhoto'+i+'_'+j)?.files?.[0];if(n)colors.push({name:n,stock:cs,file:f,old:(old.colors||[])[j]||{}})}); for(const c of colors){if(c.file)c.imageUrl=(await api('uploadPhoto',{dataUrl:await readDataUrl(c.file),fileName:c.file.name})).url||c.old.imageUrl||'';else c.imageUrl=c.old.imageUrl||'';} if(!colors.length)colors.push({name:'Default',stock:qty,imageUrl:old.imageUrl||''}); options.push({...old,type,price,stock:qty,imageUrl,colors:colors.map(c=>({name:c.name,stock:c.stock,imageUrl:c.imageUrl}))});
     }
     if(!options.length)throw new Error('Add at least one flower.');
     let imageUrl=p.imageUrl||'';const mainFile=$('manageCategoryPhoto')?.files?.[0];
