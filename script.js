@@ -46,7 +46,7 @@
           stock:Math.max(0,Number(o?.stock)||0),
           price:Math.max(0,Number(o?.price ?? product?.price ?? 0)),
           imageUrl:(driveImageUrl(o?.imageUrl)||((String(o?.type||'').trim().toLowerCase()==='decoration')?'assets/Decoration.webp':driveImageUrl(product?.imageUrl)||categoryImageFor(product)||'')),
-          colors:(()=>{const saved=Array.isArray(o?.colors)?o.colors:[];const colors=saved.map(c=>({name:String(c?.name||'Color'),stock:Object.prototype.hasOwnProperty.call(c,'stock')?Math.max(0,Number(c.stock)||0):Math.max(0,Number(o?.stock)||0),imageUrl:driveImageUrl(c?.imageUrl)||'',enabled:c?.enabled!==false}));while(colors.length<3) colors.push({name:'Color '+(colors.length+1),stock:Math.max(0,Number(o?.stock)||0),imageUrl:''});return colors;})()
+          colors:(()=>{const saved=Array.isArray(o?.colors)?o.colors:[];const colors=saved.map(c=>({name:String(c?.name||'Color'),stock:Object.prototype.hasOwnProperty.call(c,'stock')?Math.max(0,Number(c.stock)||0):Math.max(0,Number(o?.stock)||0),imageUrl:driveImageUrl(c?.imageUrl)||''}));while(colors.length<3) colors.push({name:'Color '+(colors.length+1),stock:Math.max(0,Number(o?.stock)||0),imageUrl:''});return colors;})()
         }));
       }
     }catch(e){}
@@ -230,7 +230,7 @@
     const o=option;
     const emoji=String(o.emoji||'🌸'), stock=Math.max(0,Number(o.stock)||0), price=Math.max(0,Number(o.price ?? popupProduct.price ?? 0)), imageUrl=driveImageUrl(o.imageUrl);
     const isDecoration=String(o.type||'').trim().toLowerCase()==='decoration';
-    const colors=(Array.isArray(o.colors)&&o.colors.length?o.colors:[{name:'Color 1',stock, imageUrl:imageUrl,enabled:true},{name:'Color 2',stock:0,imageUrl:'',enabled:true},{name:'Color 3',stock:0,imageUrl:'',enabled:true}]).filter(c=>c?.enabled!==false);
+    const colors=(Array.isArray(o.colors)&&o.colors.length?o.colors:[{name:'Color 1',stock, imageUrl:imageUrl},{name:'Color 2',stock:0,imageUrl:''},{name:'Color 3',stock:0,imageUrl:''}]);
     const colorId='flowerColor_'+popupProduct.id+'_'+categoryOptions(popupProduct).indexOf(o);
     const art=imageUrl?`<img class="${isDecoration?'decoration-full-image':''}" data-color-image="${escapeAttr(colorId)}" src="${escapeAttr(imageUrl)}" alt="${escapeAttr(o.type)}">`:emoji;
     const stockClass=stock===0?"out":stock<=2?"low":"";
