@@ -24,7 +24,8 @@ const DEFAULT_CATEGORIES = [
   ['small','Small',true,1],
   ['medium','Medium',true,2],
   ['large','Large',true,3],
-  ['flower-basket','Flower Basket',true,4]
+  ['flower-basket','Flower Basket',true,4],
+  ['others','Others',true,5]
 ];
 
 const DEFAULT_SETTINGS = [
@@ -50,6 +51,7 @@ function setupRosemoonSheet() {
   ensureSheet_(ss,'Music',MUSIC_HEADERS,[]);
   ensureSheet_(ss,'Offers',OFFER_HEADERS,[]);
   ensureSheet_(ss,'Activity',ACTIVITY_HEADERS,[]);
+  ensureOthersCategory_();
   ensureFolder_('Rosemoon Product Photos','ROSEMOON_PHOTO_FOLDER_ID');
   ensureFolder_('Rosemoon Music','ROSEMOON_MUSIC_FOLDER_ID');
   PropertiesService.getScriptProperties().setProperty('ROSEMOON_SETUP_DONE','true');
@@ -128,7 +130,23 @@ function requireAdmin_(payload) {
   if(String(payload.adminKey||'')!==ADMIN_KEY) throw new Error('Invalid admin key.');
 }
 
+function ensureOthersCategory_() {
+  const ss=getSpreadsheet_();
+  const categorySheet=ensureSheet_(ss,'Categories',CATEGORY_HEADERS,DEFAULT_CATEGORIES);
+  const categoryValues=categorySheet.getDataRange().getValues();
+  const hasCategory=categoryValues.slice(1).some(row=>String(row[0]||'').trim().toLowerCase()==='others');
+  if(!hasCategory) {
+    const maxSort=categoryValues.slice(1).reduce((m,row)=>Math.max(m,Number(row[3])||0),0);
+    categorySheet.appendRow(['others','Others',true,maxSort+1]);
+  }
+  const productSheet=ensureSheet_(ss,'Products',PRODUCT_HEADERS,DEFAULT_PRODUCTS);
+  const productValues=productSheet.getDataRange().getValues();
+  const hasProduct=productValues.slice(1).some(row=>String(row[0]||'').trim().toLowerCase()==='others' || String(row[1]||'').trim().toLowerCase()==='others');
+  if(!hasProduct) productSheet.appendRow(['others','Others','Others',0,0,'',true,false,false,'']);
+}
+
 function getProducts_() {
+  ensureOthersCategory_();
   const sheet=ensureSheet_(getSpreadsheet_(),'Products',PRODUCT_HEADERS,DEFAULT_PRODUCTS);
   const values=sheet.getDataRange().getValues();
   const products=[];
@@ -450,6 +468,7 @@ function getCustomers_() {
 }
 
 function getCategories_() {
+  ensureOthersCategory_();
   const sheet=ensureSheet_(getSpreadsheet_(),'Categories',CATEGORY_HEADERS,DEFAULT_CATEGORIES);
   const values=sheet.getDataRange().getValues();
   const categories=[];
