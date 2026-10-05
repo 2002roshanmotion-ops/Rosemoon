@@ -477,10 +477,14 @@
       this.loading[key]=(async()=>{
         try{
           if(s[2]){
-            const r=await fetch(`${API_URL}?action=musicFile&fileId=${encodeURIComponent(s[2])}&_=${Date.now()}`,{cache:"no-store"});
-            const d=await r.json();
-            if(!d.success||!d.base64)throw new Error("Music file unavailable");
-            const src=`data:audio/mpeg;base64,${d.base64}`;this.cache[key]=src;return src;
+            const controller=new AbortController();
+            const timer=setTimeout(()=>controller.abort(),8000);
+            try{
+              const r=await fetch(`${API_URL}?action=musicFile&fileId=${encodeURIComponent(s[2])}&_=${Date.now()}`,{cache:"no-store",signal:controller.signal});
+              const d=await r.json();
+              if(!d.success||!d.base64)throw new Error("Music file unavailable");
+              const src=`data:audio/mpeg;base64,${d.base64}`;this.cache[key]=src;return src;
+            }finally{clearTimeout(timer)}
           }
           this.cache[key]=s[1];return s[1];
         }catch(e){return null}finally{delete this.loading[key]}})();
@@ -599,7 +603,7 @@
   async function prepareFirstMusic(){
     if(!music.songs.length){setLoading(76,"No music yet");return;}
     setLoading(60,"Preparing first song…");
-    await music.prepare(0);
+    await Promise.race([music.prepare(0),new Promise(r=>setTimeout(r,3000))]);
     setLoading(78,"Getting music ready…");
     // Start preparing the remaining tracks in the background; do not block the shop.
     for(let i=1;i<music.songs.length;i++){
