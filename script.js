@@ -446,7 +446,7 @@
   function addItem(item,silent=false,source=null){
     // Different colors of the same flower are separate cart lines.
     const stock=itemStockFor(item);
-    const itemColor=String(item?.color||'Default');
+    const itemColor=String(item?.color||'Color 1');
     const existing=cart.find(x=>x.id===item.id&&x.type===item.type&&String(x?.color||'Color 1')===itemColor);
     if((existing?.qty||0)>=stock){toast("Stock limit reached");return false}
     if(existing)existing.qty++;else cart.push({...item,color:itemColor,qty:1});
@@ -487,7 +487,7 @@
     const dc=document.getElementById("deliveryCharge");if(dc)dc.textContent=money(delivery);
     document.getElementById("cartTotal").textContent=money(total);
     if(!cart.length){box.innerHTML='<p class="cart-empty">Your cart is empty. 🌷</p>';return}
-    box.innerHTML=cart.map((x,i)=>{const cartImage=cartImageFor(x);return `<div class="cart-item"><div class="cart-icon">${cartImage?`<img src="${escapeAttr(cartImage)}" alt="" style="width:42px;height:42px;object-fit:contain;border-radius:10px">`:x.emoji}</div><div class="cart-info"><strong>${escapeHtml(x.name||x.size)}</strong><small>${escapeHtml(x.type)}${x.color&&x.color!=='Default'?' · '+escapeHtml(x.color):''} · ${money(x.price)}</small></div><div class="qty"><button data-q="-" data-i="${i}">−</button><b>${x.qty}</b><button data-q="+" data-i="${i}">+</button></div><button class="remove" data-q="x" data-i="${i}">×</button></div>`}).join("");
+    box.innerHTML=cart.map((x,i)=>{const cartImage=cartImageFor(x);return `<div class="cart-item"><div class="cart-icon">${cartImage?`<img src="${escapeAttr(cartImage)}" alt="" style="width:42px;height:42px;object-fit:contain;border-radius:10px">`:x.emoji}</div><div class="cart-info"><strong>${escapeHtml(x.name||x.size)}</strong><small>${escapeHtml(x.type)}${x.color&&x.color!=='Color 1'?' · '+escapeHtml(x.color):''} · ${money(x.price)}</small></div><div class="qty"><button data-q="-" data-i="${i}">−</button><b>${x.qty}</b><button data-q="+" data-i="${i}">+</button></div><button class="remove" data-q="x" data-i="${i}">×</button></div>`}).join("");
   }
   document.getElementById("deliveryLocation")?.addEventListener("change",()=>renderCart());
   document.getElementById("cartItems")?.addEventListener("click",e=>{const b=e.target.closest("[data-q]");if(!b)return;const i=+b.dataset.i,x=cart[i];if(!x)return;if(b.dataset.q==="+"&&x.qty<itemStockFor(x))x.qty++;if(b.dataset.q==="-")x.qty--;if(b.dataset.q==="x"||x.qty<=0)cart.splice(i,1);saveCart();renderCart()});
