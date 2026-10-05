@@ -639,6 +639,37 @@
     return music.songs.length;
   }
 
+  function collectProductImageUrls(){
+    const urls=new Set();
+    products.filter(p=>p&&p.active!==false).forEach(p=>{
+      const categoryImage=categoryImageFor(p);
+      if(categoryImage)urls.add(categoryImage);
+      try{
+        const d=JSON.parse(String(p.description||''));
+        if(d&&Array.isArray(d.options)) d.options.forEach(o=>{
+          const image=driveImageUrl(o?.imageUrl);
+          if(image)urls.add(image);
+          if(Array.isArray(o?.colors)) o.colors.forEach(c=>{
+            const colorImage=driveImageUrl(c?.imageUrl);
+            if(colorImage)urls.add(colorImage);
+          });
+        });
+      }catch(e){}
+    });
+    return [...urls];
+  }
+
+  async function preloadProductImages(waitMs=4000){
+    const urls=collectProductImageUrls();
+    if(!urls.length)return;
+    const loads=urls.map(url=>new Promise(resolve=>{
+      const img=new Image();
+      const done=()=>{img.onload=img.onerror=null;resolve()};
+      img.onload=done;img.onerror=done;img.src=url;
+    }));
+    await Promise.race([Promise.all(loads),new Promise(resolve=>setTimeout(resolve,waitMs))]);
+  }
+
   async function prepareFirstMusic(){
     if(!music.songs.length){setLoading(76,"No music yet");return;}
     setLoading(60,"Preparing first 5 songs…");
@@ -660,27 +691,27 @@
   (async()=>{
     setLoading(8,"Loading Rosemoon…");
     try{
-      try{
-        await syncProducts();
-        setLoading(42,"Loading music…");
-      }catch(e){
-        console.warn("Rosemoon product startup sync failed; using local products.",e);
-        setLoading(42,"Loading music…");
-      }
-
-      try{
-        await syncMusic();
-        await prepareFirstMusic();
-      }catch(e){
-        console.warn("Rosemoon music startup sync failed; continuing without music.",e);
-        setLoading(82,"Finishing Rosemoon…");
-      }
+      setLoading(24,"Loading products & inventory…");
+      const productTask=syncProducts();
+      const musicTask=syncMusic();
+      await Promise.all([productTask,musicTask]);
+      setLoading(48,"Preparing music & images…");
+      await Promise.all([
+        prepareFirstMusic(),
+        preloadProductImages(4000)
+      ]);
+      setLoading(92,"Finishing Rosemoon…");
     }catch(e){
       console.error("Rosemoon startup error:",e);
+      setLoading(92,"Finishing Rosemoon…");
+      // Keep the local products/cart available even if a remote startup task fails.
+      try{renderProducts();renderCart();}catch(renderError){console.warn("Rosemoon fallback render failed.",renderError)}
     }finally{
       try{renderProducts();renderCart();}catch(e){console.warn("Rosemoon final render failed.",e)}
       if(start)start.disabled=false;
       finishLoading();
+      // Any images not completed during startup continue loading without blocking the shop.
+      preloadProductImages(0).catch(()=>{});
     }
   })();
   setInterval(syncProducts,30000);setInterval(syncMusic,30000);
