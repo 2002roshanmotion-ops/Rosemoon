@@ -551,10 +551,21 @@
       if(!src){document.getElementById("songStatus").textContent="Music unavailable";return false;}
       this.audio.pause();
       this.audio.playbackRate=1;
+      this.audio.preload="auto";
       if(this.audio.src!==src){this.audio.src=src;this.audio.currentTime=0;}
-      // This play() call is intentionally synchronous with the user's click.
       const p=this.audio.play();
-      if(p&&typeof p.catch==="function")p.catch(()=>{this.state(false);document.getElementById("songStatus").textContent="Click ▶ to play";});
+      if(p&&typeof p.catch==="function")p.catch(async()=>{
+        const prepared=await this.prepare(this.index);
+        if(prepared&&this.audio.paused){
+          try{
+            if(this.audio.src!==prepared){this.audio.src=prepared;this.audio.currentTime=0;this.audio.load();}
+            await this.audio.play();
+            return;
+          }catch(e){}
+        }
+        this.state(false);
+        document.getElementById("songStatus").textContent="Tap ▶ to play";
+      });
       return true;
     },
     async play(){
