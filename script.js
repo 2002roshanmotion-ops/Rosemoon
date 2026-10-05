@@ -206,12 +206,12 @@
       const type=String(o.type||'Flower 1'),emoji=String(o.emoji||'🌸'),stock=Math.max(0,Number(o.stock)||0),imageUrl=driveImageUrl(o.imageUrl);
       const isDecoration=type.trim().toLowerCase()==='decoration';
       const art=imageUrl?`<img class="${isDecoration?'decoration-full-image':''}" src="${escapeAttr(imageUrl)}" alt="${escapeAttr(type)}">`:emoji;
-      const selectedColorStock=Math.max(0,Number(colors[0]?.stock ?? stock)||0); const stockClass=selectedColorStock===0?"out":selectedColorStock<=2?"low":"";
+      const stockClass=stock===0?"out":stock<=2?"low":"";
       return `<article class="flower-popup-card flower-popup-choice-card" data-flower-type="${escapeAttr(type)}" data-open-flower="${escapeAttr(type)}" tabindex="0" role="button" aria-label="Open ${escapeAttr(type)}">
         <div class="flower-popup-art">${art}</div>
         <h3>${escapeHtml(type)}</h3>
         <div class="flower-popup-price">${money(Math.max(0,Number(o.price ?? popupProduct.price ?? 0)))}</div>
-        <div class="flower-popup-stock ${stockClass}" data-selected-stock="${escapeAttr(colorId)}">${selectedColorStock===0?"Sold out":selectedColorStock+" in stock"}</div>
+        <div class="flower-popup-stock ${stockClass}">${stock===0?"Sold out":stock+" in stock"}</div>
         <button type="button" class="flower-popup-view-button">View Flower →</button>
       </article>`;
     }).join("");
@@ -228,7 +228,7 @@
     const colors=(Array.isArray(o.colors)&&o.colors.length?o.colors:[{name:'Color 1',stock, imageUrl:imageUrl},{name:'Color 2',stock:0,imageUrl:''},{name:'Color 3',stock:0,imageUrl:''}]);
     const colorId='flowerColor_'+popupProduct.id+'_'+categoryOptions(popupProduct).indexOf(o);
     const art=imageUrl?`<img class="${isDecoration?'decoration-full-image':''}" data-color-image="${escapeAttr(colorId)}" src="${escapeAttr(imageUrl)}" alt="${escapeAttr(o.type)}">`:emoji;
-    const stockClass=stock===0?"out":stock<=2?"low":"";
+    const selectedColorStock=Math.max(0,Number(colors[0]?.stock ?? stock)||0), stockClass=selectedColorStock===0?"out":selectedColorStock<=2?"low":"";
     const colorHtml=`<div class="flower-color-label">Color</div><div class="flower-color-options">${colors.map((c,ci)=>`<button type="button" class="flower-color-choice ${ci===0?"selected":""}" ${Math.max(0,Number(c.stock)||0)<=0?"disabled":""} data-color-choice="${escapeAttr(colorId)}" data-color-index="${ci}" data-type="${escapeAttr(o.type)}">${escapeHtml(c.name)} · ${Math.max(0,Number(c.stock)||0)} left</button>`).join("")}</div>`;
     sub.innerHTML=`<span>${escapeHtml(popupProduct.name)} · ${escapeHtml(o.type)}</span>`;
     grid.innerHTML=`<article class="flower-popup-card flower-popup-detail-card" data-flower-type="${escapeAttr(o.type)}" data-selected-color="${escapeAttr(colors[0]?.name||'Color 1')}" data-selected-color-image="${escapeAttr(colors[0]?.imageUrl||imageUrl)}">
@@ -236,7 +236,7 @@
       <h3>${escapeHtml(o.type)}</h3>
       <div class="flower-popup-price">${money(price)}</div>
       ${colorHtml}
-      <div class="flower-popup-stock ${stockClass}">${stock===0?"Sold out":stock+" in stock"}</div>
+      <div class="flower-popup-stock ${stockClass}" data-selected-stock="${escapeAttr(colorId)}">${selectedColorStock===0?"Sold out":selectedColorStock+" in stock"}</div>
       <button type="button" data-popup-buy data-type="${escapeAttr(o.type)}" data-emoji="${escapeAttr(emoji)}" ${selectedColorStock===0?'disabled':''}>🛒 Add to Cart</button>
     </article>`;
   }
