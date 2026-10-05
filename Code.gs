@@ -63,7 +63,7 @@ function ensureSheet_(ss,name,headers,defaults) {
   let sheet=ss.getSheetByName(name);
   if(!sheet) sheet=ss.insertSheet(name);
   sheet.getRange(1,1,1,headers.length).setValues([headers]);
-  if(sheet.getLastRow()===1 && defaults && defaults.length) {
+  if(sheet.getLastRow()===1 && defaults && defaults.length && name!=='Products' && name!=='Categories') {
     sheet.getRange(2,1,defaults.length,headers.length).setValues(defaults);
   }
   sheet.setFrozenRows(1);
@@ -131,6 +131,7 @@ function requireAdmin_(payload) {
 }
 
 function ensureOthersCategory_() {
+  return;
   const ss=getSpreadsheet_();
   const categorySheet=ensureSheet_(ss,'Categories',CATEGORY_HEADERS,DEFAULT_CATEGORIES);
   const categoryValues=categorySheet.getDataRange().getValues();
