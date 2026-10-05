@@ -151,6 +151,11 @@ body.flower-popup-open{position:fixed;width:100%;overflow:hidden;overscroll-beha
 .flower-popup-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:stretch}
 .flower-popup-card{min-width:0;display:flex;flex-direction:column}
 .flower-popup-card button{margin-top:auto}
+.flower-popup-detail-card{grid-column:1/-1;max-width:720px;margin:0 auto;width:100%;padding:18px;border-radius:24px;background:#fff;border:1px solid #ead5de;box-shadow:0 18px 50px rgba(50,20,32,.10)}
+.flower-popup-detail-card .flower-popup-art{height:min(52vh,480px);min-height:300px;margin-bottom:16px;border-radius:20px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#fff7fa}
+.flower-popup-detail-card .flower-popup-art img{width:100%;height:100%;object-fit:contain;display:block}
+.flower-popup-choice-card .flower-popup-art img{width:100%;height:100%;object-fit:contain;display:block}
+.flower-popup-view-button{margin-top:10px!important;width:100%;padding:10px 12px;border:1px solid #ead5de;border-radius:12px;background:#fff0f5;color:#7e3e58;font-weight:800;cursor:pointer}
 
 .flower-popup-panel::-webkit-scrollbar{width:7px}
 .flower-popup-panel::-webkit-scrollbar-thumb{background:#d9b2c1;border-radius:20px}
@@ -166,8 +171,12 @@ body.flower-popup-open{position:fixed;width:100%;overflow:hidden;overscroll-beha
   .flower-popup-close{width:40px;height:40px;flex:0 0 40px}
   .flower-popup-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
   .flower-popup-card{padding:10px;border-radius:17px}
-  .flower-popup-art{height:180px;margin-bottom:12px;border-radius:16px;font-size:60px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#fff7fa}.flower-popup-art img{width:100%;height:100%;object-fit:contain;display:block}
-  .flower-popup-art img{width:100%;height:100%;object-fit:cover;display:block}
+  .flower-popup-art{height:180px;margin-bottom:12px;border-radius:16px;font-size:60px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#fff7fa}
+  .flower-popup-art img{width:100%;height:100%;object-fit:contain;display:block}
+  .flower-popup-detail-card{grid-column:1/-1;padding:12px;border-radius:20px}
+  .flower-popup-detail-card .flower-popup-art{height:min(58vh,430px);min-height:250px;margin-bottom:14px;border-radius:18px}
+  .flower-popup-detail-card h3{font-size:19px}
+  .flower-popup-detail-card .flower-popup-price{font-size:18px}
   .flower-popup-card h3{font-size:15px;line-height:1.2}
   .flower-popup-price{font-size:16px;margin-bottom:5px}
   .flower-popup-stock{font-size:10px;margin-bottom:8px}
