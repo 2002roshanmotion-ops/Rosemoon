@@ -40,7 +40,7 @@
           emoji:String(o?.emoji||choices[i]?.[1]||'🌸'),
           stock:Math.max(0,Number(o?.stock)||0),
           price:Math.max(0,Number(o?.price ?? product?.price ?? 0)),
-          imageUrl:(driveImageUrl(o?.imageUrl)||((String(o?.type||'').trim().toLowerCase()==='decoration')?'assets/Decoration.webp':driveImageUrl(product?.imageUrl)||categoryImageFor(product)||'')),
+          imageUrl:driveImageUrl(o?.imageUrl)||'',
           colors:(()=>{const saved=Array.isArray(o?.colors)?o.colors:[];return saved.map(c=>({name:String(c?.name||'Color'),stock:Object.prototype.hasOwnProperty.call(c,'stock')?Math.max(0,Number(c.stock)||0):Math.max(0,Number(o?.stock)||0),imageUrl:driveImageUrl(c?.imageUrl)||''}));})()
         }));
       }
