@@ -368,7 +368,7 @@ async function saveCategoryManager(){
     btn.disabled=true;msg.textContent='Saving category…';
     const oldOpts=categoryData(p).options||[],rows=[...document.querySelectorAll('#manageFlowerOptions [data-manage-flower]')],options=[];
     for(const row of rows){
-      const i=Number(row.dataset.manageFlower),type=String($('manageFlowerName'+i)?.value||'').trim(),price=Math.max(0,Math.floor(Number($('manageFlowerPrice'+i)?.value)||0)),qty=Math.max(0,Math.floor(Number($('manageFlowerStock'+i)?.value)||0)),file=$('manageFlowerPhoto'+i)?.files?.[0],old=oldOpts[i]||{};
+      const i=Number(row.dataset.manageFlower),type=String($('manageFlowerName'+i)?.value||'').trim(),file=$('manageFlowerPhoto'+i)?.files?.[0],old=oldOpts[i]||{};
       // Existing flowers must never disappear just because their input is temporarily blank.
       // Newly added blank rows are ignored, while saved existing rows are preserved.
       if(!type){
@@ -378,7 +378,7 @@ async function saveCategoryManager(){
       let imageUrl=old.imageUrl||'';
       if(file){msg.textContent='Uploading '+type+'…';imageUrl=(await api('uploadPhoto',{dataUrl:await readDataUrl(file),fileName:file.name})).url||imageUrl}
       // Photo replacement is optional; keep the existing image when no new file is selected.
-      const colors=[]; row.querySelectorAll('[data-manage-color]').forEach(cr=>{const j=Number(cr.dataset.manageColor),n=String($('manageFlowerColorName'+i+'_'+j)?.value||'').trim(),cs=Math.max(0,Math.floor(Number($('manageFlowerColorStock'+i+'_'+j)?.value)||0)),f=$('manageFlowerColorPhoto'+i+'_'+j)?.files?.[0];if(n)colors.push({name:n,stock:cs,enabled:$("manageFlowerColorEnabled"+i+"_"+j)?.checked!==false,file:f,old:(old.colors||[])[j]||{}})}); for(const c of colors){if(c.file)c.imageUrl=(await api('uploadPhoto',{dataUrl:await readDataUrl(c.file),fileName:c.file.name})).url||c.old.imageUrl||'';else c.imageUrl=c.old.imageUrl||'';} options.push({...old,type,price,stock:qty,imageUrl,colors:colors.map(c=>({name:c.name,stock:c.stock,imageUrl:c.imageUrl}))});
+      const colors=[]; row.querySelectorAll('[data-manage-color]').forEach(cr=>{const j=Number(cr.dataset.manageColor),n=String($('manageFlowerColorName'+i+'_'+j)?.value||'').trim(),cs=Math.max(0,Math.floor(Number($('manageFlowerColorStock'+i+'_'+j)?.value)||0)),f=$('manageFlowerColorPhoto'+i+'_'+j)?.files?.[0];if(n)colors.push({name:n,stock:cs,enabled:$("manageFlowerColorEnabled"+i+"_"+j)?.checked!==false,file:f,old:(old.colors||[])[j]||{}})}); for(const c of colors){if(c.file)c.imageUrl=(await api('uploadPhoto',{dataUrl:await readDataUrl(c.file),fileName:c.file.name})).url||c.old.imageUrl||'';else c.imageUrl=c.old.imageUrl||'';} options.push({...old,type,price:old.price??p.price??0,stock:old.stock??0,imageUrl,colors:colors.map(c=>({name:c.name,stock:c.stock,imageUrl:c.imageUrl}))});
     }
     if(!options.length)throw new Error('Add at least one flower.');
     let imageUrl=p.imageUrl||'';const mainFile=$('manageCategoryPhoto')?.files?.[0];
