@@ -510,7 +510,12 @@ async function saveCategoryManager(){
     const oldOpts=categoryData(p).options||[],rows=[...document.querySelectorAll('#manageFlowerOptions [data-manage-flower]')],options=[];
     for(const row of rows){
       const i=Number(row.dataset.manageFlower),type=String($('manageFlowerName'+i)?.value||'').trim(),price=Math.max(0,Math.floor(Number($('manageFlowerPrice'+i)?.value)||0)),qty=Math.max(0,Math.floor(Number($('manageFlowerStock'+i)?.value)||0)),file=$('manageFlowerPhoto'+i)?.files?.[0],old=oldOpts[i]||{};
-      if(!type)continue;
+      // Existing flowers must never disappear just because their input is temporarily blank.
+      // Newly added blank rows are ignored, while saved existing rows are preserved.
+      if(!type){
+        if(old.type) options.push({...old});
+        continue;
+      }
       let imageUrl=old.imageUrl||'';
       if(file){msg.textContent='Uploading '+type+'…';imageUrl=(await api('uploadPhoto',{dataUrl:await readDataUrl(file),fileName:file.name})).url||imageUrl}
       // Photo replacement is optional; keep the existing image when no new file is selected.
