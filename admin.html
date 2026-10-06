@@ -549,12 +549,7 @@ function adminCategoryImageFor(p){
   return driveAdminImageUrl(p?.imageUrl)||'';
 }
 function adminFlowerImageFor(o,p){
-  // Mirror the customer website's exact flower-image resolution.
-  const saved=driveAdminImageUrl(o?.imageUrl);
-  if(saved)return saved;
-  const type=String(o?.type||'').trim().toLowerCase();
-  if(type==='decoration')return 'assets/Decoration.webp';
-  return driveAdminImageUrl(p?.imageUrl)||adminCategoryImageFor(p)||'';
+  return driveAdminImageUrl(o?.imageUrl)||'';
 }
 function getCategoryOrderValue(p){try{const d=categoryData(p);const n=Number(d.categorySort);return Number.isFinite(n)?n:9999}catch(e){return 9999}}
 function websiteCategorySortKey(p){
