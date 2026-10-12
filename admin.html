@@ -441,6 +441,16 @@ async function saveCategoryManager(){
 $('manageCategorySelect')?.addEventListener('change',renderCategoryManager);
 $('saveCategoryBtn')?.addEventListener('click',saveCategoryManager);
 $('manageCategoryPhoto')?.addEventListener('change',async()=>{const file=$('manageCategoryPhoto').files?.[0],box=$('manageCategoryPhotoPreview');if(!box)return;if(!file){box.innerHTML='';return}try{const url=await readDataUrl(file);box.innerHTML='<img src="'+esc(url)+'" alt="" style="width:120px;height:120px;object-fit:contain;border-radius:14px;background:#fff;border:1px solid #f0e2e7">'}catch(e){box.innerHTML=''}});
+function populateCategoryManager(){
+  const s=$('manageCategorySelect');
+  if(!s)return;
+  const previous=String(s.value||'');
+  const categories=products.filter(isCategoryProduct);
+  s.innerHTML='<option value="">Choose a category</option>'+categories.map(p=>'<option value="'+esc(String(p.id))+'">'+esc(String(p.name||p.category||'Unnamed category'))+'</option>').join('');
+  if(categories.some(p=>String(p.id)===previous))s.value=previous;
+  else s.value='';
+  renderCategoryManager();
+}
 function renderCategoryManager(){
   const s=$('manageCategorySelect'),box=$('manageFlowerOptions');
   if(!s||!box)return;
