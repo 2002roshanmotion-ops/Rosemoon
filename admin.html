@@ -409,6 +409,45 @@ async function replaceManageFlowerImage(index){
     if(msg)msg.textContent='New image selected. Save Changes to replace the current image.';
   }catch(e){if(msg)msg.textContent='❌ '+e.message}
 }
+function nextManageFlowerIndex(){
+  const rows=[...document.querySelectorAll('#manageFlowerOptions [data-manage-flower]')];
+  return rows.reduce((max,row)=>Math.max(max,Number(row.dataset.manageFlower)||0),-1)+1;
+}
+function addManageFlowerRow(){
+  const box=$('manageFlowerOptions');
+  if(!box)return;
+  if(box.querySelector('.empty'))box.innerHTML='';
+  let wrap=box.querySelector(':scope > div');
+  if(!wrap||!wrap.querySelector('[data-manage-flower]')){
+    wrap=document.createElement('div');wrap.style.display='grid';wrap.style.gap='10px';box.prepend(wrap);
+  }
+  const i=nextManageFlowerIndex();
+  wrap.insertAdjacentHTML('beforeend','<div class="flower-manager-row" data-manage-flower="'+i+'"><div style="grid-column:1/-1"><label>FLOWER NAME</label><input id="manageFlowerName'+i+'" type="text" placeholder="e.g. Pink Lily"></div><div class="flower-image-section" style="grid-column:1/-1"><label>FLOWER IMAGE</label><div class="flower-photo-preview"></div><input id="manageFlowerPhoto'+i+'" type="file" accept="image/png,image/jpeg,image/webp,image/gif" onchange="replaceManageFlowerImage('+i+')"><div id="manageFlowerPhotoMsg'+i+'" class="hint" style="margin-top:4px"></div></div><div style="grid-column:1/-1"><label>COLOR OPTIONS</label><div id="manageFlowerColors'+i+'" style="display:grid;gap:10px"></div><button class="secondary" type="button" onclick="addManageFlowerColorRow('+i+')" style="margin-top:8px">＋ Add Color</button></div><button class="danger remove-flower" type="button" onclick="removeManageFlowerRow('+i+')">Remove</button></div>');
+  $('manageFlowerName'+i)?.focus();
+  const msg=$('manageCategoryMessage');if(msg)msg.textContent='New flower row added. Enter a name, then Save Changes.';
+}
+function removeManageFlowerRow(index){
+  const row=document.querySelector('#manageFlowerOptions [data-manage-flower="'+index+'"]');
+  if(row)row.remove();
+  const box=$('manageFlowerOptions');
+  if(box&&!box.querySelector('[data-manage-flower]'))box.innerHTML='<div class="empty">No flowers added yet. Use ＋ Add Flower to add one.</div>';
+}
+function addManageFlowerColorRow(flowerIndex){
+  const box=$('manageFlowerColors'+flowerIndex);if(!box)return;
+  const rows=[...box.querySelectorAll('[data-manage-color]')];
+  const j=rows.reduce((max,row)=>Math.max(max,Number(row.dataset.manageColor)||0),-1)+1;
+  box.insertAdjacentHTML('beforeend','<div class="color-option-row" data-manage-color="'+j+'"><div class="color-option-title">Color option</div><input id="manageFlowerColorName'+flowerIndex+'_'+j+'" type="text" placeholder="Color name"><input id="manageFlowerColorStock'+flowerIndex+'_'+j+'" type="number" min="0" step="1" value="0" placeholder="Stock"><div class="color-photo-preview" style="width:120px;height:120px;display:grid;place-items:center;border:1px solid #f0e2e7;border-radius:14px;background:#fff;overflow:hidden"></div><input id="manageFlowerColorPhoto'+flowerIndex+'_'+j+'" type="file" accept="image/*" onchange="previewManageFlowerColorImage('+flowerIndex+','+j+')"><button class="secondary" type="button" onclick="removeManageFlowerColorRow('+flowerIndex+','+j+')">Remove</button></div>');
+  $('manageFlowerColorName'+flowerIndex+'_'+j)?.focus();
+}
+function previewManageFlowerColorImage(flowerIndex,colorIndex){
+  const input=$('manageFlowerColorPhoto'+flowerIndex+'_'+colorIndex),row=input?.closest('[data-manage-color]'),preview=row?.querySelector('.color-photo-preview'),file=input?.files?.[0];
+  if(!preview||!file)return;
+  readDataUrl(file).then(url=>{preview.innerHTML='<img src="'+esc(url)+'" alt="" style="width:100%;height:100%;object-fit:contain">'}).catch(e=>{const msg=$('manageCategoryMessage');if(msg)msg.textContent='❌ '+e.message});
+}
+function removeManageFlowerColorRow(flowerIndex,colorIndex){
+  const row=document.querySelector('#manageFlowerColors'+flowerIndex+' [data-manage-color="'+colorIndex+'"]');
+  if(row)row.remove();
+}
 async function saveCategoryManager(){
   const msg=$('manageCategoryMessage'),btn=$('saveCategoryBtn'),s=$('manageCategorySelect');
   const p=products.find(x=>String(x.id)===String(s?.value));
