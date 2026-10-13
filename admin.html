@@ -266,8 +266,12 @@ function categoryData(p){
 }
 function isCategoryProduct(p){
   const d=categoryData(p);
-  // Match the customer website: any truthy saved category marker with a non-empty options array.
-  return !!d.rosemoonCategory&&Array.isArray(d.options)&&d.options.length>0;
+  const isSavedCategory=!!d.rosemoonCategory&&Array.isArray(d.options)&&d.options.length>0;
+  // The shop can display an existing product named "Others" even when its saved
+  // description has no category marker. Keep that existing record selectable here.
+  const isOthersRecord=String(p?.name||'').trim().toLowerCase()==='others'||
+    String(p?.category||'').trim().toLowerCase()==='others';
+  return isSavedCategory||isOthersRecord;
 }
 async function refreshAdminData(preferredCategoryId){
   const d=await api('products');
