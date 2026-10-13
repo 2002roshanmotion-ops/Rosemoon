@@ -266,7 +266,8 @@ function categoryData(p){
 }
 function isCategoryProduct(p){
   const d=categoryData(p);
-  return d.rosemoonCategory===true&&Array.isArray(d.options);
+  // Match the customer website: any truthy saved category marker with a non-empty options array.
+  return !!d.rosemoonCategory&&Array.isArray(d.options)&&d.options.length>0;
 }
 async function refreshAdminData(preferredCategoryId){
   const d=await api('products');
