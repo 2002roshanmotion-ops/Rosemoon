@@ -650,23 +650,50 @@
       "",
       "Please confirm stock and delivery before I make payment."
     ].join("\n");
+    let messageTitle=document.getElementById("tiktokOrderMessageTitle");
     let messageBox=document.getElementById("tiktokOrderMessage");
     if(!messageBox){
+      messageTitle=document.createElement("p");
+      messageTitle.id="tiktokOrderMessageTitle";
+      messageTitle.textContent="Your order message — copy this before opening TikTok:";
+      messageTitle.style.cssText="margin:14px 0 6px;font-weight:700";
       messageBox=document.createElement("textarea");
       messageBox.id="tiktokOrderMessage";
-      messageBox.rows=10;
+      messageBox.rows=12;
       messageBox.readOnly=true;
       messageBox.setAttribute("aria-label","Order message to copy into TikTok");
-      messageBox.style.cssText="display:block;width:100%;box-sizing:border-box;margin:12px 0;padding:12px;border:1px solid #e6cbd6;border-radius:12px;background:#fff;font:inherit;white-space:pre-wrap";
+      messageBox.style.cssText="display:block;width:100%;box-sizing:border-box;margin:0 0 10px;padding:12px;border:1px solid #e6cbd6;border-radius:12px;background:#fff;font:inherit;white-space:pre-wrap";
+      document.getElementById("orderForm").insertBefore(messageTitle,note);
       document.getElementById("orderForm").insertBefore(messageBox,note);
     }
+    if(messageTitle)messageTitle.style.display="block";
     messageBox.value=message;
     messageBox.style.display="block";
     const tiktokUrl="https://www.tiktok.com/@smoon991";
-    const tiktokWindow=window.open(tiktokUrl,"_blank","noopener,noreferrer");
-    let copied=false;
-    try{if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(message);copied=true}}catch(err){}
-    if(!copied){messageBox.focus();messageBox.select()}
+    let copyButton=document.getElementById("copyTikTokOrderMessage");
+    if(!copyButton){
+      copyButton=document.createElement("button");
+      copyButton.id="copyTikTokOrderMessage";
+      copyButton.type="button";
+      copyButton.textContent="Copy Order Message";
+      copyButton.style.cssText="display:block;width:100%;margin:8px 0;padding:12px;border:0;border-radius:12px;background:#e6cbd6;color:#351b29;font:inherit;font-weight:700;cursor:pointer";
+      copyButton.addEventListener("click",async()=>{
+        const box=document.getElementById("tiktokOrderMessage");
+        const status=document.getElementById("formNote");
+        try{
+          if(navigator.clipboard&&navigator.clipboard.writeText){
+            await navigator.clipboard.writeText(box.value);
+            status.textContent="Order message copied. Now tap Open TikTok, open your messages, paste, and send it.";
+            return;
+          }
+        }catch(err){}
+        box.focus();
+        box.select();
+        status.textContent="The message is selected. Use Copy if your browser shows it, then open TikTok and paste it into your messages.";
+      });
+      document.getElementById("orderForm").insertBefore(copyButton,note);
+    }
+    copyButton.style.display="block";
     let profileLink=document.getElementById("tiktokOrderProfileLink");
     if(!profileLink){
       profileLink=document.createElement("a");
@@ -674,10 +701,11 @@
       profileLink.href=tiktokUrl;
       profileLink.target="_blank";
       profileLink.rel="noopener noreferrer";
-      profileLink.textContent="Open Rosemoon on TikTok";
-      profileLink.style.cssText="display:inline-block;margin:8px 0;font-weight:700";
+      profileLink.textContent="Open TikTok @smoon991";
+      profileLink.style.cssText="display:block;box-sizing:border-box;text-align:center;margin:8px 0;padding:12px;border:1px solid #e6cbd6;border-radius:12px;font-weight:700;text-decoration:none";
       document.getElementById("orderForm").insertBefore(profileLink,note);
     }
+    profileLink.style.display="block";
     playUISound("order");
     note.textContent="Your order message is shown above. Tap Copy Order Message, then Open TikTok @smoon991, open your messages, paste the message, and send it. Your order is not confirmed until you send the DM and Rosemoon replies.";
   });
