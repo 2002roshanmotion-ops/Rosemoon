@@ -679,10 +679,7 @@
       document.getElementById("orderForm").insertBefore(profileLink,note);
     }
     playUISound("order");
-    note.textContent=copied
-      ?"Order message copied. In TikTok, open your messages, open Rosemoon, paste the message, and send it. Your order is not confirmed until you send the DM and Rosemoon replies."
-      :"Your order message is ready below. Copy it, open TikTok, open Rosemoon messages, paste it, and send. Your order is not confirmed until Rosemoon replies.";
-    if(!tiktokWindow)note.textContent+=" If TikTok did not open, use the profile link below.";
+    note.textContent="Your order message is shown above. Tap Copy Order Message, then Open TikTok @smoon991, open your messages, paste the message, and send it. Your order is not confirmed until you send the DM and Rosemoon replies.";
   });
 
   async function fetchWithTimeout(url,options={},timeoutMs=8000){
