@@ -619,13 +619,70 @@
   });document.getElementById("nextSong")?.addEventListener("click",()=>music.next());document.getElementById("prevSong")?.addEventListener("click",()=>music.prev());document.getElementById("muteMusic")?.addEventListener("click",e=>{music.init();music.audio.muted=!music.audio.muted;e.currentTarget.textContent=music.audio.muted?"🔇":"🔊"});
 
   document.getElementById("orderForm")?.addEventListener("submit",async e=>{
-    e.preventDefault();const note=document.getElementById("formNote");if(!cart.length){note.textContent="Add a bouquet first.";return}
+    e.preventDefault();
+    const note=document.getElementById("formNote");
+    if(!cart.length){note.textContent="Add a bouquet first.";return}
     const deliveryLocation=document.getElementById("deliveryLocation").value;
     if(!deliveryLocation){note.textContent="Choose a delivery location.";return}
     const deliveryCharge=deliveryLocation==="Pokhara"?150:0;
-    const subtotal=cart.reduce((s,x)=>s+x.qty*x.price,0),total=subtotal+deliveryCharge;for(const x of cart)if(x.qty>itemStockFor(x)){note.textContent=`Not enough stock for ${x.name}.`;return}
-    const items=cart.map(x=>({productId:x.id,name:x.name,type:x.type,color:x.color||'',qty:x.qty,price:x.price}));
-    try{const response=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"placeOrder",customer:{name:document.getElementById("name").value,phone:document.getElementById("phone").value,note:document.getElementById("note").value,payment:document.getElementById("payment").value,deliveryLocation,deliveryCharge},items,total})});const result=await response.json();if(!result.success)throw new Error(result.message||"Order failed");if(Array.isArray(result.products)){products=result.products.filter(p=>p&&p.active!==false);renderProducts()}await syncProducts();playUISound('order');note.textContent=`Order ${result.orderId||""} received.`;cart.length=0;saveCart();renderCart()}catch(err){note.textContent="Order could not be confirmed. Please try again."}
+    const subtotal=cart.reduce((sum,item)=>sum+item.qty*item.price,0);
+    const total=subtotal+deliveryCharge;
+    for(const item of cart){if(item.qty>itemStockFor(item)){note.textContent="Not enough stock for "+item.name+".";return}}
+    const customerName=document.getElementById("name").value.trim();
+    const phone=document.getElementById("phone").value.trim();
+    const deliveryDetails=document.getElementById("note").value.trim();
+    const payment=document.getElementById("payment").value;
+    const orderLines=cart.map(item=>"• "+item.name+(item.color?" ("+item.color+")":"")+(item.type?" — "+item.type:"")+" × "+item.qty+" = Rs. "+(item.qty*item.price).toLocaleString("en-IN"));
+    const message=[
+      "Hello Rosemoon! I'd like to order these ready-made bouquets:",
+      "",
+      ...orderLines,
+      "",
+      "Subtotal: Rs. "+subtotal.toLocaleString("en-IN"),
+      "Delivery ("+deliveryLocation+"): Rs. "+deliveryCharge.toLocaleString("en-IN"),
+      "Total: Rs. "+total.toLocaleString("en-IN"),
+      "",
+      "Name: "+customerName,
+      "Phone: "+phone,
+      "Delivery location: "+deliveryLocation,
+      "Delivery details: "+(deliveryDetails||"Not provided"),
+      "Payment preference: "+payment,
+      "",
+      "Please confirm stock and delivery before I make payment."
+    ].join("\n");
+    let messageBox=document.getElementById("tiktokOrderMessage");
+    if(!messageBox){
+      messageBox=document.createElement("textarea");
+      messageBox.id="tiktokOrderMessage";
+      messageBox.rows=10;
+      messageBox.readOnly=true;
+      messageBox.setAttribute("aria-label","Order message to copy into TikTok");
+      messageBox.style.cssText="display:block;width:100%;box-sizing:border-box;margin:12px 0;padding:12px;border:1px solid #e6cbd6;border-radius:12px;background:#fff;font:inherit;white-space:pre-wrap";
+      document.getElementById("orderForm").insertBefore(messageBox,note);
+    }
+    messageBox.value=message;
+    messageBox.style.display="block";
+    const tiktokUrl="https://www.tiktok.com/@smoon991";
+    const tiktokWindow=window.open(tiktokUrl,"_blank","noopener,noreferrer");
+    let copied=false;
+    try{if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(message);copied=true}}catch(err){}
+    if(!copied){messageBox.focus();messageBox.select()}
+    let profileLink=document.getElementById("tiktokOrderProfileLink");
+    if(!profileLink){
+      profileLink=document.createElement("a");
+      profileLink.id="tiktokOrderProfileLink";
+      profileLink.href=tiktokUrl;
+      profileLink.target="_blank";
+      profileLink.rel="noopener noreferrer";
+      profileLink.textContent="Open Rosemoon on TikTok";
+      profileLink.style.cssText="display:inline-block;margin:8px 0;font-weight:700";
+      document.getElementById("orderForm").insertBefore(profileLink,note);
+    }
+    playUISound("order");
+    note.textContent=copied
+      ?"Order message copied. In TikTok, open your messages, open Rosemoon, paste the message, and send it. Your order is not confirmed until you send the DM and Rosemoon replies."
+      :"Your order message is ready below. Copy it, open TikTok, open Rosemoon messages, paste it, and send. Your order is not confirmed until Rosemoon replies.";
+    if(!tiktokWindow)note.textContent+=" If TikTok did not open, use the profile link below.";
   });
 
   async function fetchWithTimeout(url,options={},timeoutMs=8000){
