@@ -792,15 +792,28 @@
     return [...urls];
   }
 
-  async function preloadProductImages(waitMs=4000){
-    const urls=collectProductImageUrls();
-    if(!urls.length)return;
-    const loads=urls.map(url=>new Promise(resolve=>{
+  async function preloadProductImages(){
+    const urls=new Set(collectProductImageUrls());
+    // Brand artwork is visible on both the landing page and shopping page.
+    urls.add("https://d2ol7oe51mr4n9.cloudfront.net/user_3JYbYCHyy3naSeG6RhPtSZPxh49/ec2e63b0-a983-4186-a3da-ad6c75b1acf7.png");
+    urls.add("assets/main-flower.webp");
+    const loads=[...urls].filter(Boolean).map(url=>new Promise(resolve=>{
       const img=new Image();
-      const done=()=>{img.onload=img.onerror=null;resolve()};
+      let settled=false;
+      const done=()=>{if(settled)return;settled=true;clearTimeout(timer);img.onload=img.onerror=null;resolve()};
+      const timer=setTimeout(done,15000);
       img.onload=done;img.onerror=done;img.src=url;
+      if(img.complete)done();
     }));
-    await Promise.race([Promise.all(loads),new Promise(resolve=>setTimeout(resolve,waitMs))]);
+    await Promise.allSettled(loads);
+  }
+
+  async function waitForFonts(){
+    if(!document.fonts?.ready)return;
+    await Promise.race([
+      document.fonts.ready,
+      new Promise(resolve=>setTimeout(resolve,8000))
+    ]);
   }
 
   async function prepareFirstMusic(){
@@ -854,33 +867,37 @@
 
   renderProducts();renderCart();window.rosemoonProducts=products;
 
-  // Keep the loading screen as the real startup sequence.
-  // Products load first, then music is fetched/prepared while the loader remains visible.
+  // Complete the important first-visit work before revealing the landing page.
+  // Each independent task is allowed to finish even if another service is unavailable.
+  if(start)start.disabled=true;
   (async()=>{
-    setLoading(8,"Loading Rosemoon…");
+    setLoading(5,"Loading Rosemoon…");
     try{
-      setLoading(24,"Loading products & inventory…");
-      const productTask=syncProducts();
-      const musicTask=syncMusic();
-      const deliveryTask=syncDeliveryPlaces();
-      await Promise.all([productTask,musicTask,deliveryTask]);
-      setLoading(48,"Preparing music & images…");
-      await Promise.all([
-        prepareFirstMusic(),
-        preloadProductImages(4000)
+      setLoading(18,"Loading products & inventory…");
+      const initialTasks=await Promise.allSettled([
+        syncProducts(),
+        syncMusic(),
+        waitForFonts()
       ]);
-      setLoading(92,"Finishing Rosemoon…");
+      initialTasks.forEach((result,index)=>{
+        if(result.status==="rejected")console.warn("Rosemoon startup task failed:",index,result.reason);
+      });
+      setLoading(42,"Preparing flowers, images & music…");
+      const preparation=await Promise.allSettled([
+        prepareFirstMusic(),
+        preloadProductImages()
+      ]);
+      preparation.forEach((result,index)=>{
+        if(result.status==="rejected")console.warn("Rosemoon preparation failed:",index,result.reason);
+      });
+      setLoading(94,"Finishing Rosemoon…");
     }catch(e){
       console.error("Rosemoon startup error:",e);
-      setLoading(92,"Finishing Rosemoon…");
-      // Keep the local products/cart available even if a remote startup task fails.
-      try{renderProducts();renderCart();}catch(renderError){console.warn("Rosemoon fallback render failed.",renderError)}
+      try{renderProducts();renderCart()}catch(renderError){console.warn("Rosemoon fallback render failed.",renderError)}
     }finally{
-      try{renderProducts();renderCart();}catch(e){console.warn("Rosemoon final render failed.",e)}
+      try{renderProducts();renderCart()}catch(e){console.warn("Rosemoon final render failed.",e)}
       if(start)start.disabled=false;
       finishLoading();
-      // Any images not completed during startup continue loading without blocking the shop.
-      preloadProductImages(0).catch(()=>{});
     }
   })();
   setInterval(syncProducts,30000);setInterval(syncMusic,30000);
