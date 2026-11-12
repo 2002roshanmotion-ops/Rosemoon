@@ -676,35 +676,39 @@
         }
         const orderText=box.value;
         let copied=false;
-        // First try the modern clipboard API (requires HTTPS and a user tap).
-        try{
-          if(navigator.clipboard&&window.isSecureContext){
-            await navigator.clipboard.writeText(orderText);
-            copied=true;
-          }
-        }catch(err){}
-        // Cross-browser fallback for Safari, older mobile browsers and desktop.
-        if(!copied){
-          const temp=document.createElement("textarea");
-          temp.value=orderText;
-          temp.setAttribute("readonly","");
-          temp.style.cssText="position:fixed;left:-9999px;top:0;opacity:0;font-size:16px";
-          document.body.appendChild(temp);
-          temp.focus();
-          temp.select();
-          temp.setSelectionRange(0,temp.value.length);
-          try{copied=document.execCommand("copy");}catch(err){}
-          document.body.removeChild(temp);
-        }
-        if(copied){
-          status.textContent="Copied! Open TikTok, open your messages, paste, and send the order.";
-          return;
-        }
-        // Final manual fallback if the browser blocks clipboard access.
+        // Run the synchronous fallback immediately during the tap. This is
+        // important for iOS Safari, which may lose clipboard permission after await.
         box.focus();
         box.select();
         box.setSelectionRange(0,box.value.length);
-        status.textContent="Automatic copy is blocked by this browser. The full message is selected—choose Copy, then paste it into TikTok messages.";
+        try{copied=document.execCommand("copy");}catch(err){}
+        // Modern clipboard API fallback for browsers where execCommand is unavailable.
+        if(!copied){
+          try{
+            if(navigator.clipboard&&window.isSecureContext){
+              await navigator.clipboard.writeText(orderText);
+              copied=true;
+            }
+          }catch(err){}
+        }
+        if(copied){
+          copyButton.textContent="✓ Copied!";
+          copyButton.style.background="#bfe8cf";
+          copyButton.style.transform="scale(1.03)";
+          copyButton.style.transition="transform .2s ease,background .2s ease";
+          status.textContent="Message copied successfully! Open TikTok, open your messages, paste, and send the order.";
+          setTimeout(()=>{
+            copyButton.textContent="Copy Order Message";
+            copyButton.style.background="#e6cbd6";
+            copyButton.style.transform="scale(1)";
+          },2200);
+          return;
+        }
+        // If the browser blocks clipboard access, leave the full message selected.
+        box.focus();
+        box.select();
+        box.setSelectionRange(0,box.value.length);
+        status.textContent="Your browser blocked automatic copying. Press and hold the selected message, tap Copy, then paste it into TikTok.";
       });
       document.getElementById("orderForm").insertBefore(copyButton,note);
     }
