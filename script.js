@@ -130,7 +130,7 @@
     box.innerHTML='<div class="search-recommend-title">✨ Matching bouquets</div>'+matches.map(p=>{
       const img=categoryImageFor(p);
       const art=img?'<img src="'+escapeAttr(img)+'" alt="'+escapeAttr(p.name)+'">':(p.imageUrl?'<img src="'+escapeAttr(p.imageUrl)+'" alt="'+escapeAttr(p.name)+'">':'🌹');
-      return '<button class="search-recommend-item" type="button" data-search-id="'+escapeAttr(p.id)+'"><span class="search-recommend-pic">'+art+'</span><span class="search-recommend-info"><strong>'+escapeHtml(p.name)+'</strong><small>'+escapeHtml(p.category)+(categoryPriceVisible(p)?' · '+money(p.price):'')+'</small></span></button>';
+      return '<button class="search-recommend-item" type="button" data-search-id="'+escapeAttr(p.id)+'"><span class="search-recommend-pic">'+art+'</span><span class="search-recommend-info"><strong>'+escapeHtml(p.name)+'</strong><small>'+escapeHtml(p.category)+'</small></span></button>';
     }).join('');
     box.classList.add('show');
     box.querySelectorAll('[data-search-id]').forEach(item=>item.addEventListener('click',()=>{
@@ -168,7 +168,7 @@
       // Category image sizing is controlled by style.css; keep the original image ratio and never crop.
       const art=fixedImage?'<img class="category-flower-image" src="'+fixedImage+'" alt="'+escapeAttr(p.name)+'">':'';
       return '<article class="product" data-id="'+escapeAttr(p.id)+'" data-size="'+escapeAttr(p.category)+'" data-price="'+p.price+'" role="button" tabindex="0" aria-label="Open '+escapeAttr(categoryLabel(p))+' flower shop" style="cursor:pointer">'+
-        '<div class="product-top">'+(categoryPriceVisible(p)?'<span class="price-badge">'+money(p.price)+'</span>':'')+'</div>'+
+        '<div class="product-top"></div>'+
         '<div class="bouquet-preview"><div class="flower-art">'+art+'</div></div>'+
         '<div style="font-weight:800;margin:10px 0 3px;color:#3b202b">'+escapeHtml(categoryLabel(p))+'</div>'+
       '</article>';
@@ -209,7 +209,7 @@
 
   function renderFlowerChoices(){
     if(!popupProduct||!grid||!sub)return;
-    sub.textContent=categoryPriceVisible(popupProduct)?`${popupProduct.name} · ${money(popupProduct.price)}. Choose a flower.`:`${popupProduct.name}. Choose a flower.`;
+    sub.textContent=`${popupProduct.name}. Choose a flower.`;
     const options=categoryOptions(popupProduct);
     grid.innerHTML=options.map((o,i)=>{
       const type=String(o.type||'Flower 1'),emoji=String(o.emoji||'🌸'),stock=Math.max(0,Number(o.stock)||0),imageUrl=driveImageUrl(o.imageUrl);
