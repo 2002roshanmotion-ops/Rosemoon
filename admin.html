@@ -415,7 +415,7 @@ async function uploadCategoryPhoto(file,label){if(!file)return '';const dataUrl=
 let newCategoryFlowerCount=0;
 function newFlowerColorRowHtml(i,j,color){const c=color||{};return '<div class="color-option-row" data-new-color="'+j+'"><input id="newFlowerColorName'+i+'_'+j+'" type="text" value="'+esc(c.name||'')+'" placeholder="Color e.g. Red"><input id="newFlowerColorStock'+i+'_'+j+'" type="number" min="0" step="1" value="'+(Number.isFinite(Number(c.stock))?Math.max(0,Math.floor(Number(c.stock))):0)+'" placeholder="Stock"><input id="newFlowerColorPhoto'+i+'_'+j+'" type="file" accept="image/*"><button class="secondary" type="button" onclick="removeNewFlowerColorRow('+i+','+j+')">Remove</button></div>';}
 function addNewFlowerColorRow(i,prefill){const box=$('newFlowerColors'+i);if(!box)return;const j=box.querySelectorAll('[data-new-color]').length;box.insertAdjacentHTML('beforeend',newFlowerColorRowHtml(i,j,prefill));} function removeNewFlowerColorRow(i,j){document.querySelector('#newFlowerColors'+i+' [data-new-color="'+j+'"]').remove();} function newFlowerRowHtml(i){
-  return '<div class="flower-manager-row" data-new-flower="'+i+'"><div class="flower-image-section"><label>FLOWER IMAGE</label><div class="flower-photo-preview" id="newFlowerPreview'+i+'">🌸</div><input id="newFlowerPhoto'+i+'" type="file" accept="image/png,image/jpeg,image/webp,image/gif" onchange="previewNewFlowerImage('+i+')"></div><div><label>FLOWER NAME</label><input id="newFlowerName'+i+'" type="text" placeholder="e.g. Pink Lily"></div><div class="stock-field"><label>INDIVIDUAL STOCK</label><input id="newFlowerStock'+i+'" type="number" min="0" step="1" value="0"></div><button class="danger remove-flower" type="button" onclick="removeNewFlowerRow('+i+')">Remove</button></div>';
+  return '<div class="flower-manager-row" data-new-flower="'+i+'"><div class="flower-image-section"><label>FLOWER IMAGE</label><div class="flower-photo-preview" id="newFlowerPreview'+i+'">🌸</div><input id="newFlowerPhoto'+i+'" type="file" accept="image/png,image/jpeg,image/webp,image/gif" onchange="previewNewFlowerImage('+i+')"></div><div><label>FLOWER NAME</label><input id="newFlowerName'+i+'" type="text" placeholder="e.g. Pink Lily"></div><div><label>FLOWER PRICE (Rs.)</label><input id="newFlowerPrice'+i+'" type="number" min="0" step="1" value="0"></div><div class="stock-field"><label>INDIVIDUAL STOCK</label><input id="newFlowerStock'+i+'" type="number" min="0" step="1" value="0"></div><button class="danger remove-flower" type="button" onclick="removeNewFlowerRow('+i+')">Remove</button></div>';
 }
 async function previewNewFlowerImage(i){
   const file=$('newFlowerPhoto'+i)?.files?.[0],preview=$('newFlowerPreview'+i);
@@ -429,7 +429,7 @@ function addNewFlowerRow(prefill){
   const row=box.querySelector('[data-new-flower="'+i+'"]');
   if(prefill){
     $('newFlowerName'+i).value=prefill.type||'';
-    $('newFlowerStock'+i).value=Number(prefill.stock||0);
+    $('newFlowerStock'+i).value=Number(prefill.stock||0);$('newFlowerPrice'+i).value=Number(prefill.price||0);
   }
 }
 function removeNewFlowerRow(i){const row=document.querySelector('[data-new-flower="'+i+'"]');if(row)row.remove()}
@@ -449,12 +449,13 @@ async function createCategory(){
     for(const row of rows){
       const i=row.dataset.newFlower,type=String($('newFlowerName'+i)?.value||'').trim();
       const qty=Math.max(0,Math.floor(Number($('newFlowerStock'+i)?.value)||0));
+      const flowerPrice=Math.max(0,Math.floor(Number($('newFlowerPrice'+i)?.value)||0));
       const file=$('newFlowerPhoto'+i)?.files?.[0];
       if(!type&&!file)continue;
       if(!type)throw new Error('Every added flower needs a name.');
       msg.textContent=file?'Uploading '+type+'…':'Saving '+type+'…';
       const url=file?await uploadCategoryPhoto(file,type):'';
-      options.push({type,stock:qty,imageUrl:url});
+      options.push({type,price:flowerPrice,stock:qty,imageUrl:url});
     }
     if(!options.length)throw new Error('Add at least one flower.');
     msg.textContent='Saving category…';
@@ -502,7 +503,7 @@ function addManageFlowerRow(){
     wrap=document.createElement('div');wrap.style.display='grid';wrap.style.gap='10px';box.prepend(wrap);
   }
   const i=nextManageFlowerIndex();
-  wrap.insertAdjacentHTML('beforeend','<div class="flower-manager-row" data-manage-flower="'+i+'"><div style="grid-column:1/-1"><label>FLOWER NAME</label><input id="manageFlowerName'+i+'" type="text" placeholder="e.g. Pink Lily"></div><div class="flower-image-section" style="grid-column:1/-1"><label>FLOWER IMAGE</label><div class="flower-photo-preview"></div><input id="manageFlowerPhoto'+i+'" type="file" accept="image/png,image/jpeg,image/webp,image/gif" onchange="replaceManageFlowerImage('+i+')"><div id="manageFlowerPhotoMsg'+i+'" class="hint" style="margin-top:4px"></div></div><button class="danger remove-flower" type="button" onclick="removeManageFlowerRow('+i+')">Remove</button></div>');
+  wrap.insertAdjacentHTML('beforeend','<div class="flower-manager-row" data-manage-flower="'+i+'"><div style="grid-column:1/-1"><label>FLOWER NAME</label><input id="manageFlowerName'+i+'" type="text" placeholder="e.g. Pink Lily"></div><div><label>FLOWER PRICE (Rs.)</label><input id="manageFlowerPrice'+i+'" type="number" min="0" step="1" value="0"></div><div class="flower-image-section" style="grid-column:1/-1"><label>FLOWER IMAGE</label><div class="flower-photo-preview"></div><input id="manageFlowerPhoto'+i+'" type="file" accept="image/png,image/jpeg,image/webp,image/gif" onchange="replaceManageFlowerImage('+i+')"><div id="manageFlowerPhotoMsg'+i+'" class="hint" style="margin-top:4px"></div></div><button class="danger remove-flower" type="button" onclick="removeManageFlowerRow('+i+')">Remove</button></div>');
   $('manageFlowerName'+i)?.focus();
   const msg=$('manageCategoryMessage');if(msg)msg.textContent='New flower row added. Enter a name, then Save Changes.';
 }
@@ -552,7 +553,7 @@ async function saveCategoryManager(){
       if(file){msg.textContent='Uploading '+type+'…';imageUrl=(await api('uploadPhoto',{dataUrl:await readDataUrl(file),fileName:file.name})).url||imageUrl}
       // Photo replacement is optional; keep the existing image when no new file is selected.
       // Keep existing metadata intact; the flower manager no longer edits colour options.
-      options.push({...old,type,price:old.price??p.price??0,stock:old.stock??0,imageUrl});
+      options.push({...old,type,price:Math.max(0,Math.floor(Number($('manageFlowerPrice'+i)?.value ?? old.price ?? p.price ?? 0)||0)),stock:old.stock??0,imageUrl});
     }
     if(!options.length)throw new Error('Add at least one flower.');
     let imageUrl=categoryData(p).categoryImageUrl||p.imageUrl||'';const mainFile=$('manageCategoryPhoto')?.files?.[0];
@@ -599,7 +600,7 @@ function renderCategoryManager(){
   if(categoryPreview) categoryPreview.innerHTML=categoryImage?'<img src="'+esc(categoryImage)+'" alt="" style="width:120px;height:120px;object-fit:contain;border-radius:14px;background:#fff;border:1px solid #f0e2e7">':'';
   let html='<div style="display:grid;gap:10px">';
   opts.forEach((o,i)=>{
-    html+='<div class="flower-manager-row" data-manage-flower="'+i+'"><div style="grid-column:1/-1"><label>FLOWER NAME</label><input id="manageFlowerName'+i+'" type="text" value="'+esc(o.type||'')+'" placeholder="e.g. Pink Lily"></div><div class="flower-image-section" style="grid-column:1/-1"><label>FLOWER IMAGE</label><div class="flower-photo-preview">'+(o?.imageUrl?'<img src="'+esc(driveAdminImageUrl(o.imageUrl))+'" alt="" style="width:100%;height:100%;object-fit:contain">':'')+'</div><input id="manageFlowerPhoto'+i+'" type="file" accept="image/png,image/jpeg,image/webp,image/gif" onchange="replaceManageFlowerImage('+i+')"><div id="manageFlowerPhotoMsg'+i+'" class="hint" style="margin-top:4px"></div></div><button class="danger remove-flower" type="button" onclick="removeManageFlowerRow('+i+')">Remove</button></div>';
+    html+='<div class="flower-manager-row" data-manage-flower="'+i+'"><div style="grid-column:1/-1"><label>FLOWER NAME</label><input id="manageFlowerName'+i+'" type="text" value="'+esc(o.type||'')+'" placeholder="e.g. Pink Lily"></div><div><label>FLOWER PRICE (Rs.)</label><input id="manageFlowerPrice'+i+'" type="number" min="0" step="1" value="'+Number(o.price ?? p.price ?? 0)+'"></div><div class="flower-image-section" style="grid-column:1/-1"><label>FLOWER IMAGE</label><div class="flower-photo-preview">'+(o?.imageUrl?'<img src="'+esc(driveAdminImageUrl(o.imageUrl))+'" alt="" style="width:100%;height:100%;object-fit:contain">':'')+'</div><input id="manageFlowerPhoto'+i+'" type="file" accept="image/png,image/jpeg,image/webp,image/gif" onchange="replaceManageFlowerImage('+i+')"><div id="manageFlowerPhotoMsg'+i+'" class="hint" style="margin-top:4px"></div></div><button class="danger remove-flower" type="button" onclick="removeManageFlowerRow('+i+')">Remove</button></div>';
   });
   html+='</div><div class="hint" style="margin-top:10px">Category total stock and every flower stock are independent. You can have different stock numbers for every flower.</div>';
   box.innerHTML=html;
