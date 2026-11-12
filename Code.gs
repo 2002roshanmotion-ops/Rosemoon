@@ -113,6 +113,7 @@ function doPost(e) {
       case 'addProduct': return json_(addProduct_(payload));
       case 'updateProduct': return json_(updateProduct_(payload));
       case 'deleteProduct': return json_(deleteProduct_(payload));
+      case 'getPhotoForEdit': return json_(getPhotoForEdit_(payload));
       case 'uploadPhoto': return json_(uploadMedia_(payload,'photo'));
       case 'addProductWithPhoto': {
         const upload=uploadMedia_(payload,'photo');
@@ -243,6 +244,20 @@ function deleteProduct_(payload) {
 function updateStock_(payload) {
   requireAdmin_(payload);
   return updateProduct_({adminKey:payload.adminKey,id:payload.productId,stock:payload.stock});
+}
+
+
+function getPhotoForEdit_(payload) {
+  requireAdmin_(payload);
+  const id=String(payload.fileId||'').trim();
+  if(!/^[a-zA-Z0-9_-]{10,}$/.test(id)) throw new Error('A valid Drive photo ID is required.');
+  const file=DriveApp.getFileById(id);
+  const blob=file.getBlob();
+  const mime=blob.getContentType()||'image/jpeg';
+  if(!/^image\\/(jpeg|png|webp|gif)$/i.test(mime)) throw new Error('This Drive file is not a supported image.');
+  const bytes=blob.getBytes();
+  if(bytes.length>5*1024*1024) throw new Error('This image is larger than 5 MB. Please select the original file from your device.');
+  return {success:true,fileId:id,name:file.getName(),mime:mime,base64:Utilities.base64Encode(bytes)};
 }
 
 function uploadMedia_(payload,type) {
