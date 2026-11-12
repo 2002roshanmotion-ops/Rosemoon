@@ -645,6 +645,8 @@ function renderCategoryManager(){
   });
   html+='</div><div class="hint" style="margin-top:10px">Edit flower names, photos and prices independently.</div>';
   box.innerHTML=html;
+  if(typeof window.RosemoonCropEditorRefresh==='function')window.RosemoonCropEditorRefresh();
+  document.dispatchEvent(new Event('rosemoon:refresh-photo-editor'));
 
 }
 function renderDashboardInventory(){
@@ -1000,5 +1002,5 @@ $('addMusicBtn').addEventListener('click',async()=>{
 });
 </script>
 
-<script src="crop-editor.js?v=14"></script>
+<script src="crop-editor.js?v=15"></script>
 </body></html>
