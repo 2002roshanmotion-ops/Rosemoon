@@ -323,15 +323,30 @@ function deleteMusic_(payload) {
 
 function reorderMusic_(payload) {
   requireAdmin_(payload);
-  const ids=Array.isArray(payload.ids)?payload.ids.map(String):[];
+  const ids=Array.isArray(payload.ids)?payload.ids.map(id=>String(id||'').trim()):[];
+  if(ids.some(id=>!id)) throw new Error('A music file ID is missing.');
+  if(new Set(ids).size!==ids.length) throw new Error('The playlist contains a duplicate music file.');
+
+  // Only accept the existing MP3 files in the Rosemoon music folder.
+  // This prevents unrelated Drive files from being changed.
+  const folder=DriveApp.getFolderById(ROSEMOON_MUSIC_FOLDER_ID);
+  const it=folder.getFiles();
+  const filesById={};
+  while(it.hasNext()){
+    const file=it.next();
+    if(/\.mp3$/i.test(file.getName())) filesById[file.getId()]=file;
+  }
+  const existingIds=Object.keys(filesById);
+  if(ids.length!==existingIds.length || ids.some(id=>!filesById[id])) {
+    throw new Error('The playlist changed or a music file could not be matched. Refresh the music list and try again.');
+  }
+
   ids.forEach((id,index)=>{
-    try{
-      const file=DriveApp.getFileById(id);
-      const old={};
-      try{Object.assign(old,JSON.parse(file.getDescription()||'{}')||{});}catch(e){}
-      old.sort=index+1;
-      file.setDescription(JSON.stringify(old));
-    }catch(e){}
+    const file=filesById[id];
+    let meta={};
+    try{meta=JSON.parse(file.getDescription()||'{}')||{};}catch(e){}
+    meta.sort=index+1;
+    file.setDescription(JSON.stringify(meta));
   });
   logActivity_('REORDER_MUSIC',ids.join(','));
   return {success:true,music:getMusic_().music,message:'Music order updated.'};
