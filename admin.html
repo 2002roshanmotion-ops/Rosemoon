@@ -346,7 +346,9 @@ function categoryData(p){
 function isCategoryProduct(p){
   if(!p||p.active===false)return false;
   const d=categoryData(p);
-  const isSavedCategory=!!d.rosemoonCategory&&Array.isArray(d.options)&&d.options.length>0;
+  // A saved category remains an inventory category even when its flower list is empty.
+  // Do not hide it from Inventory just because its options were temporarily lost.
+  const isSavedCategory=d.rosemoonCategory===true&&Array.isArray(d.options);
   // Keep the legacy Others category visible even if its description predates the marker.
   const isOthersRecord=String(p?.name||'').trim().toLowerCase()==='others'||
     String(p?.category||'').trim().toLowerCase()==='others';
