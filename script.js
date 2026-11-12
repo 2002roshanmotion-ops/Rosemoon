@@ -674,28 +674,37 @@
           status.textContent="Order message is missing. Please place the order again.";
           return;
         }
-        // iPhone Safari often blocks the async Clipboard API. Try its
-        // synchronous selection-based copy while the tap is still active.
-        box.focus();
-        box.select();
-        box.setSelectionRange(0,box.value.length);
+        const orderText=box.value;
         let copied=false;
-        try{copied=document.execCommand("copy");}catch(err){}
+        // First try the modern clipboard API (requires HTTPS and a user tap).
+        try{
+          if(navigator.clipboard&&window.isSecureContext){
+            await navigator.clipboard.writeText(orderText);
+            copied=true;
+          }
+        }catch(err){}
+        // Cross-browser fallback for Safari, older mobile browsers and desktop.
+        if(!copied){
+          const temp=document.createElement("textarea");
+          temp.value=orderText;
+          temp.setAttribute("readonly","");
+          temp.style.cssText="position:fixed;left:-9999px;top:0;opacity:0;font-size:16px";
+          document.body.appendChild(temp);
+          temp.focus();
+          temp.select();
+          temp.setSelectionRange(0,temp.value.length);
+          try{copied=document.execCommand("copy");}catch(err){}
+          document.body.removeChild(temp);
+        }
         if(copied){
           status.textContent="Copied! Open TikTok, open your messages, paste, and send the order.";
           return;
         }
-        try{
-          if(navigator.clipboard&&navigator.clipboard.writeText){
-            await navigator.clipboard.writeText(box.value);
-            status.textContent="Copied! Open TikTok, open your messages, paste, and send the order.";
-            return;
-          }
-        }catch(err){}
+        // Final manual fallback if the browser blocks clipboard access.
         box.focus();
         box.select();
         box.setSelectionRange(0,box.value.length);
-        status.textContent="Your message is selected, but automatic copying was blocked. Press and hold the selected text, tap Copy, then paste it into TikTok messages.";
+        status.textContent="Automatic copy is blocked by this browser. The full message is selected—choose Copy, then paste it into TikTok messages.";
       });
       document.getElementById("orderForm").insertBefore(copyButton,note);
     }
