@@ -199,6 +199,7 @@ function rosemoonQuickLogin(){
           <label>REPLACE CATEGORY IMAGE FROM PC <span class="photo-optional-note">(optional)</span></label>
           <input id="manageCategoryPhoto" type="file" accept="image/png,image/jpeg,image/webp,image/gif">
           <div id="manageCategoryPhotoPreview"></div>
+          <button id="manageCategoryPhotoEdit" class="secondary" type="button" style="display:block;margin-top:10px">✂️ Edit / Crop Category Image</button>
         </div>
       </div>
 
@@ -509,7 +510,7 @@ function addManageFlowerRow(){
     wrap=document.createElement('div');wrap.style.display='grid';wrap.style.gap='10px';box.prepend(wrap);
   }
   const i=nextManageFlowerIndex();
-  wrap.insertAdjacentHTML('beforeend','<div class="flower-manager-row" data-manage-flower="'+i+'" data-original-index=""><div style="grid-column:1/-1"><label>FLOWER NAME</label><input id="manageFlowerName'+i+'" type="text" placeholder="e.g. Pink Lily"></div><div><label>FLOWER PRICE (Rs.)</label><input id="manageFlowerPrice'+i+'" type="number" min="0" step="1" value="0"></div><div class="flower-image-section" style="grid-column:1/-1"><label>FLOWER IMAGE</label><div class="flower-photo-preview"></div><input id="manageFlowerPhoto'+i+'" type="file" accept="image/png,image/jpeg,image/webp,image/gif" onchange="replaceManageFlowerImage('+i+')"><div id="manageFlowerPhotoMsg'+i+'" class="hint" style="margin-top:4px"></div></div><button class="danger remove-flower" type="button" onclick="removeManageFlowerRow('+i+')">Remove</button></div>');
+  wrap.insertAdjacentHTML('beforeend','<div class="flower-manager-row" data-manage-flower="'+i+'" data-original-index=""><div style="grid-column:1/-1"><label>FLOWER NAME</label><input id="manageFlowerName'+i+'" type="text" placeholder="e.g. Pink Lily"></div><div><label>FLOWER PRICE (Rs.)</label><input id="manageFlowerPrice'+i+'" type="number" min="0" step="1" value="0"></div><div class="flower-image-section" style="grid-column:1/-1"><label>FLOWER IMAGE</label><div class="flower-photo-preview"></div><input id="manageFlowerPhoto'+i+'" type="file" accept="image/png,image/jpeg,image/webp,image/gif" onchange="replaceManageFlowerImage('+i+')"><button type="button" class="secondary" data-flower-crop-button="1" style="display:block;margin-top:10px">✂️ Edit / Crop Flower Image</button><div id="manageFlowerPhotoMsg'+i+'" class="hint" style="margin-top:4px"></div></div><button class="danger remove-flower" type="button" onclick="removeManageFlowerRow('+i+')">Remove</button></div>');
   $('manageFlowerName'+i)?.focus();
   const msg=$('manageCategoryMessage');if(msg)msg.textContent='New flower row added. Enter a name, then Save Changes.';
 }
@@ -1002,5 +1003,5 @@ $('addMusicBtn').addEventListener('click',async()=>{
 });
 </script>
 
-<script src="crop-editor.js?v=15"></script>
+<script src="crop-editor.js?v=16"></script>
 </body></html>
