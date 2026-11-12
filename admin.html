@@ -228,7 +228,7 @@ function rosemoonQuickLogin(){
     </div>
   </section>
 
-  <section class="panel" id="music"><div class="card"><h2>🎵 Add Music</h2><div class="form-grid"><div class="field"><label>SONG NAME (OPTIONAL)</label><input id="musicTitle" placeholder="Leave blank to use MP3 filename"></div><div class="field"><label>AUDIO FILES (MP3)</label><input id="musicFile" type="file" accept=".mp3,audio/mpeg" multiple><div class="hint" style="margin-top:6px">Select one MP3 or multiple MP3 files. Title is optional; blank uses the filename.</div></div><div class="field full"><button class="primary" id="addMusicBtn">🎵 Add Music</button><span class="hint" id="musicMessage" style="margin-left:10px"></span><div id="musicUploadList" class="upload-list" aria-live="polite"></div></div></div></div><div class="card"><h2>Playlist order</h2><p class="hint">Use ↑ and ↓ to arrange the order. The customer website follows this order automatically.</p><div id="musicList"></div></div></section>
+  <section class="panel" id="music"><div class="card"><h2>🎵 Add Music</h2><div class="form-grid"><div class="field"><label>SONG NAME (OPTIONAL)</label><input id="musicTitle" placeholder="Leave blank to use MP3 filename"></div><div class="field"><label>AUDIO FILES (MP3)</label><input id="musicFile" type="file" accept=".mp3,audio/mpeg" multiple><div class="hint" style="margin-top:6px">Select one MP3 or multiple MP3 files. Title is optional; blank uses the filename.</div></div><div class="field full"><button class="primary" id="addMusicBtn">🎵 Add Music</button><span class="hint" id="musicMessage" style="margin-left:10px"></span><div id="musicUploadList" class="upload-list" aria-live="polite"></div></div></div></div><div class="card"><h2>Playlist order</h2><p class="hint">Use ↑ and ↓ to arrange the order, then save your changes. The customer website follows the saved order.</p><div id="musicList"></div><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px"><button class="primary" type="button" id="saveMusicOrder" disabled>💾 Save Changes</button><span class="hint" id="musicOrderMessage" aria-live="polite">No unsaved changes.</span></div></div></section>
 
   <section class="panel" id="deliveryPlaces">
     <div class="card">
@@ -877,17 +877,40 @@ $('refreshProducts').addEventListener('click',loadProducts);
 // Initial dashboard/inventory load. Keep the live Google Sheet as the only data source.
 loadProducts();
 function readDataUrl(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(file)})}
-async function loadMusic(){try{const d=await api('music');music=(d.music||[]).sort((a,b)=>a.sort-b.sort);renderMusic()}catch(e){console.error(e)}}
-function renderMusic(){const box=$('musicList');box.innerHTML=music.map((m,i)=>`<div class="music-row"><div class="music-cover">${m.imageUrl?'<img src="'+esc(driveAdminImageUrl(m.imageUrl))+'" alt="">':'<div class="music-cover-empty">🎵</div>'}</div><div class="grow"><strong>${i+1}. ${esc(m.title)}</strong><small>${esc(m.url)}</small></div><button class="secondary" onclick="moveMusic(${i},-1)" ${i===0?'disabled':''}>↑</button><button class="secondary" onclick="moveMusic(${i},1)" ${i===music.length-1?'disabled':''}>↓</button><button class="danger" onclick="deleteMusic('${esc(m.id)}')">Delete</button></div>`).join('')||'<div class="empty">No music uploaded yet.</div>'}
-async function moveMusic(i,dir){
+let musicOrderDirty=false;
+async function loadMusic(){try{const d=await api('music');music=(d.music||[]).sort((a,b)=>a.sort-b.sort);musicOrderDirty=false;renderMusic()}catch(e){console.error(e)}}
+function renderMusic(){
+ const box=$('musicList');
+ box.innerHTML=music.map((m,i)=>`<div class="music-row"><div class="music-cover">${m.imageUrl?'<img src="'+esc(driveAdminImageUrl(m.imageUrl))+'" alt="">':'<div class="music-cover-empty">🎵</div>'}</div><div class="grow"><strong>${i+1}. ${esc(m.title)}</strong><small>${esc(m.url)}</small></div><button class="secondary" onclick="moveMusic(${i},-1)" ${i===0?'disabled':''}>↑</button><button class="secondary" onclick="moveMusic(${i},1)" ${i===music.length-1?'disabled':''}>↓</button><button class="danger" onclick="deleteMusic('${esc(m.fileId||m.id)}')">Delete</button></div>`).join('')||'<div class="empty">No music uploaded yet.</div>';
+ const save=$('saveMusicOrder');if(save)save.disabled=!musicOrderDirty;
+ const msg=$('musicOrderMessage');if(msg)msg.textContent=musicOrderDirty?'You have unsaved playlist changes.':'No unsaved changes.';
+}
+function moveMusic(i,dir){
  const j=i+dir;if(j<0||j>=music.length)return;
- const previous=music.slice();
- [music[i],music[j]]=[music[j],music[i]];renderMusic();
+ [music[i],music[j]]=[music[j],music[i]];
+ musicOrderDirty=true;renderMusic();
+}
+$('saveMusicOrder').addEventListener('click',async()=>{
+ const btn=$('saveMusicOrder'),msg=$('musicOrderMessage');
+ if(!musicOrderDirty)return;
+ btn.disabled=true;btn.textContent='Saving…';msg.textContent='Saving playlist order…';
  try{
-  const d=await api('reorderMusic',{ids:music.map(x=>x.fileId||x.id)});
+  const d=await api('reorderMusic',{ids:music.map(x=>x.fileId)});
   if(!d.success)throw new Error(d.message||'Playlist order could not be saved.');
-  music=(d.music||[]).sort((a,b)=>a.sort-b.sort);renderMusic();
- }catch(e){music=previous;renderMusic();alert('Music order was not saved: '+e.message)}
+  music=(d.music||music).sort((a,b)=>a.sort-b.sort);musicOrderDirty=false;
+  renderMusic();msg.textContent='✓ Playlist order saved.';
+ }catch(e){
+  msg.textContent='Could not save: '+e.message;
+  btn.disabled=false;
+ }finally{btn.textContent='💾 Save Changes';}
+});
+async function deleteMusic(id){
+ if(!confirm('Delete this song from the playlist?'))return;
+ try{
+  const d=await api('deleteMusic',{id});
+  if(!d.success)throw new Error(d.message||'Music could not be deleted.');
+  music=d.music||[];musicOrderDirty=false;renderMusic();
+ }catch(e){alert('Music was not deleted: '+e.message)}
 }
 async function deleteMusic(id){
  if(!confirm('Delete this song from the playlist?'))return;
