@@ -854,7 +854,6 @@ async function saveCategoryInventory(id){
     const options=old.map((o,i)=>({
       ...o,
       price:Math.max(0,Math.floor(Number($('cat-flower-price-'+id+'-'+i).value)||0)),
-      stock:Math.max(0,Math.floor(Number($('cat-flower-stock-'+id+'-'+i).value)||0))
     }));
     const raw=categoryData(p);
     const description=JSON.stringify({...raw,rosemoonCategory:true,options});
