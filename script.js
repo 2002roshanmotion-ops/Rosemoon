@@ -676,20 +676,31 @@
         }
         const orderText=box.value;
         let copied=false;
-        // Run the synchronous fallback immediately during the tap. This is
-        // important for iOS Safari, which may lose clipboard permission after await.
-        box.focus();
-        box.select();
-        box.setSelectionRange(0,box.value.length);
-        try{copied=document.execCommand("copy");}catch(err){}
-        // Modern clipboard API fallback for browsers where execCommand is unavailable.
+        // Call the modern clipboard API directly inside the user's click gesture.
+        // This is the preferred route on current Chrome, Edge, Firefox and Safari.
+        try{
+          if(navigator.clipboard&&window.isSecureContext){
+            await navigator.clipboard.writeText(orderText);
+            copied=true;
+          }
+        }catch(err){}
+        // Legacy fallback for browsers without Clipboard API support.
         if(!copied){
-          try{
-            if(navigator.clipboard&&window.isSecureContext){
-              await navigator.clipboard.writeText(orderText);
-              copied=true;
-            }
-          }catch(err){}
+          const temp=document.createElement("textarea");
+          temp.value=orderText;
+          temp.setAttribute("aria-hidden","true");
+          temp.style.position="fixed";
+          temp.style.top="0";
+          temp.style.left="-10000px";
+          temp.style.width="1px";
+          temp.style.height="1px";
+          temp.style.fontSize="16px";
+          document.body.appendChild(temp);
+          temp.focus();
+          temp.select();
+          temp.setSelectionRange(0,temp.value.length);
+          try{copied=document.execCommand("copy");}catch(err){}
+          temp.remove();
         }
         if(copied){
           copyButton.textContent="✓ Copied!";
