@@ -704,11 +704,17 @@
           },2200);
           return;
         }
-        // If the browser blocks clipboard access, leave the full message selected.
+        // Universal manual fallback: expose the message itself for the
+        // browser's native Copy command (long-press on touch, Ctrl/Cmd+C on desktop).
+        box.readOnly=false;
         box.focus();
         box.select();
         box.setSelectionRange(0,box.value.length);
-        status.textContent="Your browser blocked automatic copying. Press and hold the selected message, tap Copy, then paste it into TikTok.";
+        try{box.scrollIntoView({behavior:"smooth",block:"center"});}catch(err){box.scrollIntoView();}
+        copyButton.textContent="Message Selected — Copy";
+        copyButton.style.background="#f3d7a5";
+        status.textContent="Automatic copying is restricted by this browser. The full message is selected: press and hold it and choose Copy, or press Ctrl+C (Windows) / ⌘C (Mac).";
+        box.addEventListener("blur",()=>{box.readOnly=true;},{once:true});
       });
       document.getElementById("orderForm").insertBefore(copyButton,note);
     }
