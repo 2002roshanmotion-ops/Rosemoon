@@ -24,7 +24,7 @@
   function show(){editor.style.display='block';editor.scrollIntoView({behavior:'smooth',block:'nearest'})}
   function chooseOriginal(reason){message.textContent=reason+' Please choose the original image file; then the crop editor will open.';show();input.click()}
   function showEditor(src,remote){image=new Image();image.onload=()=>{message.textContent='Drag the image to position it, then press Save Image.';reset();show()};image.onerror=()=>{image=null;draw();chooseOriginal('The saved preview could not be loaded for editing.');};image.src=src}
-  function openCurrentImage(){const file=input.files&&input.files[0];if(file){if(objectUrl)URL.revokeObjectURL(objectUrl);objectUrl=URL.createObjectURL(file);showEditor(objectUrl,false);return}const current=section.querySelector('.flower-photo-preview img')||section.querySelector('#manageCategoryPhotoPreview img');if(current&&current.src){showEditor(current.src,true);return}chooseOriginal('No current image preview was found.')}
+  function openCurrentImage(){const file=input.files&&input.files[0];if(file){if(objectUrl)URL.revokeObjectURL(objectUrl);objectUrl=URL.createObjectURL(file);showEditor(objectUrl,false);return}const current=section.querySelector('.flower-photo-preview img')||section.querySelector('#manageCategoryPhotoPreview img');if(current&&current.src){chooseOriginal('To safely crop this saved Google Drive image, select its original image file from your device.');return}chooseOriginal('No current image preview was found.')}
   input.addEventListener('change',()=>{const file=input.files&&input.files[0];if(!file)return;if(objectUrl)URL.revokeObjectURL(objectUrl);objectUrl=URL.createObjectURL(file);showEditor(objectUrl,false)});
   ratio.addEventListener('change',reset);
   editor.querySelectorAll('[data-zoom]').forEach(b=>b.addEventListener('click',()=>{if(!image)return;scale=Math.max(.2,Math.min(8,scale*(Number(b.dataset.zoom)>0?1.12:1/1.12)));draw()}));
@@ -42,14 +42,13 @@
     out.getContext('2d').drawImage(image,(c.x-ix)/s,(c.y-iy)/s,c.w/s,c.h/s,0,0,w,h);
     const blob=await new Promise((resolve,reject)=>out.toBlob(b=>b?resolve(b):reject(new Error('Could not create the cropped image.')),'image/jpeg',.92));
     const file=new File([blob],'rosemoon-cropped.jpg',{type:'image/jpeg'}),dt=new DataTransfer();dt.items.add(file);input.files=dt.files;
-    if(preview)preview.innerHTML='<img src="'+URL.createObjectURL(blob)+'" alt="Cropped image preview" style="width:120px;height:120px;object-fit:contain;border-radius:14px;background:#fff">';
-    message.textContent='Uploading and saving the cropped image…';
+    message.textContent='Uploading image to Google Drive and saving it to Rosemoon inventory…';
     if(typeof window.saveCategoryManager!=='function')throw new Error('The Rosemoon save function is not available. Please reload the admin page.');
-    await window.saveCategoryManager();
-    const saveStatus=document.getElementById('manageCategoryMessage');
-    if(saveStatus&&saveStatus.textContent.includes('❌'))throw new Error(saveStatus.textContent);
+    const saved=await window.saveCategoryManager();
+    if(saved!==true){const saveStatus=document.getElementById('manageCategoryMessage');throw new Error(saveStatus&&saveStatus.textContent?saveStatus.textContent:'The server did not confirm that the image was saved.');}
+    message.textContent='✓ Image saved successfully!';
     editor.style.display='none';
-   }catch(error){message.textContent='Save failed: '+(error.message||error)+'. Your image is still open—nothing was cleared. If this is an existing Drive image, choose the original file from your device and save again.';}
+   }catch(error){const reason=error&&error.message?error.message:String(error);if(error&&(/security|taint|cross-origin/i.test(reason))){chooseOriginal('This saved image is protected by Google Drive browser security.');}else{message.textContent='❌ Image not saved: '+reason+' Your image remains open. Please correct the issue and try again.';}}
    finally{save.disabled=false;save.textContent='💾 Save Image'}
   });
  }
