@@ -256,7 +256,7 @@ function getPhotoForEdit_(payload) {
   const mime=blob.getContentType()||'image/jpeg';
   if(!/^image\/(jpeg|png|webp|gif)$/i.test(mime)) throw new Error('This Drive file is not a supported image.');
   const bytes=blob.getBytes();
-  if(bytes.length>5*1024*1024) throw new Error('This image is larger than 5 MB. Please select the original file from your device.');
+  if(bytes.length>10*1024*1024) throw new Error('This image is larger than 10 MB. Please select a smaller image.');
   return {success:true,fileId:id,name:file.getName(),mime:mime,base64:Utilities.base64Encode(bytes)};
 }
 
