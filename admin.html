@@ -42,6 +42,15 @@ body{background:radial-gradient(circle at 10% 0%,#ffe8f0 0,#fff7f9 32%,#f8f2f5 1
 /* Stock controls are removed from the interface; legacy saved values remain untouched. */
 #stockStatCard,#lowStockStatCard,#stockDistributionCard{display:none!important}
 .stock-field,.flower-stock,.color-option-row input[id*="Stock"]{display:none!important}
+
+/* Prevent iOS Safari focus zoom in Admin form fields. */
+@media (max-width: 768px) and (pointer: coarse) {
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
 </style>
 </head>
 <body>
