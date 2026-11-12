@@ -670,16 +670,32 @@
       copyButton.addEventListener("click",async()=>{
         const box=document.getElementById("tiktokOrderMessage");
         const status=document.getElementById("formNote");
+        if(!box||!box.value){
+          status.textContent="Order message is missing. Please place the order again.";
+          return;
+        }
+        // iPhone Safari often blocks the async Clipboard API. Try its
+        // synchronous selection-based copy while the tap is still active.
+        box.focus();
+        box.select();
+        box.setSelectionRange(0,box.value.length);
+        let copied=false;
+        try{copied=document.execCommand("copy");}catch(err){}
+        if(copied){
+          status.textContent="Copied! Open TikTok, open your messages, paste, and send the order.";
+          return;
+        }
         try{
           if(navigator.clipboard&&navigator.clipboard.writeText){
             await navigator.clipboard.writeText(box.value);
-            status.textContent="Order message copied. Now tap Open TikTok, open your messages, paste, and send it.";
+            status.textContent="Copied! Open TikTok, open your messages, paste, and send the order.";
             return;
           }
         }catch(err){}
         box.focus();
         box.select();
-        status.textContent="The message is selected. Use Copy if your browser shows it, then open TikTok and paste it into your messages.";
+        box.setSelectionRange(0,box.value.length);
+        status.textContent="Your message is selected, but automatic copying was blocked. Press and hold the selected text, tap Copy, then paste it into TikTok messages.";
       });
       document.getElementById("orderForm").insertBefore(copyButton,note);
     }
