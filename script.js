@@ -9,6 +9,7 @@
 
   let products = [...localFallback.products];
   let cart = loadCart();
+  let deliveryPlaces=[{id:'pokhara',name:'Pokhara',price:150,active:true}];
   const landing = document.getElementById("landingPage");
   const shop = document.getElementById("shopPage");
   const start = document.getElementById("startShopping");
@@ -451,7 +452,17 @@
 
   function getDeliveryCharge(){
     const location=document.getElementById("deliveryLocation")?.value||"";
-    return location==="Pokhara"?150:0;
+    const place=deliveryPlaces.find(x=>String(x.name)===location&&x.active!==false);
+    return place?Math.max(0,Number(place.price)||0):0;
+  }
+  function renderDeliveryPlaces(){
+    const select=document.getElementById("deliveryLocation");
+    if(!select)return;
+    const previous=select.value;
+    select.innerHTML='<option value="">Choose location</option>'+deliveryPlaces.filter(x=>x&&x.active!==false).map(x=>'<option value="'+escapeAttr(x.name)+'">'+escapeHtml(x.name)+' — '+money(x.price)+'</option>').join('');
+    if(deliveryPlaces.some(x=>x.name===previous&&x.active!==false))select.value=previous;
+    else if(deliveryPlaces.some(x=>x.name==="Pokhara"&&x.active!==false))select.value="Pokhara";
+    renderCart();
   }
   function cartImageFor(item){
     const direct=driveImageUrl(item?.imageUrl);
@@ -624,7 +635,9 @@
     if(!cart.length){note.textContent="Add a bouquet first.";return}
     const deliveryLocation=document.getElementById("deliveryLocation").value;
     if(!deliveryLocation){note.textContent="Choose a delivery location.";return}
-    const deliveryCharge=deliveryLocation==="Pokhara"?150:0;
+    const selectedPlace=deliveryPlaces.find(x=>String(x.name)===deliveryLocation&&x.active!==false);
+    if(!selectedPlace){note.textContent="That delivery place is not available. Please choose another place.";return}
+    const deliveryCharge=Math.max(0,Number(selectedPlace.price)||0);
     const subtotal=cart.reduce((sum,item)=>sum+item.qty*item.price,0);
     const total=subtotal+deliveryCharge;
     for(const item of cart){if(item.qty>itemStockFor(item)){note.textContent="Not enough stock for "+item.name+".";return}}
@@ -717,6 +730,17 @@
     finally{clearTimeout(timer)}
   }
 
+  async function syncDeliveryPlaces(){
+    try{
+      const r=await fetchWithTimeout(`${API_URL}?action=deliveryLocations&_=${Date.now()}`,{cache:"no-store"},8000);
+      const d=await r.json();
+      if(d.success&&Array.isArray(d.locations)&&d.locations.length){
+        deliveryPlaces=d.locations.filter(x=>x&&x.active!==false).map(x=>({id:String(x.id||""),name:String(x.name||""),price:Math.max(0,Number(x.price)||0),active:true}));
+      }
+    }catch(e){console.warn("Rosemoon delivery places sync unavailable; keeping current delivery choices.",e)}
+    renderDeliveryPlaces();
+  }
+
   async function syncProducts(){
     try{
       const r=await fetchWithTimeout(`${API_URL}?action=products&_=${Date.now()}`,{cache:"no-store"},8000);
@@ -796,7 +820,8 @@
       setLoading(24,"Loading products & inventory…");
       const productTask=syncProducts();
       const musicTask=syncMusic();
-      await Promise.all([productTask,musicTask]);
+      const deliveryTask=syncDeliveryPlaces();
+      await Promise.all([productTask,musicTask,deliveryTask]);
       setLoading(48,"Preparing music & images…");
       await Promise.all([
         prepareFirstMusic(),
