@@ -39,7 +39,6 @@
         return d.options.map((o,i)=>({
           type:String(o?.type||('Flower '+(i+1))),
           emoji:String(o?.emoji||choices[i]?.[1]||'🌸'),
-          stock:Math.max(0,Number(o?.stock)||0),
           price:Math.max(0,Number(o?.price ?? product?.price ?? 0)),
           imageUrl:driveImageUrl(o?.imageUrl)||'',
           // Legacy colour data is ignored; customers select flowers only.
@@ -212,15 +211,13 @@
     sub.textContent=`${popupProduct.name}. Choose a flower.`;
     const options=categoryOptions(popupProduct);
     grid.innerHTML=options.map((o,i)=>{
-      const type=String(o.type||'Flower 1'),emoji=String(o.emoji||'🌸'),stock=Math.max(0,Number(o.stock)||0),imageUrl=driveImageUrl(o.imageUrl);
+      const type=String(o.type||'Flower 1'),emoji=String(o.emoji||'🌸'),imageUrl=driveImageUrl(o.imageUrl);
       const isDecoration=type.trim().toLowerCase()==='decoration';
       const art=imageUrl?`<img class="${isDecoration?'decoration-full-image':''}" src="${escapeAttr(imageUrl)}" alt="${escapeAttr(type)}">`:emoji;
-      const stockClass=stock===0?"out":stock<=2?"low":"";
       return `<article class="flower-popup-card flower-popup-choice-card" data-flower-type="${escapeAttr(type)}" data-open-flower="${escapeAttr(type)}" tabindex="0" role="button" aria-label="Open ${escapeAttr(type)}">
         <div class="flower-popup-art">${art}</div>
         <h3>${escapeHtml(type)}</h3>
         <div class="flower-popup-price">${money(Math.max(0,Number(o.price ?? popupProduct.price ?? 0)))}</div>
-        <div class="flower-popup-stock ${stockClass}">${stock===0?"Sold out":stock+" in stock"}</div>
         <button type="button" class="flower-popup-view-button">View Flower →</button>
       </article>`;
     }).join("");
@@ -231,12 +228,11 @@
     if(!popupProduct||!grid||!sub)return;
     const o=categoryOptions(popupProduct).find(x=>String(x.type||'')===String(type||''));
     if(!o)return;
-    const emoji=String(o.emoji||'🌸'),stock=Math.max(0,Number(o.stock)||0),price=Math.max(0,Number(o.price??popupProduct.price??0)),imageUrl=driveImageUrl(o.imageUrl);
+    const emoji=String(o.emoji||'🌸'),price=Math.max(0,Number(o.price??popupProduct.price??0)),imageUrl=driveImageUrl(o.imageUrl);
     const isDecoration=String(o.type||'').trim().toLowerCase()==='decoration';
     const art=imageUrl?'<img class="'+(isDecoration?'decoration-full-image':'')+'" src="'+escapeAttr(imageUrl)+'" alt="'+escapeAttr(o.type)+'">':emoji;
-    const stockClass=stock===0?'out':stock<=2?'low':'';
     sub.innerHTML='<span>'+escapeHtml(popupProduct.name)+' · '+escapeHtml(o.type)+'</span>';
-    grid.innerHTML='<article class="flower-popup-card flower-popup-detail-card" data-flower-type="'+escapeAttr(o.type)+'"><div class="flower-popup-art">'+art+'</div><h3>'+escapeHtml(o.type)+'</h3><div class="flower-popup-price">'+money(price)+'</div><div class="flower-popup-stock '+stockClass+'">'+(stock===0?'Sold out':stock+' in stock')+'</div><button type="button" data-popup-buy data-type="'+escapeAttr(o.type)+'" data-emoji="'+escapeAttr(emoji)+'" '+(stock===0?'disabled':'')+'>🛒 Add to Cart</button></article>';
+    grid.innerHTML='<article class="flower-popup-card flower-popup-detail-card" data-flower-type="'+escapeAttr(o.type)+'"><div class="flower-popup-art">'+art+'</div><h3>'+escapeHtml(o.type)+'</h3><div class="flower-popup-price">'+money(price)+'</div><button type="button" data-popup-buy data-type="'+escapeAttr(o.type)+'" data-emoji="'+escapeAttr(emoji)+'" '+''+'>🛒 Add to Cart</button></article>';
   }
 
   let lockedScrollY=0;
@@ -439,9 +435,7 @@
     return stockFor(item.id);
   }
   function addItem(item,silent=false,source=null){
-    const stock=itemStockFor(item);
     const existing=cart.find(x=>x.id===item.id&&x.type===item.type);
-    if((existing?.qty||0)>=stock){toast("Stock limit reached");return false}
     if(existing)existing.qty++;else cart.push({...item,qty:1});
     saveCart();renderCart();playUISound('cartSparkle');animateCartAdd(source);if(!silent)toast("Added to cart");return true;
   }
@@ -493,7 +487,7 @@
     box.innerHTML=cart.map((x,i)=>{const cartImage=cartImageFor(x);return `<div class="cart-item"><div class="cart-icon">${cartImage?`<img src="${escapeAttr(cartImage)}" alt="" style="width:42px;height:42px;object-fit:contain;border-radius:10px">`:x.emoji}</div><div class="cart-info"><strong>${escapeHtml(x.name||x.size)}</strong><small>${escapeHtml(x.type)} · ${money(x.price)}</small></div><div class="qty"><button data-q="-" data-i="${i}">−</button><b>${x.qty}</b><button data-q="+" data-i="${i}">+</button></div><button class="remove" data-q="x" data-i="${i}">×</button></div>`}).join("");
   }
   document.getElementById("deliveryLocation")?.addEventListener("change",()=>renderCart());
-  document.getElementById("cartItems")?.addEventListener("click",e=>{const b=e.target.closest("[data-q]");if(!b)return;const i=+b.dataset.i,x=cart[i];if(!x)return;if(b.dataset.q==="+"&&x.qty<itemStockFor(x))x.qty++;if(b.dataset.q==="-")x.qty--;if(b.dataset.q==="x"||x.qty<=0)cart.splice(i,1);saveCart();renderCart()});
+  document.getElementById("cartItems")?.addEventListener("click",e=>{const b=e.target.closest("[data-q]");if(!b)return;const i=+b.dataset.i,x=cart[i];if(!x)return;if(b.dataset.q==="+")x.qty++;if(b.dataset.q==="-")x.qty--;if(b.dataset.q==="x"||x.qty<=0)cart.splice(i,1);saveCart();renderCart()});
   function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove("show"),1800)}
   document.getElementById("openGuide")?.addEventListener("click",()=>document.getElementById("guideModal").classList.add("open"));
   document.getElementById("closeGuide")?.addEventListener("click",()=>document.getElementById("guideModal").classList.remove("open"));
@@ -643,7 +637,6 @@
     const deliveryCharge=Math.max(0,Number(selectedPlace.price)||0);
     const subtotal=cart.reduce((sum,item)=>sum+item.qty*item.price,0);
     const total=subtotal+deliveryCharge;
-    for(const item of cart){if(item.qty>itemStockFor(item)){note.textContent="Not enough stock for "+item.name+".";return}}
     const customerName=document.getElementById("name").value.trim();
     const phone=document.getElementById("phone").value.trim();
     const deliveryDetails=document.getElementById("note").value.trim();
@@ -664,7 +657,7 @@
       "Delivery details: "+(deliveryDetails||"Not provided"),
       "Payment preference: "+payment,
       "",
-      "Please confirm stock and delivery before I make payment."
+      "Please confirm the order and delivery details before I make payment."
     ].join("\n");
     let messageTitle=document.getElementById("tiktokOrderMessageTitle");
     let messageBox=document.getElementById("tiktokOrderMessage");
