@@ -115,7 +115,7 @@
       if(!q)return false;
       let flowerNames=[];
       try{const d=JSON.parse(String(p.description||''));if(d&&Array.isArray(d.options))flowerNames=d.options.map(o=>o?.type).filter(Boolean)}catch(e){}
-      return [p.name,p.category,p.price,"rs. "+p.price,...flowerNames].some(v=>String(v??'').toLowerCase().includes(q));
+      return [p.name,p.category,...flowerNames].some(v=>String(v??'').toLowerCase().includes(q));
     });
   }
   function renderSearchRecommendations(){
@@ -166,7 +166,7 @@
       const fixedImage=categoryImageFor(p);
       // Category image sizing is controlled by style.css; keep the original image ratio and never crop.
       const art=fixedImage?'<img class="category-flower-image" src="'+fixedImage+'" alt="'+escapeAttr(p.name)+'">':'';
-      return '<article class="product" data-id="'+escapeAttr(p.id)+'" data-size="'+escapeAttr(p.category)+'" data-price="'+p.price+'" role="button" tabindex="0" aria-label="Open '+escapeAttr(categoryLabel(p))+' flower shop" style="cursor:pointer">'+
+      return '<article class="product" data-id="'+escapeAttr(p.id)+'" data-size="'+escapeAttr(p.category)+'" data-price="" role="button" tabindex="0" aria-label="Open '+escapeAttr(categoryLabel(p))+' flower shop" style="cursor:pointer">'+
         '<div class="product-top"></div>'+
         '<div class="bouquet-preview"><div class="flower-art">'+art+'</div></div>'+
         '<div style="font-weight:800;margin:10px 0 3px;color:#3b202b">'+escapeHtml(categoryLabel(p))+'</div>'+
@@ -217,7 +217,7 @@
       return `<article class="flower-popup-card flower-popup-choice-card" data-flower-type="${escapeAttr(type)}" data-open-flower="${escapeAttr(type)}" tabindex="0" role="button" aria-label="Open ${escapeAttr(type)}">
         <div class="flower-popup-art">${art}</div>
         <h3>${escapeHtml(type)}</h3>
-        <div class="flower-popup-price">${money(Math.max(0,Number(o.price ?? popupProduct.price ?? 0)))}</div>
+        <div class="flower-popup-price">${money(Math.max(0,Number(o.price ?? 0)))}</div>
         <button type="button" class="flower-popup-view-button">View Flower →</button>
       </article>`;
     }).join("");
