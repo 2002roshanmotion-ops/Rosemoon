@@ -66,8 +66,10 @@
    finally{save.disabled=false;save.textContent='💾 Save Image'}
   });
  }
- function init(){const category=document.getElementById('manageCategoryPhoto');if(category)attach(category);document.querySelectorAll('#manageFlowerOptions input[type="file"][id^="manageFlowerPhoto"]').forEach(attach)}
+ function init(){document.querySelectorAll('#manageCategoryPhoto, #manageFlowerOptions input[type="file"][id^="manageFlowerPhoto"]').forEach(attach)}
+ window.RosemoonCropEditorRefresh=init;
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
  const flowerBox=document.getElementById('manageFlowerOptions');if(flowerBox&&'MutationObserver'in window)new MutationObserver(init).observe(flowerBox,{childList:true,subtree:true});
  document.addEventListener('change',e=>{if(e.target.matches('#manageCategoryPhoto,#manageFlowerOptions input[type="file"][id^="manageFlowerPhoto"]'))attach(e.target)});
+ document.addEventListener('rosemoon:refresh-photo-editor',init);
 })();
