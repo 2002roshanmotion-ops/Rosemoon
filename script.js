@@ -707,17 +707,6 @@
     finally{clearTimeout(timer)}
   }
 
-  async function syncDeliveryPlaces(){
-    try{
-      const r=await fetchWithTimeout(`${API_URL}?action=deliveryLocations&_=${Date.now()}`,{cache:"no-store"},8000);
-      const d=await r.json();
-      if(d.success&&Array.isArray(d.locations)&&d.locations.length){
-        deliveryPlaces=d.locations.filter(x=>x&&x.active!==false).map(x=>({id:String(x.id||""),name:String(x.name||""),price:Math.max(0,Number(x.price)||0),active:true}));
-      }
-    }catch(e){console.warn("Rosemoon delivery places sync unavailable; keeping current delivery choices.",e)}
-    renderDeliveryPlaces();
-  }
-
   async function syncProducts(){
     try{
       const r=await fetchWithTimeout(`${API_URL}?action=products&_=${Date.now()}`,{cache:"no-store"},8000);
