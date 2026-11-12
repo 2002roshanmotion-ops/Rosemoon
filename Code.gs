@@ -93,6 +93,7 @@ function doGet(e) {
     if(action==='categories') return json_(getCategories_());
     if(action==='offers') return json_(getOffers_());
     if(action==='settings') return json_(getSettings_());
+    if(action==='deliveryLocations') return json_(getDeliveryLocations_());
     if(action==='site') return json_(getSiteData_());
     return json_({success:true,service:'Rosemoon Owner API',version:'2.0'});
   } catch(err) {
@@ -106,6 +107,7 @@ function doPost(e) {
     const payload=JSON.parse(raw);
     switch(payload.action) {
       case 'setup': requireAdmin_(payload); return json_(setupRosemoonSheet());
+      case 'saveDeliveryLocations': return json_(saveDeliveryLocations_(payload));
       case 'placeOrder': return json_(placeOrder_(payload));
       case 'updateStock': return json_(updateStock_(payload));
       case 'addProduct': return json_(addProduct_(payload));
@@ -528,6 +530,44 @@ function getSettings_() {
   const settings={};
   for(let i=1;i<values.length;i++) if(values[i][0]) settings[String(values[i][0])]=String(values[i][1]??'');
   return {success:true,settings:settings};
+}
+
+function getDeliveryLocations_() {
+  const settings=getSettings_().settings;
+  let locations=[];
+  try {
+    locations=JSON.parse(String(settings.delivery_locations||'[]'));
+  } catch(e) {}
+  if(!Array.isArray(locations)||!locations.length) {
+    locations=[{id:'pokhara',name:'Pokhara',price:150,active:true}];
+  }
+  return {success:true,locations:locations.filter(x=>x&&x.active!==false)};
+}
+
+function saveDeliveryLocations_(payload) {
+  requireAdmin_(payload);
+  if(!Array.isArray(payload.locations)) throw new Error('Delivery places must be a list.');
+  const seen={};
+  const locations=payload.locations.map((item,index)=>{
+    const name=clean_(item&&item.name);
+    const price=Number(item&&item.price);
+    if(!name) throw new Error('Every delivery place needs a name.');
+    if(!Number.isFinite(price)||price<0) throw new Error('Delivery price for '+name+' must be 0 or higher.');
+    const key=name.toLowerCase();
+    if(seen[key]) throw new Error('Duplicate delivery place: '+name);
+    seen[key]=true;
+    return {id:String(item.id||slug_(name)+'-'+(index+1)),name:name,price:Math.round(price),active:item.active!==false};
+  }).filter(x=>x.active);
+  if(!locations.length) throw new Error('Keep at least one delivery place active.');
+  const sheet=ensureSheet_(getSpreadsheet_(),'Settings',SETTINGS_HEADERS,DEFAULT_SETTINGS);
+  const values=sheet.getDataRange().getValues();
+  let row=0;
+  for(let i=1;i<values.length;i++) if(String(values[i][0])==='delivery_locations'){row=i+1;break;}
+  const serialized=JSON.stringify(locations);
+  if(row) sheet.getRange(row,2).setValue(serialized);
+  else sheet.appendRow(['delivery_locations',serialized,'Delivery places and delivery charges']);
+  logActivity_('UPDATE_DELIVERY_LOCATIONS',locations.length+' active places');
+  return {success:true,locations:locations};
 }
 
 function getSiteData_() {
