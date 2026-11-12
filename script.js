@@ -806,10 +806,31 @@
   async function prepareFirstMusic(){
     if(!music.songs.length){setLoading(76,"No music yet");return;}
     setLoading(60,"Preparing all songs…");
-    const allSongs=[];
-    for(let i=0;i<music.songs.length;i++) allSongs.push(music.prepare(i));
-    await Promise.race([Promise.all(allSongs),new Promise(r=>setTimeout(r,30000))]);
-    setLoading(78,"All music ready…");
+    // Prepare the first track first so Start Shopping never has to attach an
+    // unprepared Drive URL at the exact moment the customer taps the button.
+    const first=music.songs[0];
+    const firstKey=first[2]||first[1];
+    const firstTask=music.prepare(0);
+    const otherTasks=[];
+    for(let i=1;i<music.songs.length;i++) otherTasks.push(music.prepare(i));
+    const firstSrc=await Promise.race([firstTask,new Promise(r=>setTimeout(()=>r(null),30000))]);
+    if(firstSrc&&music.audio){
+      music.index=0;
+      if(music.audio.src!==firstSrc){
+        music.audio.pause();
+        music.audio.src=firstSrc;
+        music.audio.currentTime=0;
+      }
+      music.audio.preload="auto";
+      music.audio.load();
+      music.loadTitle();
+    }else if(music.audio){
+      document.getElementById("songStatus").textContent="Music unavailable";
+    }
+    // Continue preparing the remaining tracks in the background, without
+    // allowing one slow song to keep the customer from entering the shop.
+    Promise.all(otherTasks).catch(e=>console.warn("Rosemoon remaining music preload failed.",e));
+    setLoading(78,firstSrc?"First song ready…":"Music unavailable");
   }
 
 
