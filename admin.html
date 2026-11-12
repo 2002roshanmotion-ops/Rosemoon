@@ -286,13 +286,22 @@ async function loadDeliveryPlaces(){
     if(msg)msg.textContent='Delivery places loaded.';
   }catch(e){if(msg)msg.textContent='Could not load delivery places: '+e.message}
 }
+function captureDeliveryPlaceInputs(){
+  deliveryPlaces=deliveryPlaces.map((p,i)=>({
+    ...p,
+    name:$('delivery-place-name-'+i)?.value??p.name,
+    price:Number($('delivery-place-price-'+i)?.value??p.price)
+  }));
+}
 $('addDeliveryPlace').addEventListener('click',()=>{
+  captureDeliveryPlaceInputs();
   deliveryPlaces.push({id:'',name:'',price:0,active:true});
   renderDeliveryPlaces();
   const input=$('delivery-place-name-'+(deliveryPlaces.length-1));input?.focus();
 });
 $('deliveryPlaceRows').addEventListener('click',e=>{
   const btn=e.target.closest('[data-remove-delivery]');if(!btn)return;
+  captureDeliveryPlaceInputs();
   deliveryPlaces.splice(Number(btn.dataset.removeDelivery),1);
   renderDeliveryPlaces();
 });
