@@ -101,9 +101,6 @@
     try{const d=JSON.parse(String(p?.description||''));saved=driveImageUrl(d?.popupCategoryImageUrl)}catch(e){}
     return saved||categoryImageFor(p);
   }
-  function categoryPriceVisible(p){
-    try{const d=JSON.parse(String(p?.description||''));return d?.priceVisible!==false}catch(e){return true}
-  }
   function categoryLabel(p){
     const c=String(p?.category||p?.name||'').trim();
     return c;
@@ -228,7 +225,7 @@
     if(!popupProduct||!grid||!sub)return;
     const o=categoryOptions(popupProduct).find(x=>String(x.type||'')===String(type||''));
     if(!o)return;
-    const emoji=String(o.emoji||'🌸'),price=Math.max(0,Number(o.price??popupProduct.price??0)),imageUrl=driveImageUrl(o.imageUrl);
+    const emoji=String(o.emoji||'🌸'),price=Math.max(0,Number(o.price??0)),imageUrl=driveImageUrl(o.imageUrl);
     const isDecoration=String(o.type||'').trim().toLowerCase()==='decoration';
     const art=imageUrl?'<img class="'+(isDecoration?'decoration-full-image':'')+'" src="'+escapeAttr(imageUrl)+'" alt="'+escapeAttr(o.type)+'">':emoji;
     sub.innerHTML='<span>'+escapeHtml(popupProduct.name)+' · '+escapeHtml(o.type)+'</span>';
@@ -254,7 +251,7 @@
     const b=e.target.closest("[data-popup-buy]");
     if(!b||!popupProduct)return;
     const selected=categoryOptions(popupProduct).find(o=>String(o.type||'')===String(b.dataset.type));
-    const ok=addItem({id:popupProduct.id,size:popupProduct.category,name:popupProduct.name,price:Math.max(0,Number(selected?.price??popupProduct.price??0)),type:b.dataset.type,emoji:b.dataset.emoji,imageUrl:selected?.imageUrl||popupProduct.imageUrl},true,b);
+    const ok=addItem({id:popupProduct.id,size:popupProduct.category,name:popupProduct.name,price:Math.max(0,Number(selected?.price??0)),type:b.dataset.type,emoji:b.dataset.emoji,imageUrl:selected?.imageUrl||popupProduct.imageUrl},true,b);
     if(ok){b.textContent="✓ Added";b.disabled=true;setTimeout(closeFlowerPopup,300)}
   });
 
