@@ -538,7 +538,7 @@ function removeManageFlowerColorRow(flowerIndex,colorIndex){
 async function saveCategoryManager(){
   const msg=$('manageCategoryMessage'),btn=$('saveCategoryBtn'),s=$('manageCategorySelect');
   const p=products.find(x=>String(x.id)===String(s?.value));
-  if(!p){msg.textContent='❌ Choose a category first.';return}
+  if(!p){msg.textContent='❌ Choose a category first.';return false}
   try{
     const existingData=categoryData(p),oldOpts=Array.isArray(existingData.options)?existingData.options:[];
     const nameInput=String($('manageCategoryName')?.value??'').trim();
@@ -600,9 +600,11 @@ async function saveCategoryManager(){
     products=saved.products;
     await refreshAdminData(p.id);
     renderWebsiteCategoryOrder();
-    msg.textContent='✅ Saved. Unchanged names, prices, photos and flower details were kept.';
+    msg.textContent='✅ Image saved successfully! Category and flower details were updated.';
+    return true;
   }catch(e){
     msg.textContent='❌ '+(e.message||e);
+    return false;
   }finally{
     btn.disabled=false;
   }
