@@ -350,9 +350,12 @@ function isCategoryProduct(p){
   // Do not hide it from Inventory just because its options were temporarily lost.
   const isSavedCategory=d.rosemoonCategory===true&&Array.isArray(d.options);
   // Keep the legacy Others category visible even if its description predates the marker.
-  const isOthersRecord=String(p?.name||'').trim().toLowerCase()==='others'||
-    String(p?.category||'').trim().toLowerCase()==='others';
-  return isSavedCategory||isOthersRecord;
+  const recordName=String(p?.name||'').trim().toLowerCase();
+  const recordCategory=String(p?.category||'').trim().toLowerCase();
+  const isLegacyCategory=recordName===recordCategory;
+  const isSpecialCategory=['others','limited edition'].includes(recordName)||
+    ['others','limited edition'].includes(recordCategory);
+  return isSavedCategory||isLegacyCategory||isSpecialCategory;
 }
 async function refreshAdminData(preferredCategoryId){
   const d=await api('products');
