@@ -39,6 +39,9 @@ body{background:radial-gradient(circle at 10% 0%,#ffe8f0 0,#fff7f9 32%,#f8f2f5 1
 
 .color-option-row.rm-color-selected{background:#fff3f7;border-left:3px solid var(--rm-pink,#d94f70);box-shadow:inset 0 0 0 1px rgba(217,79,112,.12)}
 .color-option-row.rm-color-selected .color-option-title{color:var(--rm-pink,#d94f70)}
+/* Stock controls are removed from the interface; legacy saved values remain untouched. */
+#stockStatCard,#lowStockStatCard,#stockDistributionCard{display:none!important}
+.stock-field,.flower-stock,.color-option-row input[id*="Stock"]{display:none!important}
 </style>
 </head>
 <body>
@@ -82,17 +85,17 @@ function rosemoonQuickLogin(){
     <div class="side-bottom">RoseMmoon Admin<br>Live store management</div>
   </aside>
   <main class="admin-main">
-    <div class="premium-top"><div><h1>Good morning, RoseMmoon 🌹</h1><p>Manage your flowers, stock, orders and music from one place.</p></div><div class="premium-user"><div class="avatar">🌹</div><div><strong>Owner</strong><br><small>Administrator</small></div><button class="logout" id="logoutBtn">Logout</button></div></div>
+    <div class="premium-top"><div><h1>Good morning, RoseMmoon 🌹</h1><p>Manage your flowers, prices, orders and music from one place.</p></div><div class="premium-user"><div class="avatar">🌹</div><div><strong>Owner</strong><br><small>Administrator</small></div><button class="logout" id="logoutBtn">Logout</button></div></div>
 
   <section class="panel active" id="dashboard">
   <div class="premium-stats">
     <div class="premium-stat"><div class="stat-icon">🌸</div><b id="statProducts">0</b><span>Active categories & products</span></div>
-    <div class="premium-stat"><div class="stat-icon">📦</div><b id="statStock">0</b><span>Total available stock</span></div>
-    <div class="premium-stat"><div class="stat-icon">⚠️</div><b id="statLow">0</b><span>Low-stock items</span></div>
+    <div class="premium-stat" id="stockStatCard" aria-hidden="true"><div class="stat-icon">📦</div><b id="statStock">0</b><span>Total available stock</span></div>
+    <div class="premium-stat" id="lowStockStatCard" aria-hidden="true"><div class="stat-icon">⚠️</div><b id="statLow">0</b><span>Low-stock items</span></div>
     <div class="premium-stat"><div class="stat-icon">🛍️</div><b id="statOrders">0</b><span>Total orders</span></div>
   </div>
   <div class="analytics-grid">
-    <div class="analytics-card">
+    <div class="analytics-card" id="stockDistributionCard" aria-hidden="true">
       <div class="analytics-head"><h2>📊 Stock distribution</h2><span>Live inventory</span></div>
       <div class="pie-wrap">
         <div class="stock-pie" id="stockPie"><div class="pie-center"><div id="pieTotal">0<small>units</small></div></div></div>
@@ -103,7 +106,7 @@ function rosemoonQuickLogin(){
       <div class="analytics-head"><h2>⚡ Quick actions</h2><span>Shortcuts</span></div>
       <div class="quick-grid">
         <button class="quick-btn" data-jump="photos">🌸 Add flowers<small>Create a new category</small></button>
-        <button class="quick-btn" data-jump="inventory">📦 Inventory<small>Update flower stock</small></button>
+        <button class="quick-btn" data-jump="inventory">📦 Inventory<small>Manage flowers and prices</small></button>
         <button class="quick-btn" data-jump="orders">📋 Orders<small>View customer orders</small></button>
         <button class="quick-btn" data-jump="music">🎵 Music<small>Manage playlist</small></button>
       </div>
@@ -117,7 +120,7 @@ function rosemoonQuickLogin(){
   <section class="panel" id="inventory">
     <div class="card">
       <h2>📦 Inventory</h2>
-      <p class="hint">Each category shows its price. Open a category to manage the stock of each flower type.</p>
+      <p class="hint">Manage category prices and individual flower prices, photos and names.</p>
       <div class="actions"><button class="secondary" id="refreshProducts">🔄 Refresh</button></div>
       <div id="categoryInventoryList" class="category-inventory-list"></div>
     </div>
@@ -138,13 +141,13 @@ function rosemoonQuickLogin(){
   <section class="panel" id="photos">
   <div class="card category-builder">
     <h2>🌸 Add New Flower Category</h2>
-    <p class="hint">Add a category, price, photo, and as many flowers as you need. Each flower has its own stock.</p>
+    <p class="hint">Add a category, price, photo, and as many flowers as you need.</p>
     <div class="form-grid">
       <div class="field"><label>CATEGORY NAME</label><input id="categoryName" placeholder="e.g. Premium Bouquet"></div>
       <div class="field"><label>PRICE (Rs.)</label><input id="categoryPrice" type="number" min="0" step="1" placeholder="2500"></div>
       <div class="field full"><label>CATEGORY / MAIN PHOTO</label><input id="categoryPhoto" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></div>
       
-      <div class="field full"><h3 style="margin:4px 0">Flowers in this category</h3><div class="hint">Every flower below has independent stock. Add or remove rows as needed.</div></div>
+      <div class="field full"><h3 style="margin:4px 0">Flowers in this category</h3><div class="hint">Add or remove flower designs as needed.</div></div>
       <div class="field full" id="newCategoryFlowers"></div>
       <div class="field full actions"><button class="secondary" id="addCategoryFlowerRow" type="button">＋ Add Flower</button><button class="primary" id="addCategoryBtn" type="button">🌸 Create Category</button><span class="hint" id="categoryMessage"></span></div>
       <div class="field full"><div id="categoryUploadList" class="upload-list"></div></div>
@@ -184,7 +187,7 @@ function rosemoonQuickLogin(){
           <div class="field"><label>CATEGORY NAME</label><input id="manageCategoryName" type="text"></div>
           <div class="field"><label>CATEGORY PRICE (Rs.)</label><input id="manageCategoryPrice" type="number" min="0" step="1"></div>
           <div class="field"><label>SHOW CATEGORY PRICE</label><label style="display:flex;align-items:center;gap:9px;padding:11px 0"><input id="manageCategoryPriceVisible" type="checkbox" checked style="width:auto"> Show price to customers</label></div>
-          <div class="field"><label>CATEGORY TOTAL STOCK</label><input id="manageCategoryStock" type="number" min="0" step="1"></div>
+          <input id="manageCategoryStock" type="hidden">
         </div>
       </div>
 
@@ -207,7 +210,7 @@ function rosemoonQuickLogin(){
       <div class="edit-section">
         <div class="edit-section-head">
           <span class="edit-section-number">04</span>
-          <div><h3>Flowers in This Category</h3><p>Each flower has its own name, image, price, stock and color options.</p></div>
+          <div><h3>Flowers in This Category</h3><p>Each flower has its own name, image and price.</p></div>
         </div>
         <div id="manageFlowerOptions"><div class="empty">Choose a category to manage its flowers.</div></div>
         <button class="secondary" type="button" style="margin-top:12px" onclick="addManageFlowerRow()">＋ Add Flower</button>
@@ -420,7 +423,7 @@ async function uploadCategoryPhoto(file,label){if(!file)return '';const dataUrl=
 let newCategoryFlowerCount=0;
 function newFlowerColorRowHtml(i,j,color){const c=color||{};return '<div class="color-option-row" data-new-color="'+j+'"><input id="newFlowerColorName'+i+'_'+j+'" type="text" value="'+esc(c.name||'')+'" placeholder="Color e.g. Red"><input id="newFlowerColorStock'+i+'_'+j+'" type="number" min="0" step="1" value="'+(Number.isFinite(Number(c.stock))?Math.max(0,Math.floor(Number(c.stock))):0)+'" placeholder="Stock"><input id="newFlowerColorPhoto'+i+'_'+j+'" type="file" accept="image/*"><button class="secondary" type="button" onclick="removeNewFlowerColorRow('+i+','+j+')">Remove</button></div>';}
 function addNewFlowerColorRow(i,prefill){const box=$('newFlowerColors'+i);if(!box)return;const j=box.querySelectorAll('[data-new-color]').length;box.insertAdjacentHTML('beforeend',newFlowerColorRowHtml(i,j,prefill));} function removeNewFlowerColorRow(i,j){document.querySelector('#newFlowerColors'+i+' [data-new-color="'+j+'"]').remove();} function newFlowerRowHtml(i){
-  return '<div class="flower-manager-row" data-new-flower="'+i+'"><div class="flower-image-section"><label>FLOWER IMAGE</label><div class="flower-photo-preview" id="newFlowerPreview'+i+'">🌸</div><input id="newFlowerPhoto'+i+'" type="file" accept="image/png,image/jpeg,image/webp,image/gif" onchange="previewNewFlowerImage('+i+')"></div><div><label>FLOWER NAME</label><input id="newFlowerName'+i+'" type="text" placeholder="e.g. Pink Lily"></div><div><label>FLOWER PRICE (Rs.)</label><input id="newFlowerPrice'+i+'" type="number" min="0" step="1" value="0"></div><div class="stock-field"><label>INDIVIDUAL STOCK</label><input id="newFlowerStock'+i+'" type="number" min="0" step="1" value="0"></div><button class="danger remove-flower" type="button" onclick="removeNewFlowerRow('+i+')">Remove</button></div>';
+  return '<div class="flower-manager-row" data-new-flower="'+i+'"><div class="flower-image-section"><label>FLOWER IMAGE</label><div class="flower-photo-preview" id="newFlowerPreview'+i+'">🌸</div><input id="newFlowerPhoto'+i+'" type="file" accept="image/png,image/jpeg,image/webp,image/gif" onchange="previewNewFlowerImage('+i+')"></div><div><label>FLOWER NAME</label><input id="newFlowerName'+i+'" type="text" placeholder="e.g. Pink Lily"></div><div><label>FLOWER PRICE (Rs.)</label><input id="newFlowerPrice'+i+'" type="number" min="0" step="1" value="0"></div><input id="newFlowerStock'+i+'" type="hidden" value="0"><button class="danger remove-flower" type="button" onclick="removeNewFlowerRow('+i+')">Remove</button></div>';
 }
 async function previewNewFlowerImage(i){
   const file=$('newFlowerPhoto'+i)?.files?.[0],preview=$('newFlowerPreview'+i);
@@ -603,7 +606,7 @@ async function saveCategoryManager(){
     products=saved.products;
     await refreshAdminData(p.id);
     renderWebsiteCategoryOrder();
-    msg.textContent='✅ Saved. Unchanged names, prices, photos, stock and flower details were kept.';
+    msg.textContent='✅ Saved. Unchanged names, prices, photos and flower details were kept.';
   }catch(e){
     msg.textContent='❌ '+(e.message||e);
   }finally{
@@ -648,7 +651,7 @@ function renderCategoryManager(){
   opts.forEach((o,i)=>{
     html+='<div class="flower-manager-row" data-manage-flower="'+i+'" data-original-index="'+i+'"><div style="grid-column:1/-1"><label>FLOWER NAME</label><input id="manageFlowerName'+i+'" type="text" value="'+esc(o.type||'')+'" placeholder="e.g. Pink Lily"></div><div><label>FLOWER PRICE (Rs.)</label><input id="manageFlowerPrice'+i+'" type="number" min="0" step="1" value="'+Number(o.price ?? p.price ?? 0)+'"></div><div class="flower-image-section" style="grid-column:1/-1"><label>FLOWER IMAGE</label><div class="flower-photo-preview">'+(o?.imageUrl?'<img src="'+esc(driveAdminImageUrl(o.imageUrl))+'" alt="" style="width:100%;height:100%;object-fit:contain">':'')+'</div><input id="manageFlowerPhoto'+i+'" type="file" accept="image/png,image/jpeg,image/webp,image/gif" onchange="replaceManageFlowerImage('+i+')"><div id="manageFlowerPhotoMsg'+i+'" class="hint" style="margin-top:4px"></div></div><button class="danger remove-flower" type="button" onclick="removeManageFlowerRow('+i+')">Remove</button></div>';
   });
-  html+='</div><div class="hint" style="margin-top:10px">Category total stock and every flower stock are independent. You can have different stock numbers for every flower.</div>';
+  html+='</div><div class="hint" style="margin-top:10px">Edit flower names, photos and prices independently.</div>';
   box.innerHTML=html;
 
 }
@@ -799,12 +802,12 @@ function renderInventory(){
     const pid=esc(p.id);
     return '<div class="inventory-category-card">'+
       '<div class="inventory-category-head">'+
-      '<div style="display:flex;align-items:center;gap:12px"><div>'+(adminCategoryImageFor(p)?'<img src="'+esc(adminCategoryImageFor(p))+'" alt="" style="width:72px;height:72px;object-fit:contain;border-radius:14px;background:#fff8fa;border:1px solid #f0e2e7">':'')+'</div><div><div class="inventory-category-title">'+esc(p.name||p.category)+'</div><div class="inventory-category-meta">'+money(p.price)+' · '+opts.length+' flowers · Stock: '+categoryStockTotal(p)+'</div></div>'+
+      '<div style="display:flex;align-items:center;gap:12px"><div>'+(adminCategoryImageFor(p)?'<img src="'+esc(adminCategoryImageFor(p))+'" alt="" style="width:72px;height:72px;object-fit:contain;border-radius:14px;background:#fff8fa;border:1px solid #f0e2e7">':'')+'</div><div><div class="inventory-category-title">'+esc(p.name||p.category)+'</div><div class="inventory-category-meta">'+money(p.price)+' · '+opts.length+' flowers</div></div>'+
       '<div><label class="hint">PRICE (Rs.)</label><input id="cat-price-'+pid+'" type="number" min="0" value="'+Number(p.price||0)+'"></div>'+
       '<button class="secondary inventory-open-btn" type="button" data-open-category="'+pid+'">🌸 Open Flowers</button>'+
       '</div>'+
       '<div class="inventory-category-details" id="cat-details-'+pid+'">'+
-      '<div class="inventory-flower-list">'+(opts.length?opts.map((o,i)=>'<div class="inventory-flower-row"><div class="inventory-flower-photo">'+(adminFlowerImageFor(o,p)?'<img src="'+esc(adminFlowerImageFor(o,p))+'" alt="" style="object-fit:contain;background:#fff">':'🌸')+'</div><div class="inventory-flower-info"><strong>'+esc(o.type||('Flower '+(i+1)))+'</strong><div class="inventory-flower-fields"><div><label class="hint">PRICE (Rs.)</label><input id="cat-flower-price-'+pid+'-'+i+'" type="number" min="0" step="1" value="'+Number(o.price ?? p.price ?? 0)+'"></div><div class="flower-stock"><label class="hint">FLOWER STOCK</label><input id="cat-flower-stock-'+pid+'-'+i+'" type="number" min="0" value="'+Number(o.stock||0)+'"></div></div><div class="flower-save"><button class="secondary" type="button" onclick="saveCategoryInventory(\''+pid+'\')">Save</button></div></div></div>').join(''):'<div class="empty">No flowers added.</div>')+'</div>'+
+      '<div class="inventory-flower-list">'+(opts.length?opts.map((o,i)=>'<div class="inventory-flower-row"><div class="inventory-flower-photo">'+(adminFlowerImageFor(o,p)?'<img src="'+esc(adminFlowerImageFor(o,p))+'" alt="" style="object-fit:contain;background:#fff">':'🌸')+'</div><div class="inventory-flower-info"><strong>'+esc(o.type||('Flower '+(i+1)))+'</strong><div class="inventory-flower-fields"><div><label class="hint">PRICE (Rs.)</label><input id="cat-flower-price-'+pid+'-'+i+'" type="number" min="0" step="1" value="'+Number(o.price ?? p.price ?? 0)+'"></div></div><div class="flower-save"><button class="secondary" type="button" onclick="saveCategoryInventory(\''+pid+'\')">Save</button></div></div></div>').join(''):'<div class="empty">No flowers added.</div>')+'</div>'+
       '<div class="inventory-category-actions"><button class="primary" type="button" onclick="saveCategoryInventory(\''+pid+'\')">💾 Save Category</button><button class="danger" type="button" onclick="deleteCategoryContents(\''+pid+'\')">🗑️ Delete Inside</button></div>'+      '</div>'+
     '</div>';
   }).join('');
@@ -830,7 +833,7 @@ async function deleteCategoryContents(id){
   const raw=categoryData(p);
   const count=Array.isArray(raw.options)?raw.options.length:0;
   const name=p.name||p.category||'this category';
-  if(!confirm('Delete category "'+name+'" and everything inside it? This removes all flowers, colors (including Default), stock, prices and category data. This cannot be undone.'))return;
+  if(!confirm('Delete category "'+name+'" and all its flower designs? This cannot be undone.'))return;
   try{
     const d=await api('deleteProduct',{id:p.id});
     if(!d.products)throw new Error('The server did not return the updated products.');
@@ -873,7 +876,7 @@ async function saveCategoryInventory(id){
     }
     products=d.products;
     renderInventory();renderDashboardInventory();updateStats();
-    alert('Saved. Flower prices and stock are updated.');
+    alert('Saved. Flower prices are updated.');
   }catch(e){alert(e.message)}
 }
 function openCategoryEditor(id){
