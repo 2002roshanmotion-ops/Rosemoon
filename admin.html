@@ -457,6 +457,8 @@ async function createCategory(){
       const url=file?await uploadCategoryPhoto(file,type):'';
       options.push({type,price:flowerPrice,stock:qty,imageUrl:url});
     }
+    // A category rename must never erase its saved flowers if the editor rows failed to render.
+    if(rows.length===0&&oldOpts.length)options.push(...oldOpts.map(o=>({...o})));
     if(!options.length)throw new Error('Add at least one flower.');
     msg.textContent='Saving category…';
     const d=await api('addProduct',{category:name,name,price,stock:0,imageUrl:mainUrl,description:JSON.stringify({rosemoonCategory:true,options,priceVisible:true})});
@@ -503,7 +505,7 @@ function addManageFlowerRow(){
     wrap=document.createElement('div');wrap.style.display='grid';wrap.style.gap='10px';box.prepend(wrap);
   }
   const i=nextManageFlowerIndex();
-  wrap.insertAdjacentHTML('beforeend','<div class="flower-manager-row" data-manage-flower="'+i+'"><div style="grid-column:1/-1"><label>FLOWER NAME</label><input id="manageFlowerName'+i+'" type="text" placeholder="e.g. Pink Lily"></div><div><label>FLOWER PRICE (Rs.)</label><input id="manageFlowerPrice'+i+'" type="number" min="0" step="1" value="0"></div><div class="flower-image-section" style="grid-column:1/-1"><label>FLOWER IMAGE</label><div class="flower-photo-preview"></div><input id="manageFlowerPhoto'+i+'" type="file" accept="image/png,image/jpeg,image/webp,image/gif" onchange="replaceManageFlowerImage('+i+')"><div id="manageFlowerPhotoMsg'+i+'" class="hint" style="margin-top:4px"></div></div><button class="danger remove-flower" type="button" onclick="removeManageFlowerRow('+i+')">Remove</button></div>');
+  wrap.insertAdjacentHTML('beforeend','<div class="flower-manager-row" data-manage-flower="'+i+'" data-original-index=""><div style="grid-column:1/-1"><label>FLOWER NAME</label><input id="manageFlowerName'+i+'" type="text" placeholder="e.g. Pink Lily"></div><div><label>FLOWER PRICE (Rs.)</label><input id="manageFlowerPrice'+i+'" type="number" min="0" step="1" value="0"></div><div class="flower-image-section" style="grid-column:1/-1"><label>FLOWER IMAGE</label><div class="flower-photo-preview"></div><input id="manageFlowerPhoto'+i+'" type="file" accept="image/png,image/jpeg,image/webp,image/gif" onchange="replaceManageFlowerImage('+i+')"><div id="manageFlowerPhotoMsg'+i+'" class="hint" style="margin-top:4px"></div></div><button class="danger remove-flower" type="button" onclick="removeManageFlowerRow('+i+')">Remove</button></div>');
   $('manageFlowerName'+i)?.focus();
   const msg=$('manageCategoryMessage');if(msg)msg.textContent='New flower row added. Enter a name, then Save Changes.';
 }
@@ -542,7 +544,7 @@ async function saveCategoryManager(){
     btn.disabled=true;msg.textContent='Saving category…';
     const oldOpts=categoryData(p).options||[],rows=[...document.querySelectorAll('#manageFlowerOptions [data-manage-flower]')],options=[];
     for(const row of rows){
-      const i=Number(row.dataset.manageFlower),type=String($('manageFlowerName'+i)?.value||'').trim(),file=$('manageFlowerPhoto'+i)?.files?.[0],old=oldOpts[i]||{};
+      const i=Number(row.dataset.manageFlower),originalIndex=row.getAttribute('data-original-index'),type=String($('manageFlowerName'+i)?.value||'').trim(),file=$('manageFlowerPhoto'+i)?.files?.[0],old=originalIndex!==''&&originalIndex!==null?(oldOpts[Number(originalIndex)]||{}):{};
       // Existing flowers must never disappear just because their input is temporarily blank.
       // Newly added blank rows are ignored, while saved existing rows are preserved.
       if(!type){
@@ -600,7 +602,7 @@ function renderCategoryManager(){
   if(categoryPreview) categoryPreview.innerHTML=categoryImage?'<img src="'+esc(categoryImage)+'" alt="" style="width:120px;height:120px;object-fit:contain;border-radius:14px;background:#fff;border:1px solid #f0e2e7">':'';
   let html='<div style="display:grid;gap:10px">';
   opts.forEach((o,i)=>{
-    html+='<div class="flower-manager-row" data-manage-flower="'+i+'"><div style="grid-column:1/-1"><label>FLOWER NAME</label><input id="manageFlowerName'+i+'" type="text" value="'+esc(o.type||'')+'" placeholder="e.g. Pink Lily"></div><div><label>FLOWER PRICE (Rs.)</label><input id="manageFlowerPrice'+i+'" type="number" min="0" step="1" value="'+Number(o.price ?? p.price ?? 0)+'"></div><div class="flower-image-section" style="grid-column:1/-1"><label>FLOWER IMAGE</label><div class="flower-photo-preview">'+(o?.imageUrl?'<img src="'+esc(driveAdminImageUrl(o.imageUrl))+'" alt="" style="width:100%;height:100%;object-fit:contain">':'')+'</div><input id="manageFlowerPhoto'+i+'" type="file" accept="image/png,image/jpeg,image/webp,image/gif" onchange="replaceManageFlowerImage('+i+')"><div id="manageFlowerPhotoMsg'+i+'" class="hint" style="margin-top:4px"></div></div><button class="danger remove-flower" type="button" onclick="removeManageFlowerRow('+i+')">Remove</button></div>';
+    html+='<div class="flower-manager-row" data-manage-flower="'+i+'" data-original-index="'+i+'"><div style="grid-column:1/-1"><label>FLOWER NAME</label><input id="manageFlowerName'+i+'" type="text" value="'+esc(o.type||'')+'" placeholder="e.g. Pink Lily"></div><div><label>FLOWER PRICE (Rs.)</label><input id="manageFlowerPrice'+i+'" type="number" min="0" step="1" value="'+Number(o.price ?? p.price ?? 0)+'"></div><div class="flower-image-section" style="grid-column:1/-1"><label>FLOWER IMAGE</label><div class="flower-photo-preview">'+(o?.imageUrl?'<img src="'+esc(driveAdminImageUrl(o.imageUrl))+'" alt="" style="width:100%;height:100%;object-fit:contain">':'')+'</div><input id="manageFlowerPhoto'+i+'" type="file" accept="image/png,image/jpeg,image/webp,image/gif" onchange="replaceManageFlowerImage('+i+')"><div id="manageFlowerPhotoMsg'+i+'" class="hint" style="margin-top:4px"></div></div><button class="danger remove-flower" type="button" onclick="removeManageFlowerRow('+i+')">Remove</button></div>';
   });
   html+='</div><div class="hint" style="margin-top:10px">Category total stock and every flower stock are independent. You can have different stock numbers for every flower.</div>';
   box.innerHTML=html;
