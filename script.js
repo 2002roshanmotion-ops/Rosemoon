@@ -42,7 +42,7 @@
           stock:Math.max(0,Number(o?.stock)||0),
           price:Math.max(0,Number(o?.price ?? product?.price ?? 0)),
           imageUrl:driveImageUrl(o?.imageUrl)||'',
-          colors:(()=>{const saved=Array.isArray(o?.colors)?o.colors:[];return saved.map(c=>({name:String(c?.name||'Color'),stock:Object.prototype.hasOwnProperty.call(c,'stock')?Math.max(0,Number(c.stock)||0):Math.max(0,Number(o?.stock)||0),imageUrl:driveImageUrl(c?.imageUrl)||''}));})()
+          // Legacy colour data is ignored; customers select flowers only.
         }));
       }
     }catch(e){}
@@ -221,25 +221,14 @@
   function openFlowerDetailPopup(type){
     flowerDetailOpen=true;
     if(!popupProduct||!grid||!sub)return;
-    const option=categoryOptions(popupProduct).find(o=>String(o.type||'')===String(type||''));
-    if(!option)return;
-    const o=option;
-    const emoji=String(o.emoji||'🌸'), stock=Math.max(0,Number(o.stock)||0), price=Math.max(0,Number(o.price ?? popupProduct.price ?? 0)), imageUrl=driveImageUrl(o.imageUrl);
+    const o=categoryOptions(popupProduct).find(x=>String(x.type||'')===String(type||''));
+    if(!o)return;
+    const emoji=String(o.emoji||'🌸'),stock=Math.max(0,Number(o.stock)||0),price=Math.max(0,Number(o.price??popupProduct.price??0)),imageUrl=driveImageUrl(o.imageUrl);
     const isDecoration=String(o.type||'').trim().toLowerCase()==='decoration';
-    const colors=Array.isArray(o.colors)?o.colors:[];
-    const colorId='flowerColor_'+popupProduct.id+'_'+categoryOptions(popupProduct).indexOf(o);
-    const art=imageUrl?`<img class="${isDecoration?'decoration-full-image':''}" data-color-image="${escapeAttr(colorId)}" src="${escapeAttr(imageUrl)}" alt="${escapeAttr(o.type)}">`:emoji;
-    const selectedColorStock=Math.max(0,Number(colors[0]?.stock ?? stock)||0), stockClass=selectedColorStock===0?"out":selectedColorStock<=2?"low":"";
-    const colorHtml=`<div class="flower-color-label">Color</div><div class="flower-color-options">${colors.map((c,ci)=>`<button type="button" class="flower-color-choice ${ci===0?"selected":""}" ${Math.max(0,Number(c.stock)||0)<=0?"disabled":""} data-color-choice="${escapeAttr(colorId)}" data-color-index="${ci}" data-type="${escapeAttr(o.type)}">${escapeHtml(c.name)} · ${Math.max(0,Number(c.stock)||0)} left</button>`).join("")}</div>`;
-    sub.innerHTML=`<span>${escapeHtml(popupProduct.name)} · ${escapeHtml(o.type)}</span>`;
-    grid.innerHTML=`<article class="flower-popup-card flower-popup-detail-card" data-flower-type="${escapeAttr(o.type)}" data-selected-color="${escapeAttr(colors[0]?.name||'Color 1')}" data-selected-color-image="${escapeAttr(colors[0]?.imageUrl||imageUrl)}">
-      <div class="flower-popup-art">${art}</div>
-      <h3>${escapeHtml(o.type)}</h3>
-      <div class="flower-popup-price">${money(price)}</div>
-      ${colorHtml}
-      <div class="flower-popup-stock ${stockClass}" data-selected-stock="${escapeAttr(colorId)}">${selectedColorStock===0?"Sold out":selectedColorStock+" in stock"}</div>
-      <button type="button" data-popup-buy data-type="${escapeAttr(o.type)}" data-emoji="${escapeAttr(emoji)}" ${selectedColorStock===0?'disabled':''}>🛒 Add to Cart</button>
-    </article>`;
+    const art=imageUrl?'<img class="'+(isDecoration?'decoration-full-image':'')+'" src="'+escapeAttr(imageUrl)+'" alt="'+escapeAttr(o.type)+'">':emoji;
+    const stockClass=stock===0?'out':stock<=2?'low':'';
+    sub.innerHTML='<span>'+escapeHtml(popupProduct.name)+' · '+escapeHtml(o.type)+'</span>';
+    grid.innerHTML='<article class="flower-popup-card flower-popup-detail-card" data-flower-type="'+escapeAttr(o.type)+'"><div class="flower-popup-art">'+art+'</div><h3>'+escapeHtml(o.type)+'</h3><div class="flower-popup-price">'+money(price)+'</div><div class="flower-popup-stock '+stockClass+'">'+(stock===0?'Sold out':stock+' in stock')+'</div><button type="button" data-popup-buy data-type="'+escapeAttr(o.type)+'" data-emoji="'+escapeAttr(emoji)+'" '+(stock===0?'disabled':'')+'>🛒 Add to Cart</button></article>';
   }
 
   let lockedScrollY=0;
@@ -255,7 +244,15 @@
   }
   function closeFlowerPopup(){popup.classList.remove("open");popup.setAttribute("aria-hidden","true");flowerDetailOpen=false;unlockBackgroundScroll()}
   closePopup?.addEventListener("click",()=>{if(flowerDetailOpen){renderFlowerChoices();flowerDetailOpen=false;}else{closeFlowerPopup();}}); popup?.addEventListener("click",e=>{if(e.target===popup)closeFlowerPopup()});  sub?.addEventListener("click",e=>{const back=e.target.closest("[data-flower-back]");if(back){renderFlowerChoices();}});
-  grid?.addEventListener("click",e=>{const choice=e.target.closest("[data-open-flower]");if(choice&&!e.target.closest("[data-popup-buy]")&&!e.target.closest("[data-color-choice]")){openFlowerDetailPopup(choice.dataset.openFlower);return;}const cb=e.target.closest("[data-color-choice]");if(cb&&popupProduct){const card=cb.closest("[data-flower-type]"),o=categoryOptions(popupProduct).find(x=>String(x.type)===String(cb.dataset.type));const c=(o?.colors||[])[Number(cb.dataset.colorIndex)]||(o?.colors||[])[0];if(card&&c){const img=card.querySelector("[data-color-image=\""+cb.dataset.colorChoice+"\"]");if(img&&c.imageUrl)img.src=c.imageUrl;card.dataset.selectedColor=c.name||"Color 1";card.dataset.selectedColorImage=c.imageUrl||"";const colorStock=Math.max(0,Number(c.stock)||0);const stockEl=card.querySelector("[data-selected-stock]");if(stockEl){stockEl.textContent=colorStock===0?"Sold out":colorStock+" in stock";stockEl.classList.toggle("out",colorStock===0);stockEl.classList.toggle("low",colorStock>0&&colorStock<=2)}const buy=card.querySelector("[data-popup-buy]");if(buy)buy.disabled=colorStock===0;card.querySelectorAll("[data-color-choice]").forEach(x=>x.classList.remove("selected")); cb.classList.add("selected");}return;}const b=e.target.closest("[data-popup-buy]");if(!b||!popupProduct)return;const card=b.closest("[data-flower-type]");const options=categoryOptions(popupProduct);const selected=options.find(o=>String(o.type||'')===String(b.dataset.type));const ok=addItem({id:popupProduct.id,size:popupProduct.category,name:popupProduct.name,price:Math.max(0,Number(selected?.price ?? popupProduct.price ?? 0)),type:b.dataset.type,emoji:b.dataset.emoji,imageUrl:(card?.dataset.selectedColorImage||selected?.imageUrl||popupProduct.imageUrl),color:card?.dataset.selectedColor||'Color 1'},true,b);if(ok){b.textContent="✓ Added";b.disabled=true;setTimeout(closeFlowerPopup,300)}});
+  grid?.addEventListener("click",e=>{
+    const choice=e.target.closest("[data-open-flower]");
+    if(choice&&!e.target.closest("[data-popup-buy]")){openFlowerDetailPopup(choice.dataset.openFlower);return;}
+    const b=e.target.closest("[data-popup-buy]");
+    if(!b||!popupProduct)return;
+    const selected=categoryOptions(popupProduct).find(o=>String(o.type||'')===String(b.dataset.type));
+    const ok=addItem({id:popupProduct.id,size:popupProduct.category,name:popupProduct.name,price:Math.max(0,Number(selected?.price??popupProduct.price??0)),type:b.dataset.type,emoji:b.dataset.emoji,imageUrl:selected?.imageUrl||popupProduct.imageUrl},true,b);
+    if(ok){b.textContent="✓ Added";b.disabled=true;setTimeout(closeFlowerPopup,300)}
+  });
 
   let uiSoundCtx=null;
   function playUISound(kind='normal'){
@@ -428,18 +425,16 @@
       const d=JSON.parse(String(p.description||''));
       if(d?.rosemoonCategory&&Array.isArray(d.options)){
         const opt=d.options.find(o=>String(o?.type||'')===String(item?.type||''));
-        if(opt){const colors=Array.isArray(opt.colors)?opt.colors:[];const color=colors.find(c=>String(c?.name||'Color 1')===String(item?.color||'Color 1'));if(color&&Object.prototype.hasOwnProperty.call(color,'stock'))return Math.max(0,Number(color.stock)||0);return Math.max(0,Number(opt.stock)||0);}
+        if(opt)return Math.max(0,Number(opt.stock)||0);
       }
     }catch(e){}
     return stockFor(item.id);
   }
   function addItem(item,silent=false,source=null){
-    // Different colors of the same flower are separate cart lines.
     const stock=itemStockFor(item);
-    const itemColor=String(item?.color||'Color 1');
-    const existing=cart.find(x=>x.id===item.id&&x.type===item.type&&String(x?.color||'Color 1')===itemColor);
+    const existing=cart.find(x=>x.id===item.id&&x.type===item.type);
     if((existing?.qty||0)>=stock){toast("Stock limit reached");return false}
-    if(existing)existing.qty++;else cart.push({...item,color:itemColor,qty:1});
+    if(existing)existing.qty++;else cart.push({...item,qty:1});
     saveCart();renderCart();playUISound('cartSparkle');animateCartAdd(source);if(!silent)toast("Added to cart");return true;
   }
   window.rosemoonAddItem=addItem;
