@@ -805,31 +805,50 @@
 
   async function prepareFirstMusic(){
     if(!music.songs.length){setLoading(76,"No music yet");return;}
-    setLoading(60,"Preloading all songs…");
-    // Keep the loading screen visible until every active track has either
-    // been cached successfully or has reported that it cannot be loaded.
-    const allSongs=music.songs.map((song,index)=>music.prepare(index));
-    const results=await Promise.allSettled(allSongs);
-    const readyCount=results.filter(r=>r.status==="fulfilled"&&!!r.value).length;
-    const firstSrc=music.cache[music.songs[0][2]||music.songs[0][1]]||(
-      results[0]?.status==="fulfilled"?results[0].value:null
-    );
-    if(firstSrc&&music.audio){
+    setLoading(60,"Downloading music…");
+    // Fetch/cache every track, then wait for the browser to decode enough audio
+    // to play it. A URL in the cache alone does not mean the audio is ready.
+    const prepared=await Promise.allSettled(music.songs.map((song,index)=>music.prepare(index)));
+    const sources=prepared.map((r)=>r.status==="fulfilled"?r.value:null);
+    music.preloadPlayers=[];
+    const waitUntilPlayable=(player,src,timeoutMs=15000)=>new Promise(resolve=>{
+      let settled=false;
+      const done=ok=>{
+        if(settled)return;
+        settled=true;
+        clearTimeout(timer);
+        player.removeEventListener("canplay",onReady);
+        player.removeEventListener("error",onError);
+        resolve(ok);
+      };
+      const onReady=()=>done(true);
+      const onError=()=>done(false);
+      const timer=setTimeout(()=>done(false),timeoutMs);
+      player.preload="auto";
+      player.addEventListener("canplay",onReady,{once:true});
+      player.addEventListener("error",onError,{once:true});
+      if(player.src!==src)player.src=src;
+      player.load();
+      if(player.readyState>=3)done(true);
+    });
+    const checks=sources.map(async(src,index)=>{
+      if(!src)return false;
+      const player=index===0?music.audio:new Audio();
+      if(index!==0)music.preloadPlayers.push(player);
+      return waitUntilPlayable(player,src);
+    });
+    const results=await Promise.all(checks);
+    const readyCount=results.filter(Boolean).length;
+    if(sources[0]&&music.audio){
       music.index=0;
       music.audio.pause();
-      if(music.audio.src!==firstSrc){
-        music.audio.src=firstSrc;
-        music.audio.currentTime=0;
-      }
-      music.audio.preload="auto";
-      music.audio.load();
       music.loadTitle();
     }else if(music.audio){
       document.getElementById("songStatus").textContent="Music unavailable";
     }
     setLoading(78,readyCount===music.songs.length
-      ? "All songs preloaded…"
-      : readyCount+" of "+music.songs.length+" songs ready…");
+      ? "All "+readyCount+" songs ready"
+      : readyCount+" of "+music.songs.length+" songs playable");
   }
 
 
