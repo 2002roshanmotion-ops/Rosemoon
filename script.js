@@ -444,20 +444,8 @@
   document.getElementById("openCartBtn")?.addEventListener("click",openCart);document.getElementById("closeCart")?.addEventListener("click",closeCart);cartBackdrop?.addEventListener("click",closeCart);
   if(new URLSearchParams(location.search).get("openCart")==="1")setTimeout(openCart,120);
 
-  function getDeliveryCharge(){
-    const location=document.getElementById("deliveryLocation")?.value||"";
-    const place=deliveryPlaces.find(x=>String(x.name)===location&&x.active!==false);
-    return place?Math.max(0,Number(place.price)||0):0;
-  }
-  function renderDeliveryPlaces(){
-    const select=document.getElementById("deliveryLocation");
-    if(!select)return;
-    const previous=select.value;
-    select.innerHTML='<option value="">Choose location</option>'+deliveryPlaces.filter(x=>x&&x.active!==false).map(x=>'<option value="'+escapeAttr(x.name)+'">'+escapeHtml(x.name)+' — '+money(x.price)+'</option>').join('');
-    if(deliveryPlaces.some(x=>x.name===previous&&x.active!==false))select.value=previous;
-    else if(deliveryPlaces.some(x=>x.name==="Pokhara"&&x.active!==false))select.value="Pokhara";
-    renderCart();
-  }
+  function getDeliveryCharge(){return 0;}
+  function renderDeliveryPlaces(){}
   function cartImageFor(item){
     const direct=driveImageUrl(item?.imageUrl);
     if(direct)return direct;
@@ -478,12 +466,11 @@
     const box=document.getElementById("cartItems"),count=cart.reduce((s,x)=>s+x.qty,0),subtotal=cart.reduce((s,x)=>s+x.qty*x.price,0),delivery=getDeliveryCharge(),total=subtotal+delivery;
     document.getElementById("headerCartCount").textContent=count;
     const sub=document.getElementById("cartSubtotal");if(sub)sub.textContent=money(subtotal);
-    const dc=document.getElementById("deliveryCharge");if(dc)dc.textContent=money(delivery);
-    document.getElementById("cartTotal").textContent=money(total);
+    const dc=document.getElementById("deliveryCharge");if(dc)dc.textContent="To be confirmed";
+    document.getElementById("cartTotal").textContent="To be confirmed";
     if(!cart.length){box.innerHTML='<p class="cart-empty">Your cart is empty. 🌷</p>';return}
     box.innerHTML=cart.map((x,i)=>{const cartImage=cartImageFor(x);return `<div class="cart-item"><div class="cart-icon">${cartImage?`<img src="${escapeAttr(cartImage)}" alt="" style="width:42px;height:42px;object-fit:contain;border-radius:10px">`:x.emoji}</div><div class="cart-info"><strong>${escapeHtml(x.name||x.size)}</strong><small>${escapeHtml(x.type)} · ${money(x.price)}</small></div><div class="qty"><button data-q="-" data-i="${i}">−</button><b>${x.qty}</b><button data-q="+" data-i="${i}">+</button></div><button class="remove" data-q="x" data-i="${i}">×</button></div>`}).join("");
   }
-  document.getElementById("deliveryLocation")?.addEventListener("change",()=>renderCart());
   document.getElementById("cartItems")?.addEventListener("click",e=>{const b=e.target.closest("[data-q]");if(!b)return;const i=+b.dataset.i,x=cart[i];if(!x)return;if(b.dataset.q==="+")x.qty++;if(b.dataset.q==="-")x.qty--;if(b.dataset.q==="x"||x.qty<=0)cart.splice(i,1);saveCart();renderCart()});
   function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove("show"),1800)}
   document.getElementById("openGuide")?.addEventListener("click",()=>document.getElementById("guideModal").classList.add("open"));
@@ -627,16 +614,13 @@
     e.preventDefault();
     const note=document.getElementById("formNote");
     if(!cart.length){note.textContent="Add a bouquet first.";return}
-    const deliveryLocation=document.getElementById("deliveryLocation").value;
-    if(!deliveryLocation){note.textContent="Choose a delivery location.";return}
-    const selectedPlace=deliveryPlaces.find(x=>String(x.name)===deliveryLocation&&x.active!==false);
-    if(!selectedPlace){note.textContent="That delivery place is not available. Please choose another place.";return}
-    const deliveryCharge=Math.max(0,Number(selectedPlace.price)||0);
+    const deliveryLocation=document.getElementById("deliveryLocation").value.trim();
+    if(!deliveryLocation){note.textContent="Please enter your delivery area and nearby landmark.";return}
+    const deliveryCharge=0;
     const subtotal=cart.reduce((sum,item)=>sum+item.qty*item.price,0);
     const total=subtotal+deliveryCharge;
     const customerName=document.getElementById("name").value.trim();
     const phone=document.getElementById("phone").value.trim();
-    const deliveryDetails=document.getElementById("note").value.trim();
     const payment=document.getElementById("payment").value;
     const orderLines=cart.map(item=>"• "+item.name+(item.color?" ("+item.color+")":"")+(item.type?" — "+item.type:"")+" × "+item.qty+" = Rs. "+(item.qty*item.price).toLocaleString("en-IN"));
     const message=[
@@ -645,13 +629,13 @@
       ...orderLines,
       "",
       "Subtotal: Rs. "+subtotal.toLocaleString("en-IN"),
-      "Delivery ("+deliveryLocation+"): Rs. "+deliveryCharge.toLocaleString("en-IN"),
-      "Total: Rs. "+total.toLocaleString("en-IN"),
+      "Delivery fee: To be confirmed based on location",
+      "Total: To be confirmed after delivery fee",
       "",
       "Name: "+customerName,
       "Phone: "+phone,
       "Delivery location: "+deliveryLocation,
-      "Delivery details: "+(deliveryDetails||"Not provided"),
+      
       "Payment preference: "+payment,
       "",
       "Please confirm the order and delivery details before I make payment."
