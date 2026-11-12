@@ -140,7 +140,15 @@
   function renderProducts(){
     const grid=document.getElementById("productsGrid"); if(!grid)return;
     const query=String(document.getElementById("productSearch")?.value||"").trim().toLowerCase();
-    const base=products.filter(p=>p.active!==false);
+    // Match the Admin category list exactly: active saved categories plus legacy Others.
+    const base=products.filter(p=>{
+      if(p.active===false)return false;
+      let d={};try{d=JSON.parse(String(p?.description||''))||{}}catch(e){}
+      const savedCategory=!!d.rosemoonCategory&&Array.isArray(d.options)&&d.options.length>0;
+      const othersRecord=String(p?.name||'').trim().toLowerCase()==='others'||
+        String(p?.category||'').trim().toLowerCase()==='others';
+      return savedCategory||othersRecord;
+    });
     const active=query?base.filter(p=>searchMatches(query).some(m=>m.id===p.id)):base;
     if(!active.length){
       grid.innerHTML='<div class="product" style="grid-column:1/-1;text-align:center;padding:35px"><div style="font-size:38px;margin-bottom:8px">🌸</div>No bouquets found.<br><small style="color:#9b7d88">Try another name, category or price.</small></div>';
