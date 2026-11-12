@@ -79,7 +79,6 @@ function rosemoonQuickLogin(){
       <button class="tab" data-tab="photos">🌸 <span>Add Flowers</span></button>
       <button class="tab" data-tab="editFlowers">✏️ <span>Edit Flowers</span></button>
       <button class="tab" data-tab="orders">📋 <span>Orders</span></button>
-      <button class="tab" data-tab="deliveryPlaces">🚚 <span>Delivery Places</span></button>
       <button class="tab" data-tab="music">🎵 <span>Music</span></button>
     </nav>
     <div class="side-bottom">RoseMmoon Admin<br>Live store management</div>
@@ -231,19 +230,6 @@ function rosemoonQuickLogin(){
 
   <section class="panel" id="music"><div class="card"><h2>🎵 Add Music</h2><div class="form-grid"><div class="field"><label>SONG NAME (OPTIONAL)</label><input id="musicTitle" placeholder="Leave blank to use MP3 filename"></div><div class="field"><label>AUDIO FILES (MP3)</label><input id="musicFile" type="file" accept=".mp3,audio/mpeg" multiple><div class="hint" style="margin-top:6px">Select one MP3 or multiple MP3 files. Title is optional; blank uses the filename.</div></div><div class="field full"><button class="primary" id="addMusicBtn">🎵 Add Music</button><span class="hint" id="musicMessage" style="margin-left:10px"></span><div id="musicUploadList" class="upload-list" aria-live="polite"></div></div></div></div><div class="card"><h2>Playlist order</h2><p class="hint">Use ↑ and ↓ to arrange the order, then save your changes. The customer website follows the saved order.</p><div id="musicList"></div><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px"><button class="primary" type="button" id="saveMusicOrder" disabled>💾 Save Changes</button><span class="hint" id="musicOrderMessage" aria-live="polite">No unsaved changes.</span></div></div></section>
 
-  <section class="panel" id="deliveryPlaces">
-    <div class="card">
-      <h2>🚚 Delivery Places & Prices</h2>
-      <p class="hint">Create delivery areas and set the delivery charge customers will see at checkout. Prices are in Nepalese rupees.</p>
-      <div id="deliveryPlaceRows" style="display:grid;gap:12px;margin:18px 0"></div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <button class="secondary" type="button" id="addDeliveryPlace">＋ Add Place</button>
-        <button class="primary" type="button" id="saveDeliveryPlaces">💾 Save Delivery Places</button>
-      </div>
-      <p class="hint" id="deliveryPlacesMessage" aria-live="polite" style="margin-top:12px"></p>
-    </div>
-  </section>
-
   <section class="panel" id="orders"><div class="card"><h2>📋 Orders</h2><button class="secondary" id="refreshOrders">🔄 Refresh</button><div class="table-wrap"><table><thead><tr><th>Order</th><th>Date</th><th>Customer</th><th>Phone</th><th>Items</th><th>Total</th><th>Status</th></tr></thead><tbody id="ordersTable"></tbody></table></div></div></section>
 </main></div></div>
 
@@ -389,7 +375,6 @@ function setTab(name){
   if(name==='editFlowers')populateCategoryManager();
   if(name==='music'&&typeof loadMusic==='function')loadMusic();
   if(name==='orders'&&typeof loadOrders==='function')loadOrders();
-  if(name==='deliveryPlaces')loadDeliveryPlaces();
 }
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
 document.querySelectorAll('.tab[data-tab="editFlowers"]').forEach(b=>b.addEventListener('click',function(){
