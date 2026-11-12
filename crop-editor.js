@@ -44,8 +44,10 @@
     const file=new File([blob],'rosemoon-cropped.jpg',{type:'image/jpeg'}),dt=new DataTransfer();dt.items.add(file);input.files=dt.files;
     if(preview)preview.innerHTML='<img src="'+URL.createObjectURL(blob)+'" alt="Cropped image preview" style="width:120px;height:120px;object-fit:contain;border-radius:14px;background:#fff">';
     message.textContent='Uploading and saving the cropped image…';
-    if(typeof window.saveCategoryManager==='function')await window.saveCategoryManager();
-    else throw new Error('The Rosemoon save function is not available. Please reload the admin page.');
+    if(typeof window.saveCategoryManager!=='function')throw new Error('The Rosemoon save function is not available. Please reload the admin page.');
+    await window.saveCategoryManager();
+    const saveStatus=document.getElementById('manageCategoryMessage');
+    if(saveStatus&&saveStatus.textContent.includes('❌'))throw new Error(saveStatus.textContent);
     editor.style.display='none';
    }catch(error){message.textContent='Could not save this crop: '+(error.message||error)+' If this is an existing online image, choose its original file from your device.'}
    finally{save.disabled=false;save.textContent='💾 Save Image'}
