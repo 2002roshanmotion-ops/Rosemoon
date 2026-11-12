@@ -281,10 +281,20 @@ async function loadDeliveryPlaces(){
   const msg=$('deliveryPlacesMessage');if(msg)msg.textContent='Loading delivery places…';
   try{
     const d=await api('deliveryLocations');
-    deliveryPlaces=Array.isArray(d.locations)?d.locations.map(x=>({...x})): [];
+    if(Array.isArray(d.locations)&&d.locations.length){
+      deliveryPlaces=d.locations.map(x=>({...x}));
+      renderDeliveryPlaces();
+      if(msg)msg.textContent='Delivery places loaded. You can edit names and prices below.';
+    }else{
+      deliveryPlaces=[{id:'pokhara',name:'Pokhara',price:150,active:true}];
+      renderDeliveryPlaces();
+      if(msg)msg.textContent='Showing the previous default place. Deploy the updated Apps Script to load and save your full place list.';
+    }
+  }catch(e){
+    deliveryPlaces=[{id:'pokhara',name:'Pokhara',price:150,active:true}];
     renderDeliveryPlaces();
-    if(msg)msg.textContent='Delivery places loaded.';
-  }catch(e){if(msg)msg.textContent='Could not load delivery places: '+e.message}
+    if(msg)msg.textContent='Showing the previous default place. Apps Script connection issue: '+e.message;
+  }
 }
 function captureDeliveryPlaceInputs(){
   deliveryPlaces=deliveryPlaces.map((p,i)=>({
