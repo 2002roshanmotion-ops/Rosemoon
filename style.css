@@ -555,3 +555,12 @@ body.flower-popup-open{
   .guide-decor-left{left:-18px;top:52px}
   .guide-decor-right{right:-18px;top:94px}
 }
+
+/* Prevent iOS Safari from zooming the page when a form field receives focus. */
+@media (max-width: 768px) and (pointer: coarse) {
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
