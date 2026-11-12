@@ -23,7 +23,7 @@
   function reset(){scale=1;panX=0;panY=0;draw()}
   function show(){editor.style.display='block';editor.scrollIntoView({behavior:'smooth',block:'nearest'})}
   function chooseOriginal(reason){message.textContent=reason+' Please choose the original image file; then the crop editor will open.';show();input.click()}
-  function showEditor(src,remote){image=new Image();image.onload=()=>{message.textContent='Drag the image to position it, then press Save Image.';reset();show()};image.onerror=()=>{image=null;draw();chooseOriginal('The saved preview cannot be edited directly from its image host.');};if(remote)image.crossOrigin='anonymous';image.src=src}
+  function showEditor(src,remote){image=new Image();image.onload=()=>{message.textContent='Drag the image to position it, then press Save Image.';reset();show()};image.onerror=()=>{image=null;draw();chooseOriginal('The saved preview could not be loaded for editing.');};image.src=src}
   function openCurrentImage(){const file=input.files&&input.files[0];if(file){if(objectUrl)URL.revokeObjectURL(objectUrl);objectUrl=URL.createObjectURL(file);showEditor(objectUrl,false);return}const current=section.querySelector('.flower-photo-preview img')||section.querySelector('#manageCategoryPhotoPreview img');if(current&&current.src){showEditor(current.src,true);return}chooseOriginal('No current image preview was found.')}
   input.addEventListener('change',()=>{const file=input.files&&input.files[0];if(!file)return;if(objectUrl)URL.revokeObjectURL(objectUrl);objectUrl=URL.createObjectURL(file);showEditor(objectUrl,false)});
   ratio.addEventListener('change',reset);
@@ -49,7 +49,7 @@
     const saveStatus=document.getElementById('manageCategoryMessage');
     if(saveStatus&&saveStatus.textContent.includes('❌'))throw new Error(saveStatus.textContent);
     editor.style.display='none';
-   }catch(error){message.textContent='Could not save this crop: '+(error.message||error)+' If this is an existing online image, choose its original file from your device.'}
+   }catch(error){message.textContent='The preview can be displayed, but its host blocks saving a crop. Choose the original image file from your device, then Save Image. ('+(error.message||error)+')';image=null;draw()}
    finally{save.disabled=false;save.textContent='💾 Save Image'}
   });
  }
