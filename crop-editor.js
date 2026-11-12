@@ -49,7 +49,7 @@
     const saveStatus=document.getElementById('manageCategoryMessage');
     if(saveStatus&&saveStatus.textContent.includes('❌'))throw new Error(saveStatus.textContent);
     editor.style.display='none';
-   }catch(error){message.textContent='The preview can be displayed, but its host blocks saving a crop. Choose the original image file from your device, then Save Image. ('+(error.message||error)+')';image=null;draw()}
+   }catch(error){message.textContent='Save failed: '+(error.message||error)+'. Your image is still open—nothing was cleared. If this is an existing Drive image, choose the original file from your device and save again.';}
    finally{save.disabled=false;save.textContent='💾 Save Image'}
   });
  }
