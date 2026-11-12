@@ -676,31 +676,22 @@
         }
         const orderText=box.value;
         let copied=false;
-        // Call the modern clipboard API directly inside the user's click gesture.
-        // This is the preferred route on current Chrome, Edge, Firefox and Safari.
-        try{
-          if(navigator.clipboard&&window.isSecureContext){
-            await navigator.clipboard.writeText(orderText);
-            copied=true;
-          }
-        }catch(err){}
-        // Legacy fallback for browsers without Clipboard API support.
+        // Legacy synchronous copy from the visible order text: keeps the
+        // browser's user-gesture permission on Safari and older browsers.
+        box.readOnly=false;
+        box.focus();
+        box.select();
+        box.setSelectionRange(0,box.value.length);
+        try{copied=document.execCommand("copy");}catch(err){}
+        box.readOnly=true;
+        // Modern system clipboard fallback for browsers supporting Clipboard API.
         if(!copied){
-          const temp=document.createElement("textarea");
-          temp.value=orderText;
-          temp.setAttribute("aria-hidden","true");
-          temp.style.position="fixed";
-          temp.style.top="0";
-          temp.style.left="-10000px";
-          temp.style.width="1px";
-          temp.style.height="1px";
-          temp.style.fontSize="16px";
-          document.body.appendChild(temp);
-          temp.focus();
-          temp.select();
-          temp.setSelectionRange(0,temp.value.length);
-          try{copied=document.execCommand("copy");}catch(err){}
-          temp.remove();
+          try{
+            if(navigator.clipboard&&window.isSecureContext){
+              await navigator.clipboard.writeText(orderText);
+              copied=true;
+            }
+          }catch(err){}
         }
         if(copied){
           copyButton.textContent="✓ Copied!";
