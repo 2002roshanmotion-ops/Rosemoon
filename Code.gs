@@ -214,7 +214,10 @@ function updateProduct_(payload) {
       if(payload.featured!==undefined) sheet.getRange(i+1,8).setValue(bool_(payload.featured,false));
       if(payload.isNew!==undefined) sheet.getRange(i+1,9).setValue(bool_(payload.isNew,false));
       if(payload.description!==undefined) {
-        const description=clean_(payload.description);
+        // Category flower options are JSON and can exceed the 500-character
+        // limit used by clean_ for short labels. Never truncate this data.
+        const description=String(payload.description??'');
+        if(description.length>45000) throw new Error('Category data is too large to save safely.');
         sheet.getRange(i+1,10).setValue(description);
         const optionStock=categoryOptionsStock_(description);
         if(optionStock!==null) sheet.getRange(i+1,5).setValue(optionStock);
