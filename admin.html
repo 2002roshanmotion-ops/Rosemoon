@@ -364,12 +364,15 @@ function resetNewCategoryFlowers(){newCategoryFlowerCount=0;$('newCategoryFlower
 function prepareNewCategory(){$('categoryName').value='';$('categoryPhoto').value='';$('categoryMessage').textContent='';resetNewCategoryFlowers();setTab('photos')}
 async function createCategory(){
   const msg=$('categoryMessage'),btn=$('addCategoryBtn');
+  if(btn.disabled)return;
   try{
     const name=String($('categoryName').value||'').trim();
     if(!name)throw new Error('Category name is required.');
+    if(products.some(p=>String(p.name||p.category||'').trim().toLowerCase()===name.toLowerCase()&&isCategoryProduct(p)))throw new Error('A category with this name already exists. Open Edit Flowers to update it.');
     const rows=[...document.querySelectorAll('#newCategoryFlowers .flower-manager-row')];
     if(!rows.length)throw new Error('Add at least one flower.');
     btn.disabled=true;msg.textContent='Uploading category photos…';
+    const beforeIds=new Set(products.map(p=>String(p.id)));
     const mainUrl=await uploadCategoryPhoto($('categoryPhoto').files[0],'Category');
     const options=[];
     for(const row of rows){
@@ -383,15 +386,22 @@ async function createCategory(){
       const url=file?await uploadCategoryPhoto(file,type):'';
       options.push({type,price:flowerPrice,stock:qty,imageUrl:url});
     }
-    // A category rename must never erase its saved flowers if the editor rows failed to render.
-    if(rows.length===0&&oldOpts.length)options.push(...oldOpts.map(o=>({...o})));
-    if(!options.length)throw new Error('Add at least one flower.');
+    if(!options.length)throw new Error('Add at least one named flower.');
+    const uniqueNames=new Set();
+    options.forEach(o=>{const key=o.type.trim().toLowerCase();if(uniqueNames.has(key))throw new Error('Duplicate flower name: '+o.type);uniqueNames.add(key);});
     msg.textContent='Saving category…';
     const d=await api('addProduct',{category:name,name,price:0,stock:0,imageUrl:mainUrl,description:JSON.stringify({rosemoonCategory:true,options})});
-    products=d.products||products;loadProducts();
-    msg.textContent='✅ Category created.';
+    let savedProducts=Array.isArray(d.products)?d.products:null;
+    if(!savedProducts)savedProducts=(await api('products')).products||[];
+    const created=savedProducts.find(p=>!beforeIds.has(String(p.id))&&String(p.name||p.category||'').trim().toLowerCase()===name.toLowerCase());
+    if(!created)throw new Error('The server did not confirm the new category. Your existing categories were not changed. Refresh Products before trying again.');
+    const savedOptions=categoryData(created).options||[];
+    if(savedOptions.length!==options.length||options.some((o,i)=>String(savedOptions[i]?.type||'')!==o.type))throw new Error('The category was created but the server returned incomplete flower data. Do not submit it again; refresh and check Inventory.');
+    products=savedProducts;
+    renderInventory();updateStats();renderWebsiteCategoryOrder();populateCategoryManager();
+    msg.textContent='✅ Category and '+options.length+' flower(s) saved. Existing categories were kept.';
     prepareNewCategory();
-  }catch(e){msg.textContent='❌ '+e.message}
+  }catch(e){msg.textContent='❌ '+(e.message||e)}
   finally{btn.disabled=false}
 }
 async function studioReplaceFlower(pi,i){
