@@ -192,7 +192,7 @@ function addProduct_(payload) {
   const id=slug_(category+'-'+name)+'-'+Utilities.getUuid().slice(0,6).toLowerCase();
   // Preserve full category/flower JSON; clean_ truncates ordinary text fields.
   const description=String(payload.description??'');
-  if(description.length>45000) throw new Error('Category data is too large to save safely.');
+  if(description.length>49000) throw new Error('Category data is too large to save safely.');
   const optionStock=categoryOptionsStock_(description);
   const finalStock=optionStock===null?Math.floor(stock):optionStock;
   sheet.appendRow([id,category,name,Math.round(price),finalStock,String(payload.imageUrl||''),true,bool_(payload.featured,false),bool_(payload.isNew,false),description]);
@@ -219,7 +219,7 @@ function updateProduct_(payload) {
         // Category flower options are JSON and can exceed the 500-character
         // limit used by clean_ for short labels. Never truncate this data.
         const description=String(payload.description??'');
-        if(description.length>45000) throw new Error('Category data is too large to save safely.');
+        if(description.length>49000) throw new Error('Category data is too large to save safely.');
         sheet.getRange(i+1,10).setValue(description);
         const optionStock=categoryOptionsStock_(description);
         if(optionStock!==null) sheet.getRange(i+1,5).setValue(optionStock);
