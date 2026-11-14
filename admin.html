@@ -823,7 +823,7 @@ function renderStockPie(items,total){
   if(angle<360)stops.push('#f7edf1 '+angle+'deg 360deg');
   pie.style.background='conic-gradient('+stops.join(',')+')';
   legend.innerHTML=top.map((p,i)=>'<div class="legend-row"><div class="legend-left"><i class="legend-dot" style="background:'+palette[i]+'"></i>'+esc(p.name)+'</div><b>'+p.total+'</b></div>').join('');}
-$('refreshProducts').addEventListener('click',loadProducts);
+if($('refreshProducts'))$('refreshProducts').addEventListener('click',loadProducts);
 // Initial dashboard/inventory load. Keep the live Google Sheet as the only data source.
 loadProducts();
 function readDataUrl(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(file)})}
