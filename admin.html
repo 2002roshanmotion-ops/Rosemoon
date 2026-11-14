@@ -83,7 +83,6 @@ function rosemoonQuickLogin(){
     <div class="side-brand"><img class="admin-side-logo" src="https://d2ol7oe51mr4n9.cloudfront.net/user_3JYbYCHyy3naSeG6RhPtSZPxh49/ec2e63b0-a983-4186-a3da-ad6c75b1acf7.png" alt="RoseMmoon"><span>OWNER CONTROL CENTER</span></div>
     <nav class="side-nav">
       <button class="tab active" data-tab="dashboard">📊 <span>Dashboard</span></button>
-      <button type="button" class="tab" data-tab="inventory" onclick="setTab('inventory')">📦 <span>Inventory</span></button>
       <button class="tab" data-tab="websiteOrder">↕️ <span>Website Order</span></button>
       <button class="tab" data-tab="photos">🌸 <span>Add Flowers</span></button>
       <button class="tab" data-tab="editFlowers">✏️ <span>Edit Flowers</span></button>
@@ -98,23 +97,13 @@ function rosemoonQuickLogin(){
   <section class="panel active" id="dashboard">
   <div class="premium-stats">
     <div class="premium-stat"><div class="stat-icon">🌸</div><b id="statProducts">0</b><span>Active categories & products</span></div>
-    <div class="premium-stat" id="stockStatCard" aria-hidden="true"><div class="stat-icon">📦</div><b id="statStock">0</b><span>Total available stock</span></div>
-    <div class="premium-stat" id="lowStockStatCard" aria-hidden="true"><div class="stat-icon">⚠️</div><b id="statLow">0</b><span>Low-stock items</span></div>
     <div class="premium-stat"><div class="stat-icon">🛍️</div><b id="statOrders">0</b><span>Total orders</span></div>
   </div>
   <div class="analytics-grid">
-    <div class="analytics-card" id="stockDistributionCard" aria-hidden="true">
-      <div class="analytics-head"><h2>📊 Stock distribution</h2><span>Live inventory</span></div>
-      <div class="pie-wrap">
-        <div class="stock-pie" id="stockPie"><div class="pie-center"><div id="pieTotal">0<small>units</small></div></div></div>
-        <div class="pie-legend" id="stockLegend"><div class="legend-row"><div class="legend-left"><i class="legend-dot"></i>Loading</div><b>—</b></div></div>
-      </div>
-    </div>
     <div class="analytics-card">
       <div class="analytics-head"><h2>⚡ Quick actions</h2><span>Shortcuts</span></div>
       <div class="quick-grid">
         <button class="quick-btn" data-jump="photos">🌸 Add flowers<small>Create a new category</small></button>
-        <button class="quick-btn" data-jump="inventory">📦 Inventory<small>Manage flowers and prices</small></button>
         <button class="quick-btn" data-jump="orders">📋 Orders<small>View customer orders</small></button>
         <button class="quick-btn" data-jump="music">🎵 Music<small>Manage playlist</small></button>
       </div>
@@ -125,14 +114,6 @@ function rosemoonQuickLogin(){
   </div>
 </section>
 
-  <section class="panel" id="inventory">
-    <div class="card">
-      <h2>📦 Inventory</h2>
-      <p class="hint">Manage flower prices, photos and names. Prices are set on each flower design.</p>
-      <div class="actions"><button class="secondary" id="refreshProducts">🔄 Refresh</button></div>
-      <div id="categoryInventoryList" class="category-inventory-list"></div>
-    </div>
-  </section>
   <section class="panel" id="websiteOrder">
     <div class="card">
       <h2>↕️ Category Order</h2>
@@ -170,7 +151,7 @@ function rosemoonQuickLogin(){
   <section class="panel" id="editFlowers">
     <div class="card edit-flower-card">
       <h2>✏️ Edit Flowers</h2>
-      <p class="hint">Edit one category and its flowers in clear sections. Changes are saved to the current inventory used by the website.</p>
+      <p class="hint">Edit one category and its flowers in clear sections. Changes are saved directly to the products shown on the customer website.</p>
 
       <div class="edit-section">
         <div class="edit-section-head">
