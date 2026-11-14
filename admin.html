@@ -536,8 +536,11 @@ async function saveCategoryManager(){
     if(!saved.products)throw new Error('The server did not return the saved category.');
     products=saved.products;
     await refreshAdminData(p.id);
+    const verified=products.find(x=>String(x.id)===String(p.id));
+    const verifiedOptions=verified?(categoryData(verified).options||[]):[];
+    if(!verified||verifiedOptions.length!==options.length||options.some((o,i)=>String(verifiedOptions[i]?.type||'')!==String(o.type||'')))throw new Error('The server did not return the complete saved flower list. Your other categories were not changed; refresh Inventory and check this category before trying again.');
     renderWebsiteCategoryOrder();
-    msg.textContent='✅ Image saved successfully! Category and flower details were updated.';
+    msg.textContent='✅ Category and flower details saved and verified.';
     return true;
   }catch(e){
     msg.textContent='❌ '+(e.message||e);
