@@ -190,7 +190,9 @@ function addProduct_(payload) {
   if(!Number.isFinite(price)||price<0) throw new Error('Price must be 0 or higher.');
   if(!Number.isFinite(stock)||stock<0) throw new Error('Stock must be 0 or higher.');
   const id=slug_(category+'-'+name)+'-'+Utilities.getUuid().slice(0,6).toLowerCase();
-  const description=clean_(payload.description||'');
+  // Preserve full category/flower JSON; clean_ truncates ordinary text fields.
+  const description=String(payload.description??'');
+  if(description.length>45000) throw new Error('Category data is too large to save safely.');
   const optionStock=categoryOptionsStock_(description);
   const finalStock=optionStock===null?Math.floor(stock):optionStock;
   sheet.appendRow([id,category,name,Math.round(price),finalStock,String(payload.imageUrl||''),true,bool_(payload.featured,false),bool_(payload.isNew,false),description]);
