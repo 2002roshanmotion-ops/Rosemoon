@@ -390,7 +390,9 @@ async function createCategory(){
     const uniqueNames=new Set();
     options.forEach(o=>{const key=o.type.trim().toLowerCase();if(uniqueNames.has(key))throw new Error('Duplicate flower name: '+o.type);uniqueNames.add(key);});
     msg.textContent='Saving category…';
-    const d=await api('addProduct',{category:name,name,price:0,stock:0,imageUrl:mainUrl,description:JSON.stringify({rosemoonCategory:true,options})});
+    const categoryDescription=JSON.stringify({rosemoonCategory:true,options});
+    if(categoryDescription.length>49000)throw new Error('This category has reached the Google Sheets per-cell storage limit. Split the flowers into another category; no category was saved.');
+    const d=await api('addProduct',{category:name,name,price:0,stock:0,imageUrl:mainUrl,description:categoryDescription});
     let savedProducts=Array.isArray(d.products)?d.products:null;
     if(!savedProducts)savedProducts=(await api('products')).products||[];
     const created=savedProducts.find(p=>!beforeIds.has(String(p.id))&&String(p.name||p.category||'').trim().toLowerCase()===name.toLowerCase());
@@ -532,9 +534,7 @@ async function saveCategoryManager(){
     }
     msg.textContent='Saving category…';
     const description=JSON.stringify({...existingData,rosemoonCategory:true,options,categoryImageUrl:imageUrl,popupCategoryImageUrl:popupCategoryImage});
-    // Older deployed Apps Script versions truncate descriptions at 500 chars.
-    // Block the write rather than risk corrupting this category's flower list.
-    if(description.length>500)throw new Error('SAFE SAVE BLOCKED: the connected Google Apps Script is still using an older version that can truncate category data. No save was sent. Update and redeploy Code.gs before editing this category.');
+    if(description.length>49000)throw new Error('This category has reached the Google Sheets per-cell storage limit. Split the flowers into another category; no changes were saved.');
     const saved=await api('updateProduct',{id:p.id,name,category:name,price,stock,imageUrl,description});
     if(!saved.products)throw new Error('The server did not return the saved category.');
     products=saved.products;
