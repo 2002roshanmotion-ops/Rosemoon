@@ -390,7 +390,26 @@
   function animateCartAdd(source){
     const cartBtn=document.getElementById('openCartBtn');
     const count=document.getElementById('headerCartCount');
-    const layer=document.getElementById('cartFxLayer')||(()=>{const x=document.createElement('div');x.id='cartFxLayer';document.body.appendChild(x);return x})();
+    const layer=document.getElementById('cartFxLayer')||(()=>{const x=document.createElement('div');x.id='cartFxLayer';document.body.appendChild(x);return x
+  async function syncWebsiteLayout(){
+    try{
+      const r=await fetchWithTimeout(`${API_URL}?action=layout&_=${Date.now()}`,{cache:"no-store"},8000);
+      const d=await r.json();
+      if(!d.success||!d.layout)return;
+      const desk=d.layout.desktop||{},mob=d.layout.mobile||{},root=document.documentElement;
+      root.style.setProperty("--rm-image-width",(Number(desk.width)||100)+"%");
+      root.style.setProperty("--rm-image-height",(Number(desk.height)||74)+"vh");
+      root.style.setProperty("--rm-image-fit",desk.fit==="cover"?"cover":"contain");
+      root.style.setProperty("--rm-image-radius",(Number.isFinite(Number(desk.radius))?Number(desk.radius):18)+"px");
+      root.style.setProperty("--rm-mobile-image-width",(Number(mob.width)||100)+"%");
+      root.style.setProperty("--rm-mobile-image-height",(Number(mob.height)||74)+"vh");
+      root.style.setProperty("--rm-mobile-image-fit",mob.fit==="cover"?"cover":"contain");
+      root.style.setProperty("--rm-mobile-image-radius",(Number.isFinite(Number(mob.radius))?Number(mob.radius):18)+"px");
+    }catch(e){console.warn("Rosemoon layout settings unavailable; using default layout.",e)}
+  }
+  syncWebsiteLayout();
+
+})();
     if(cartBtn){cartBtn.classList.remove('cart-add-bounce');void cartBtn.offsetWidth;cartBtn.classList.add('cart-add-bounce');setTimeout(()=>cartBtn.classList.remove('cart-add-bounce'),750)}
     if(count){count.classList.remove('cart-count-pop');void count.offsetWidth;count.classList.add('cart-count-pop')}
     if(!source||!cartBtn)return;
