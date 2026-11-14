@@ -532,6 +532,9 @@ async function saveCategoryManager(){
     }
     msg.textContent='Saving category…';
     const description=JSON.stringify({...existingData,rosemoonCategory:true,options,categoryImageUrl:imageUrl,popupCategoryImageUrl:popupCategoryImage});
+    // Older deployed Apps Script versions truncate descriptions at 500 chars.
+    // Block the write rather than risk corrupting this category's flower list.
+    if(description.length>500)throw new Error('SAFE SAVE BLOCKED: the connected Google Apps Script is still using an older version that can truncate category data. No save was sent. Update and redeploy Code.gs before editing this category.');
     const saved=await api('updateProduct',{id:p.id,name,category:name,price,stock,imageUrl,description});
     if(!saved.products)throw new Error('The server did not return the saved category.');
     products=saved.products;
