@@ -83,6 +83,7 @@ function rosemoonQuickLogin(){
     <div class="side-brand"><img class="admin-side-logo" src="https://d2ol7oe51mr4n9.cloudfront.net/user_3JYbYCHyy3naSeG6RhPtSZPxh49/ec2e63b0-a983-4186-a3da-ad6c75b1acf7.png" alt="RoseMmoon"><span>OWNER CONTROL CENTER</span></div>
     <nav class="side-nav">
       <button class="tab active" data-tab="dashboard">📊 <span>Dashboard</span></button>
+      <button type="button" class="tab" data-tab="inventory" onclick="setTab('inventory')">📦 <span>Inventory</span></button>
       <button class="tab" data-tab="websiteOrder">↕️ <span>Website Order</span></button>
       <button class="tab" data-tab="photos">🌸 <span>Add Flowers</span></button>
       <button class="tab" data-tab="editFlowers">✏️ <span>Edit Flowers</span></button>
@@ -104,6 +105,7 @@ function rosemoonQuickLogin(){
       <div class="analytics-head"><h2>⚡ Quick actions</h2><span>Shortcuts</span></div>
       <div class="quick-grid">
         <button class="quick-btn" data-jump="photos">🌸 Add flowers<small>Create a new category</small></button>
+        <button class="quick-btn" data-jump="inventory">📦 Inventory<small>Manage categories, flowers and prices</small></button>
         <button class="quick-btn" data-jump="orders">📋 Orders<small>View customer orders</small></button>
         <button class="quick-btn" data-jump="music">🎵 Music<small>Manage playlist</small></button>
       </div>
@@ -113,6 +115,15 @@ function rosemoonQuickLogin(){
     <div class="dashboard-pane"><h3>📋 Recent orders</h3><div class="table-wrap"><table><thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Status</th></tr></thead><tbody id="dashboardOrdersTable"></tbody></table></div></div>
   </div>
 </section>
+
+  <section class="panel" id="inventory">
+    <div class="card">
+      <h2>📦 Inventory</h2>
+      <p class="hint">All saved categories and flower designs in one place. Manage flower prices and review photos. No stock quantities are required.</p>
+      <div class="actions"><button class="secondary" id="refreshProducts" type="button">🔄 Refresh Products</button></div>
+      <div id="categoryInventoryList" class="category-inventory-list"></div>
+    </div>
+  </section>
 
   <section class="panel" id="websiteOrder">
     <div class="card">
@@ -426,7 +437,10 @@ function addManageFlowerRow(){
 }
 function removeManageFlowerRow(index){
   const row=document.querySelector('#manageFlowerOptions [data-manage-flower="'+index+'"]');
-  if(row)row.remove();
+  if(!row)return;
+  const originalIndex=row.getAttribute('data-original-index');
+  if(originalIndex!==''&&originalIndex!==null){row.dataset.deleteFlower='true';row.style.display='none';const msg=$('manageCategoryMessage');if(msg)msg.textContent='Flower marked for removal. It will only be deleted when you press Save Changes.';return;}
+  row.remove();
   const box=$('manageFlowerOptions');
   if(box&&!box.querySelector('[data-manage-flower]'))box.innerHTML='<div class="empty">No flowers added yet. Use ＋ Add Flower to add one.</div>';
 }
@@ -459,11 +473,13 @@ async function saveCategoryManager(){
     const stock=categoryStockInput===''?Math.max(0,Number(p.stock)||0):Math.max(0,Math.floor(Number(categoryStockInput)||0));
     if(!name)throw new Error('Category name is required.');
     btn.disabled=true;msg.textContent='Saving only the changes you made…';
-    const rows=[...document.querySelectorAll('#manageFlowerOptions [data-manage-flower]')],options=[];
+    const rows=[...document.querySelectorAll('#manageFlowerOptions [data-manage-flower]')],options=[],seenOriginal=new Set();
     for(const row of rows){
       const i=Number(row.dataset.manageFlower);
       const originalIndex=row.getAttribute('data-original-index');
       const isExisting=originalIndex!==''&&originalIndex!==null;
+      if(isExisting)seenOriginal.add(Number(originalIndex));
+      if(row.dataset.deleteFlower==='true')continue;
       const old=isExisting?(oldOpts[Number(originalIndex)]||{}):{};
       const enteredType=String($('manageFlowerName'+i)?.value??'').trim();
       const type=enteredType||String(old.type||'').trim();
@@ -485,9 +501,9 @@ async function saveCategoryManager(){
       // Spread the saved record first so unedited stock, images and extra metadata survive.
       options.push({...old,type,price:flowerPrice,stock:old.stock??0,imageUrl});
     }
-    // If the editor did not render any rows, a rename/photo/price-only save must not erase flowers.
-    if(rows.length===0&&oldOpts.length)options.push(...oldOpts.map(o=>({...o})));
-    if(!options.length)throw new Error('No flowers to save. Add a named flower first.');
+    // Preserve original flowers omitted by a partial or failed editor render.
+    oldOpts.forEach((old,index)=>{if(!seenOriginal.has(index))options.push({...old});});
+    if(!options.length)throw new Error('Keep at least one flower in this category.');
     let imageUrl=existingData.categoryImageUrl||p.imageUrl||'';
     const mainFile=$('manageCategoryPhoto')?.files?.[0];
     if(mainFile){
@@ -522,6 +538,7 @@ async function saveCategoryManager(){
 }
 $('manageCategorySelect')?.addEventListener('change',renderCategoryManager);
 $('saveCategoryBtn')?.addEventListener('click',saveCategoryManager);
+if($('refreshProducts'))$('refreshProducts').addEventListener('click',loadProducts);
 $('manageCategoryPhoto')?.addEventListener('change',async()=>{const file=$('manageCategoryPhoto').files?.[0],box=$('manageCategoryPhotoPreview');if(!box)return;if(!file){box.innerHTML='';return}try{const url=await readDataUrl(file);box.innerHTML='<img src="'+esc(url)+'" alt="" style="width:120px;height:120px;object-fit:contain;border-radius:14px;background:#fff;border:1px solid #f0e2e7">'}catch(e){box.innerHTML=''}});
 function populateCategoryManager(){
   const s=$('manageCategorySelect');
