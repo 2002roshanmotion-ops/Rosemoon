@@ -564,3 +564,28 @@ body.flower-popup-open{
     font-size: 16px !important;
   }
 }
+
+
+/* Admin-controlled View Flower image layout. */
+.flower-popup-detail-card .flower-popup-art{
+  width:var(--rm-image-width,100%)!important;
+  height:var(--rm-image-height,74vh)!important;
+  max-height:85vh!important;min-height:0!important;
+  aspect-ratio:auto!important;flex:0 0 auto!important;
+  border-radius:var(--rm-image-radius,18px)!important;
+}
+.flower-popup-detail-card .flower-popup-art img{
+  width:100%!important;height:100%!important;
+  object-fit:var(--rm-image-fit,contain)!important;
+  object-position:center!important;
+}
+@media(max-width:600px){
+  .flower-popup-detail-card .flower-popup-art{
+    width:var(--rm-mobile-image-width,100%)!important;
+    height:var(--rm-mobile-image-height,74vh)!important;
+    border-radius:var(--rm-mobile-image-radius,18px)!important;
+  }
+  .flower-popup-detail-card .flower-popup-art img{
+    object-fit:var(--rm-mobile-image-fit,contain)!important;
+  }
+}
