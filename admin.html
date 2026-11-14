@@ -89,7 +89,6 @@ function rosemoonQuickLogin(){
       <button class="tab" data-tab="editFlowers">✏️ <span>Edit Flowers</span></button>
       <button class="tab" data-tab="orders">📋 <span>Orders</span></button>
       <button class="tab" data-tab="music">🎵 <span>Music</span></button>
-      <button class="tab" data-tab="websiteLayout">🎨 <span>Website Layout</span></button>
     </nav>
     <div class="side-bottom">RoseMmoon Admin<br>Live store management</div>
   </aside>
@@ -230,39 +229,6 @@ function rosemoonQuickLogin(){
     </div>
   </section>
 
-  <section class="panel" id="websiteLayout">
-    <div class="card">
-      <h2>🎨 Website Layout Editor</h2>
-      <p class="hint">Adjust the flower detail image on the customer website. Preview changes here, then save to publish them.</p>
-      <div class="form-grid" style="margin-top:18px">
-        <div class="field full"><h3 style="margin:0 0 8px">🖥️ Desktop image layout</h3></div>
-        <div class="field"><label>IMAGE WIDTH <strong id="layoutDesktopWidthValue">100%</strong></label><input id="layoutDesktopWidth" type="range" min="60" max="100" step="1" value="100"></div>
-        <div class="field"><label>IMAGE HEIGHT <strong id="layoutDesktopHeightValue">74vh</strong></label><input id="layoutDesktopHeight" type="range" min="35" max="85" step="1" value="74"></div>
-        <div class="field"><label>IMAGE FIT</label><select id="layoutDesktopFit"><option value="contain">Show full image (no crop)</option><option value="cover">Fill area (may crop)</option></select></div>
-        <div class="field"><label>CORNER ROUNDNESS <strong id="layoutDesktopRadiusValue">18px</strong></label><input id="layoutDesktopRadius" type="range" min="0" max="32" step="1" value="18"></div>
-        <div class="field full"><div class="edit-divider"></div><h3 style="margin:8px 0">📱 Mobile image layout</h3></div>
-        <div class="field"><label>IMAGE WIDTH <strong id="layoutMobileWidthValue">100%</strong></label><input id="layoutMobileWidth" type="range" min="60" max="100" step="1" value="100"></div>
-        <div class="field"><label>IMAGE HEIGHT <strong id="layoutMobileHeightValue">74vh</strong></label><input id="layoutMobileHeight" type="range" min="35" max="85" step="1" value="74"></div>
-        <div class="field"><label>IMAGE FIT</label><select id="layoutMobileFit"><option value="contain">Show full image (no crop)</option><option value="cover">Fill area (may crop)</option></select></div>
-        <div class="field"><label>CORNER ROUNDNESS <strong id="layoutMobileRadiusValue">18px</strong></label><input id="layoutMobileRadius" type="range" min="0" max="32" step="1" value="18"></div>
-        <div class="field full">
-          <div style="background:#fff3f7;border:1px solid #ead5de;border-radius:18px;padding:16px">
-            <strong>Live preview</strong>
-            <div style="width:min(100%,300px);margin:12px auto;background:white;border:1px solid #ead5de;border-radius:18px;padding:12px;box-shadow:0 8px 24px #5d304012">
-              <div id="layoutPreviewImage" style="width:100%;height:220px;max-height:55vh;border-radius:18px;background:linear-gradient(145deg,#ffe4ef,#fff7fa);display:grid;place-items:center;font-size:64px;overflow:hidden">🌸</div>
-              <div style="font-weight:800;margin-top:10px">Your flower name</div><div style="color:#8b536a;margin:6px 0 10px">Rs. 1,500</div><div style="background:#3b202b;color:white;text-align:center;padding:10px;border-radius:10px;font-weight:800">🛒 Add to Cart</div>
-            </div>
-          </div>
-        </div>
-        <div class="field full actions">
-          <button class="secondary" type="button" id="resetWebsiteLayout">↺ Reset Layout</button>
-          <button class="primary" type="button" id="saveWebsiteLayout">💾 Save Layout</button>
-          <span class="hint" id="websiteLayoutMessage" aria-live="polite">No unsaved changes.</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <section class="panel" id="music"><div class="card"><h2>🎵 Add Music</h2><div class="form-grid"><div class="field"><label>SONG NAME (OPTIONAL)</label><input id="musicTitle" placeholder="Leave blank to use MP3 filename"></div><div class="field"><label>AUDIO FILES (MP3)</label><input id="musicFile" type="file" accept=".mp3,audio/mpeg" multiple><div class="hint" style="margin-top:6px">Select one MP3 or multiple MP3 files. Title is optional; blank uses the filename.</div></div><div class="field full"><button class="primary" id="addMusicBtn">🎵 Add Music</button><span class="hint" id="musicMessage" style="margin-left:10px"></span><div id="musicUploadList" class="upload-list" aria-live="polite"></div></div></div></div><div class="card"><h2>Playlist order</h2><p class="hint">Use ↑ and ↓ to arrange the order, then save your changes. The customer website follows the saved order.</p><div id="musicList"></div><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px"><button class="primary" type="button" id="saveMusicOrder" disabled>💾 Save Changes</button><span class="hint" id="musicOrderMessage" aria-live="polite">No unsaved changes.</span></div></div></section>
 
   <section class="panel" id="orders"><div class="card"><h2>📋 Orders</h2><button class="secondary" id="refreshOrders">🔄 Refresh</button><div class="table-wrap"><table><thead><tr><th>Order</th><th>Date</th><th>Customer</th><th>Phone</th><th>Items</th><th>Total</th><th>Status</th></tr></thead><tbody id="ordersTable"></tbody></table></div></div></section>
@@ -344,7 +310,6 @@ function setTab(name){
   if(name==='inventory'||name==='dashboard'||name==='editFlowers')loadProducts();
   if(name==='editFlowers')populateCategoryManager();
   if(name==='music'&&typeof loadMusic==='function')loadMusic();
-  if(name==='websiteLayout')loadWebsiteLayout();
   if(name==='orders'&&typeof loadOrders==='function')loadOrders();
 }
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
@@ -973,41 +938,6 @@ $('addMusicBtn').addEventListener('click',async()=>{
    msg.textContent=`✅ ${success}/${files.length} MP3 file(s) added.`;
    if(success===files.length){input.value='';$('musicTitle').value=''}
  }finally{btn.disabled=false}
-});
-
-const DEFAULT_WEBSITE_LAYOUT={desktop:{width:100,height:74,fit:'contain',radius:18},mobile:{width:100,height:74,fit:'contain',radius:18}};
-let websiteLayout=JSON.parse(JSON.stringify(DEFAULT_WEBSITE_LAYOUT));
-function readWebsiteLayoutControls(){
-  const read=device=>({width:Number($('layout'+device+'Width').value),height:Number($('layout'+device+'Height').value),fit:$('layout'+device+'Fit').value,radius:Number($('layout'+device+'Radius').value)});
-  return {desktop:read('Desktop'),mobile:read('Mobile')};
-}
-function setWebsiteLayoutControls(layout){
-  ['desktop','mobile'].forEach(device=>{
-    const key=device==='desktop'?'Desktop':'Mobile',v=layout[device]||DEFAULT_WEBSITE_LAYOUT[device];
-    $('layout'+key+'Width').value=v.width;$('layout'+key+'Height').value=v.height;$('layout'+key+'Fit').value=v.fit;$('layout'+key+'Radius').value=v.radius;
-  });
-  previewWebsiteLayout();
-}
-function previewWebsiteLayout(){
-  const v=readWebsiteLayoutControls(),chosen=window.matchMedia('(max-width:600px)').matches?v.mobile:v.desktop;
-  ['Desktop','Mobile'].forEach(key=>{
-    $('layout'+key+'WidthValue').textContent=$('layout'+key+'Width').value+'%';
-    $('layout'+key+'HeightValue').textContent=$('layout'+key+'Height').value+'vh';
-    $('layout'+key+'RadiusValue').textContent=$('layout'+key+'Radius').value+'px';
-  });
-  const p=$('layoutPreviewImage');p.style.width=chosen.width+'%';p.style.height=Math.min(chosen.height,55)+'vh';p.style.objectFit=chosen.fit;p.style.borderRadius=chosen.radius+'px';
-}
-async function loadWebsiteLayout(){
-  try{const d=await api('layout');if(d.layout)websiteLayout=d.layout;}catch(e){console.warn('Website layout settings unavailable',e)}
-  setWebsiteLayoutControls(websiteLayout);
-}
-['layoutDesktopWidth','layoutDesktopHeight','layoutDesktopFit','layoutDesktopRadius','layoutMobileWidth','layoutMobileHeight','layoutMobileFit','layoutMobileRadius'].forEach(id=>$(id)?.addEventListener('input',previewWebsiteLayout));
-$('resetWebsiteLayout')?.addEventListener('click',()=>{websiteLayout=JSON.parse(JSON.stringify(DEFAULT_WEBSITE_LAYOUT));setWebsiteLayoutControls(websiteLayout);$('websiteLayoutMessage').textContent='Default layout restored. Save to publish.'});
-$('saveWebsiteLayout')?.addEventListener('click',async()=>{
-  const btn=$('saveWebsiteLayout'),msg=$('websiteLayoutMessage');btn.disabled=true;msg.textContent='Saving layout…';
-  try{const layout=readWebsiteLayoutControls();const d=await api('saveWebsiteLayout',{layout});websiteLayout=d.layout||layout;msg.textContent='✓ Layout saved. The customer website will use these settings.'}
-  catch(e){msg.textContent='Could not save: '+e.message}
-  finally{btn.disabled=false}
 });
 
 </script>
