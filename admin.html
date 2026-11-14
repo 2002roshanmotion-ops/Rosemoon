@@ -804,16 +804,11 @@ function categoryStockTotal(p){
   return Math.max(0,Number(p.stock)||0);
 }
 function updateStats(){
-  const active=products.filter(p=>p.active!==false),total=active.reduce((s,p)=>s+categoryStockTotal(p),0);
-  const low=active.reduce((s,p)=>{
-    const opts=categoryData(p).options||[];
-    return s+(opts.length?opts.filter(o=>Number(o.stock||0)<=2).length:(Number(p.stock||0)<=2?1:0));
-  },0);
-  $('statProducts').textContent=active.length;
-  $('statStock').textContent=total;
-  $('statLow').textContent=low;
-  $('statOrders').textContent=Number($('ordersTable')?.children?.length||0);
-  renderStockPie(active,total);
+  const active=products.filter(p=>p.active!==false);
+  const productCount=$('statProducts');
+  const orderCount=$('statOrders');
+  if(productCount)productCount.textContent=active.length;
+  if(orderCount)orderCount.textContent=Number($('ordersTable')?.children?.length||0);
 }
 function renderStockPie(items,total){
   const pie=$('stockPie'),legend=$('stockLegend'),center=$('pieTotal');if(!pie||!legend)return;
