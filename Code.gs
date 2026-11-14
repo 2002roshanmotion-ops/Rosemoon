@@ -93,6 +93,7 @@ function doGet(e) {
     if(action==='categories') return json_(getCategories_());
     if(action==='offers') return json_(getOffers_());
     if(action==='settings') return json_(getSettings_());
+    if(action==='layout') return json_(getWebsiteLayout_());
     if(action==='deliveryLocations') return json_(getDeliveryLocations_());
     if(action==='site') return json_(getSiteData_());
     return json_({success:true,service:'Rosemoon Owner API',version:'2.0'});
@@ -108,6 +109,7 @@ function doPost(e) {
     switch(payload.action) {
       case 'setup': requireAdmin_(payload); return json_(setupRosemoonSheet());
       case 'saveDeliveryLocations': return json_(saveDeliveryLocations_(payload));
+      case 'saveWebsiteLayout': return json_(saveWebsiteLayout_(payload));
       case 'placeOrder': return json_(placeOrder_(payload));
       case 'updateStock': return json_(updateStock_(payload));
       case 'addProduct': return json_(addProduct_(payload));
@@ -565,6 +567,37 @@ function getSettings_() {
   const settings={};
   for(let i=1;i<values.length;i++) if(values[i][0]) settings[String(values[i][0])]=String(values[i][1]??'');
   return {success:true,settings:settings};
+}
+
+function getWebsiteLayout_() {
+  const settings=getSettings_().settings;
+  const defaults={desktop:{width:100,height:74,fit:'contain',radius:18},mobile:{width:100,height:74,fit:'contain',radius:18}};
+  try {
+    const saved=JSON.parse(String(settings.website_layout||'{}'));
+    return {success:true,layout:{desktop:Object.assign({},defaults.desktop,saved.desktop||{}),mobile:Object.assign({},defaults.mobile,saved.mobile||{})}};
+  } catch(e) { return {success:true,layout:defaults}; }
+}
+
+function saveWebsiteLayout_(payload) {
+  requireAdmin_(payload);
+  const input=payload.layout||{};
+  const cleanDevice=(device)=>{
+    const v=input[device]||{};
+    const width=Number(v.width),height=Number(v.height),radius=Number(v.radius);
+    if(!Number.isFinite(width)||width<60||width>100) throw new Error(device+' image width must be 60-100%.');
+    if(!Number.isFinite(height)||height<35||height>85) throw new Error(device+' image height must be 35-85vh.');
+    if(!Number.isFinite(radius)||radius<0||radius>32) throw new Error(device+' image corner roundness must be 0-32px.');
+    return {width:Math.round(width),height:Math.round(height),fit:v.fit==='cover'?'cover':'contain',radius:Math.round(radius)};
+  };
+  const layout={desktop:cleanDevice('desktop'),mobile:cleanDevice('mobile')};
+  const sheet=ensureSheet_(getSpreadsheet_(),'Settings',SETTINGS_HEADERS,DEFAULT_SETTINGS);
+  const values=sheet.getDataRange().getValues();let row=0;
+  for(let i=1;i<values.length;i++) if(String(values[i][0])==='website_layout'){row=i+1;break;}
+  const serialized=JSON.stringify(layout);
+  if(row) sheet.getRange(row,2).setValue(serialized);
+  else sheet.appendRow(['website_layout',serialized,'Customer website View Flower image layout']);
+  logActivity_('UPDATE_WEBSITE_LAYOUT','Updated desktop and mobile flower image layout');
+  return {success:true,layout:layout};
 }
 
 function getDeliveryLocations_() {
