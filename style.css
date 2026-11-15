@@ -902,3 +902,27 @@ body.flower-popup-open{
  .rosemoon-promo .promo-dot{width:17px}
  .rosemoon-promo .promo-dot.active{width:28px}
 }
+
+
+/* Active slide navigation bar fills over the selected slide's display time. */
+.rosemoon-promo .promo-controls{bottom:13px;right:22px;gap:10px}
+.rosemoon-promo .promo-dot{
+  position:relative;width:30px;height:6px;border-radius:20px;
+  background:rgba(139,82,106,.22);overflow:hidden;
+}
+.rosemoon-promo .promo-dot.active{width:42px;background:rgba(139,82,106,.22)}
+.rosemoon-promo .promo-dot::before{
+  content:"";position:absolute;inset:0 auto 0 0;width:0;
+  border-radius:inherit;background:#a34d70;
+}
+.rosemoon-promo .promo-dot.active::before{
+  animation:rosePromoDotFill var(--promo-slide-seconds,6s) linear forwards;
+}
+@keyframes rosePromoDotFill{from{width:0}to{width:100%}}
+.rosemoon-promo .promo-number{right:25px;bottom:58px}
+@media(max-width:650px){
+ .rosemoon-promo .promo-controls{right:12px;bottom:10px;gap:6px}
+ .rosemoon-promo .promo-dot{width:18px;height:5px}
+ .rosemoon-promo .promo-dot.active{width:30px}
+ .rosemoon-promo .promo-number{right:14px;bottom:48px}
+}
