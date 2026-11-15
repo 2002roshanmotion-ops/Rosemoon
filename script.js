@@ -124,10 +124,18 @@
     if(!q){box.innerHTML='';box.classList.remove('show');return;}
     const matches=searchMatches(q);
     if(!matches.length){box.innerHTML='<div class="search-empty">🌸 No matching bouquets found</div>';box.classList.add('show');return;}
-    box.innerHTML='<div class="search-recommend-title">✨ Matching bouquets</div>'+matches.map(p=>{
+    box.innerHTML='<div class="search-recommend-title">✨ Matching bouquets & flowers</div>'+matches.map(p=>{
       const img=categoryImageFor(p);
       const art=img?'<img src="'+escapeAttr(img)+'" alt="'+escapeAttr(p.name)+'">':(p.imageUrl?'<img src="'+escapeAttr(p.imageUrl)+'" alt="'+escapeAttr(p.name)+'">':'🌹');
-      return '<button class="search-recommend-item" type="button" data-search-id="'+escapeAttr(p.id)+'"><span class="search-recommend-pic">'+art+'</span><span class="search-recommend-info"><strong>'+escapeHtml(p.name)+'</strong><small>'+escapeHtml(p.category)+'</small></span></button>';
+      let options=[];
+      try{const d=JSON.parse(String(p.description||''));if(Array.isArray(d.options))options=d.options;}catch(e){}
+      const qLower=q.toLowerCase();
+      const matchedOptions=options.filter(o=>String(o?.type||'').toLowerCase().includes(qLower));
+      const categoryMatched=[p.name,p.category].some(v=>String(v||'').toLowerCase().includes(qLower));
+      const shownFlowers=categoryMatched?options:matchedOptions;
+      const flowerNames=shownFlowers.map(o=>String(o?.type||'').trim()).filter(Boolean);
+      const flowerLine=flowerNames.length?'<small class="search-recommend-flowers">Flowers: '+escapeHtml(flowerNames.join(' · '))+'</small>':'';
+      return '<button class="search-recommend-item" type="button" data-search-id="'+escapeAttr(p.id)+'"><span class="search-recommend-pic">'+art+'</span><span class="search-recommend-info"><strong>'+escapeHtml(p.name)+'</strong><small>Category: '+escapeHtml(p.category)+'</small>'+flowerLine+'</span></button>';
     }).join('');
     box.classList.add('show');
     box.querySelectorAll('[data-search-id]').forEach(item=>item.addEventListener('click',()=>{
