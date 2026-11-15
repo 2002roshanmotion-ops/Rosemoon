@@ -215,7 +215,7 @@
         <div class="flower-popup-art">${art}</div>
         <h3>${escapeHtml(type)}</h3>
         <div class="flower-popup-price">${money(Math.max(0,Number(o.price ?? 0)))}</div>
-        <button type="button" class="flower-popup-view-button">View Flower →</button>
+        <button type="button" class="flower-popup-view-button">View Design →</button>
       </article>`;
     }).join("");
   }
@@ -251,7 +251,7 @@
     const b=e.target.closest("[data-popup-buy]");
     if(!b||!popupProduct)return;
     const selected=categoryOptions(popupProduct).find(o=>String(o.type||'')===String(b.dataset.type));
-    const ok=addItem({id:popupProduct.id,size:popupProduct.category,name:popupProduct.name,price:Math.max(0,Number(selected?.price??0)),type:b.dataset.type,emoji:b.dataset.emoji,imageUrl:selected?.imageUrl||popupProduct.imageUrl},true,b);
+    const ok=addItem({id:popupProduct.id,size:popupProduct.category,name:popupProduct.name,price:Math.max(0,Number(selected?.price??0)),type:b.dataset.type,emoji:b.dataset.emoji,imageUrl:selected?.imageUrl||popupProduct.imageUrl,description:selected?.description||''},true,b);
     if(ok){b.textContent="✓ Added";b.disabled=true;setTimeout(closeFlowerPopup,300)}
   });
 
@@ -488,7 +488,7 @@
     const dc=document.getElementById("deliveryCharge");if(dc)dc.textContent="To be confirmed";
     document.getElementById("cartTotal").textContent="To be confirmed";
     if(!cart.length){box.innerHTML='<p class="cart-empty">Your cart is empty. 🌷</p>';return}
-    box.innerHTML=cart.map((x,i)=>{const cartImage=cartImageFor(x);return `<div class="cart-item"><div class="cart-icon">${cartImage?`<img src="${escapeAttr(cartImage)}" alt="" style="width:auto;height:auto;max-width:76px;max-height:76px;object-fit:contain;border-radius:8px">`:x.emoji}</div><div class="cart-info"><strong>${escapeHtml(x.name||x.size)}</strong><small>${escapeHtml(x.type)} · ${money(x.price)}</small></div><div class="qty"><button data-q="-" data-i="${i}">−</button><b>${x.qty}</b><button data-q="+" data-i="${i}">+</button></div><button class="remove" data-q="x" data-i="${i}">×</button></div>`}).join("");
+    box.innerHTML=cart.map((x,i)=>{const cartImage=cartImageFor(x);return `<div class="cart-item"><div class="cart-icon">${cartImage?`<img src="${escapeAttr(cartImage)}" alt="" style="width:auto;height:auto;max-width:76px;max-height:76px;object-fit:contain;border-radius:8px">`:x.emoji}</div><div class="cart-info"><strong>${escapeHtml(x.name||x.size)}</strong><small>${escapeHtml(x.type)} · ${money(x.price)}</small>${x.description?`<small class="cart-description">${escapeHtml(x.description)}</small>`:""}</div><div class="qty"><button data-q="-" data-i="${i}">−</button><b>${x.qty}</b><button data-q="+" data-i="${i}">+</button></div><button class="remove" data-q="x" data-i="${i}">×</button></div>`}).join("");
   }
   document.getElementById("cartItems")?.addEventListener("click",e=>{const b=e.target.closest("[data-q]");if(!b)return;const i=+b.dataset.i,x=cart[i];if(!x)return;if(b.dataset.q==="+")x.qty++;if(b.dataset.q==="-")x.qty--;if(b.dataset.q==="x"||x.qty<=0)cart.splice(i,1);saveCart();renderCart()});
   function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove("show"),1800)}
