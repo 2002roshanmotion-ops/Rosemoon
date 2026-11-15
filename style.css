@@ -592,3 +592,38 @@ body.flower-popup-open{
     object-fit:contain!important;
   }
 }
+
+
+/* HARD OVERRIDE: detail image must determine its own height from its natural ratio. */
+.flower-popup-grid .flower-popup-detail-card{
+  min-height:0!important;
+  height:auto!important;
+  justify-content:flex-start!important;
+}
+.flower-popup-grid .flower-popup-detail-card .flower-popup-art{
+  display:block!important;
+  width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  aspect-ratio:auto!important;
+  flex:0 0 auto!important;
+  margin:0 auto 14px!important;
+  padding:0!important;
+  overflow:visible!important;
+  background:transparent!important;
+}
+.flower-popup-grid .flower-popup-detail-card .flower-popup-art > img,
+.flower-popup-grid .flower-popup-detail-card .flower-popup-art > img.decoration-full-image{
+  display:block!important;
+  position:static!important;
+  width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  max-width:100%!important;
+  object-fit:contain!important;
+  margin:0!important;
+  flex:none!important;
+}
+
