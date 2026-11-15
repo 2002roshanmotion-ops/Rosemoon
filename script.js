@@ -216,7 +216,7 @@
         <div class="flower-popup-art">${art}</div>
         <h3>${escapeHtml(type)}</h3>
         <div class="flower-popup-price">${money(Math.max(0,Number(o.price ?? 0)))}</div>
-        ${o.description?'<p class="flower-popup-description">'+escapeHtml(o.description)+'</p>':''}
+        ${o.description?'<div class="flower-popup-description" role="note"><strong>About this design</strong><span>'+escapeHtml(o.description)+'</span></div>':''}
         <button type="button" class="flower-popup-view-button">View Details →</button>
       </article>`;
     }).join("");
@@ -232,7 +232,7 @@
     const art=imageUrl?'<img class="'+(isDecoration?'decoration-full-image':'')+'" src="'+escapeAttr(imageUrl)+'" alt="'+escapeAttr(o.type)+'">':emoji;
     sub.innerHTML='<span>'+escapeHtml(popupProduct.name)+' · '+escapeHtml(o.type)+'</span>';
     const description=String(o.description||'').trim();
-    grid.innerHTML='<article class="flower-popup-card flower-popup-detail-card" data-flower-type="'+escapeAttr(o.type)+'"><div class="flower-popup-art">'+art+'</div><h3>'+escapeHtml(o.type)+'</h3><div class="flower-popup-price">'+money(price)+'</div>'+(description?'<p class="flower-popup-description">'+escapeHtml(description)+'</p>':'')+'<button type="button" data-popup-buy data-type="'+escapeAttr(o.type)+'" data-emoji="'+escapeAttr(emoji)+'">🛒 Add to Cart</button></article>';
+    grid.innerHTML='<article class="flower-popup-card flower-popup-detail-card" data-flower-type="'+escapeAttr(o.type)+'"><div class="flower-popup-art">'+art+'</div><h3>'+escapeHtml(o.type)+'</h3><div class="flower-popup-price">'+money(price)+'</div>'+(description?'<div class="flower-popup-description" role="note"><strong>About this design</strong><span>'+escapeHtml(description)+'</span></div>':'')+'<button type="button" data-popup-buy data-type="'+escapeAttr(o.type)+'" data-emoji="'+escapeAttr(emoji)+'">🛒 Add to Cart</button></article>';
   }
 
   let lockedScrollY=0;
