@@ -41,7 +41,7 @@
           emoji:String(o?.emoji||choices[i]?.[1]||'🌸'),
           price:Math.max(0,Number(o?.price ?? product?.price ?? 0)),
           imageUrl:driveImageUrl(o?.imageUrl)||'',
-          description:String(o?.description||'').trim(),
+          description:String(o?.description??o?.details??o?.shortDescription??o?.subtitle??d?.description??'').trim(),
           // Legacy colour data is ignored; customers select flowers only.
         }));
       }
@@ -216,6 +216,7 @@
         <div class="flower-popup-art">${art}</div>
         <h3>${escapeHtml(type)}</h3>
         <div class="flower-popup-price">${money(Math.max(0,Number(o.price ?? 0)))}</div>
+        ${o.description?'<p class="flower-popup-description">'+escapeHtml(o.description)+'</p>':''}
         <button type="button" class="flower-popup-view-button">View Details →</button>
       </article>`;
     }).join("");
