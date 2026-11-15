@@ -422,7 +422,9 @@
       const slides=saved.slides.filter(s=>s&&s.enabled!==false);if(!slides.length)return;
       const seconds=Math.min(20,Math.max(2,Math.round(Number(saved.durationSeconds)||6)));
       const total=seconds*slides.length;
-      root.closest('.rosemoon-promo')?.style.setProperty('--promo-duration',total+'s');
+      const promoSection=root.closest('.rosemoon-promo');
+      promoSection?.style.setProperty('--promo-duration',total+'s');
+      promoSection?.style.setProperty('--promo-slide-seconds',seconds+'s');
       const slot=100/slides.length,showStart=slot*0.025,showEnd=slot*0.92;
       let timingStyle=document.getElementById('rosemoon-promo-timing');
       if(!timingStyle){timingStyle=document.createElement('style');timingStyle.id='rosemoon-promo-timing';document.head.appendChild(timingStyle)}
