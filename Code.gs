@@ -110,6 +110,7 @@ function doPost(e) {
       case 'setup': requireAdmin_(payload); return json_(setupRosemoonSheet());
       case 'saveDeliveryLocations': return json_(saveDeliveryLocations_(payload));
       case 'saveWebsiteLayout': return json_(saveWebsiteLayout_(payload));
+      case 'savePromoSlideshow': return json_(savePromoSlideshow_(payload));
       case 'placeOrder': return json_(placeOrder_(payload));
       case 'updateStock': return json_(updateStock_(payload));
       case 'addProduct': return json_(addProduct_(payload));
@@ -567,6 +568,29 @@ function getSettings_() {
   const settings={};
   for(let i=1;i<values.length;i++) if(values[i][0]) settings[String(values[i][0])]=String(values[i][1]??'');
   return {success:true,settings:settings};
+}
+
+
+function savePromoSlideshow_(payload) {
+  requireAdmin_(payload);
+  const input=Array.isArray(payload.slides)?payload.slides:[];
+  if(input.length!==3) throw new Error('Exactly three promotional slides are required.');
+  const allowedThemes=['pink','peach','lilac'];
+  const slides=input.map(s=>({
+    kicker:clean_(s.kicker).slice(0,70),title:clean_(s.title).slice(0,90),
+    description:clean_(s.description).slice(0,180),button:clean_(s.button).slice(0,35),
+    theme:allowedThemes.includes(String(s.theme))?String(s.theme):'pink',enabled:s.enabled!==false
+  }));
+  if(!slides.some(s=>s.enabled)) throw new Error('Keep at least one slide enabled.');
+  if(slides.some(s=>!s.title||!s.button)) throw new Error('Each slide needs a heading and button label.');
+  const sheet=ensureSheet_(getSpreadsheet_(),'Settings',SETTINGS_HEADERS,DEFAULT_SETTINGS);
+  const values=sheet.getDataRange().getValues();let row=0;
+  for(let i=1;i<values.length;i++)if(String(values[i][0])==='promo_slideshow'){row=i+1;break;}
+  const serialized=JSON.stringify({slides:slides});
+  if(row)sheet.getRange(row,2).setValue(serialized);
+  else sheet.appendRow(['promo_slideshow',serialized,'Customer website promotional slideshow']);
+  logActivity_('UPDATE_PROMO_SLIDESHOW','Updated promotional slideshow content');
+  return {success:true,slides:slides};
 }
 
 function getWebsiteLayout_() {
