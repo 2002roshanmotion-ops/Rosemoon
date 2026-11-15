@@ -89,6 +89,7 @@ function rosemoonQuickLogin(){
       <button class="tab" data-tab="editFlowers">✏️ <span>Edit Flowers</span></button>
       <button class="tab" data-tab="orders">📋 <span>Orders</span></button>
       <button class="tab" data-tab="music">🎵 <span>Music</span></button>
+      <button class="tab" data-tab="promotions">✨ <span>Promotional Slideshow</span></button>
     </nav>
     <div class="side-bottom">RoseMmoon Admin<br>Live store management</div>
   </aside>
@@ -231,6 +232,19 @@ function rosemoonQuickLogin(){
 
   <section class="panel" id="music"><div class="card"><h2>🎵 Add Music</h2><div class="form-grid"><div class="field"><label>SONG NAME (OPTIONAL)</label><input id="musicTitle" placeholder="Leave blank to use MP3 filename"></div><div class="field"><label>AUDIO FILES (MP3)</label><input id="musicFile" type="file" accept=".mp3,audio/mpeg" multiple><div class="hint" style="margin-top:6px">Select one MP3 or multiple MP3 files. Title is optional; blank uses the filename.</div></div><div class="field full"><button class="primary" id="addMusicBtn">🎵 Add Music</button><span class="hint" id="musicMessage" style="margin-left:10px"></span><div id="musicUploadList" class="upload-list" aria-live="polite"></div></div></div></div><div class="card"><h2>Playlist order</h2><p class="hint">Use ↑ and ↓ to arrange the order, then save your changes. The customer website follows the saved order.</p><div id="musicList"></div><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px"><button class="primary" type="button" id="saveMusicOrder" disabled>💾 Save Changes</button><span class="hint" id="musicOrderMessage" aria-live="polite">No unsaved changes.</span></div></div></section>
 
+  <section class="panel" id="promotions">
+    <div class="card">
+      <h2>✨ Promotional Slideshow</h2>
+      <p class="hint">Edit the three animated slides shown directly above “Choose Your Bouquets” on the customer website.</p>
+      <div id="promoAdminSlides"></div>
+      <div class="actions" style="margin-top:18px;align-items:center">
+        <button class="primary" type="button" id="savePromoSlides">💾 Save Slideshow</button>
+        <button class="secondary" type="button" id="reloadPromoSlides">↻ Reload</button>
+        <span class="hint" id="promoAdminMessage" aria-live="polite"></span>
+      </div>
+    </div>
+  </section>
+
   <section class="panel" id="orders"><div class="card"><h2>📋 Orders</h2><button class="secondary" id="refreshOrders">🔄 Refresh</button><div class="table-wrap"><table><thead><tr><th>Order</th><th>Date</th><th>Customer</th><th>Phone</th><th>Items</th><th>Total</th><th>Status</th></tr></thead><tbody id="ordersTable"></tbody></table></div></div></section>
 </main></div></div>
 
@@ -310,6 +324,7 @@ function setTab(name){
   if(name==='inventory'||name==='dashboard'||name==='editFlowers')loadProducts();
   if(name==='editFlowers')populateCategoryManager();
   if(name==='music'&&typeof loadMusic==='function')loadMusic();
+  if(name==='promotions'&&typeof loadPromoSlides==='function')loadPromoSlides();
   if(name==='orders'&&typeof loadOrders==='function')loadOrders();
 }
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
@@ -939,6 +954,52 @@ $('addMusicBtn').addEventListener('click',async()=>{
    if(success===files.length){input.value='';$('musicTitle').value=''}
  }finally{btn.disabled=false}
 });
+
+
+let promoSlides=[
+ {kicker:'A LITTLE BEAUTY, MADE BY HAND',title:'Make Their Day|Bloom',description:'Thoughtful handmade flowers for the moments that matter.',button:'Explore Bouquets',theme:'pink',enabled:true},
+ {kicker:'HANDMADE WITH LOVE',title:'Little Gifts.|Big Feelings.',description:'Find a special piece to make an ordinary day unforgettable.',button:'Find Your Favourite',theme:'peach',enabled:true},
+ {kicker:'A NEW FAVOURITE IS WAITING',title:'Discover|Something Lovely.',description:'Browse our ready-made designs and choose the one that feels just right.',button:'Shop the Collection',theme:'lilac',enabled:true}
+];
+function renderPromoAdmin(){
+ const box=$('promoAdminSlides');if(!box)return;
+ box.innerHTML=promoSlides.map((p,i)=>`<div class="card" style="margin:14px 0;background:#fff9fb;border:1px solid #efdbe3">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px"><strong>Slide 0${i+1}</strong><label style="font-size:12px;font-weight:700"><input type="checkbox" data-promo-field="enabled" data-i="${i}" ${p.enabled!==false?'checked':''}> Show this slide</label></div>
+  <div class="form-grid">
+   <div class="field"><label>SMALL TOP LINE</label><input data-promo-field="kicker" data-i="${i}" value="${esc(p.kicker)}" maxlength="70"></div>
+   <div class="field"><label>BUTTON TEXT</label><input data-promo-field="button" data-i="${i}" value="${esc(p.button)}" maxlength="35"></div>
+   <div class="field full"><label>MAIN HEADING (use | to start a new line)</label><input data-promo-field="title" data-i="${i}" value="${esc(p.title)}" maxlength="90"></div>
+   <div class="field full"><label>DESCRIPTION</label><input data-promo-field="description" data-i="${i}" value="${esc(p.description)}" maxlength="180"></div>
+   <div class="field"><label>COLOUR STYLE</label><select data-promo-field="theme" data-i="${i}"><option value="pink" ${p.theme==='pink'?'selected':''}>Rose pink</option><option value="peach" ${p.theme==='peach'?'selected':''}>Peach</option><option value="lilac" ${p.theme==='lilac'?'selected':''}>Soft lilac</option></select></div>
+  </div>
+ </div>`).join('');
+ box.querySelectorAll('[data-promo-field]').forEach(el=>{el.addEventListener('input',promoAdminChange);el.addEventListener('change',promoAdminChange)});
+}
+function promoAdminChange(e){
+ const el=e.target,i=Number(el.dataset.i),field=el.dataset.promoField;
+ if(!promoSlides[i])return;
+ promoSlides[i][field]=field==='enabled'?el.checked:el.value;
+}
+async function loadPromoSlides(){
+ const msg=$('promoAdminMessage');if(msg)msg.textContent='Loading saved slides…';
+ try{
+  const d=await api('settings');let saved={};
+  try{saved=JSON.parse(d.settings?.promo_slideshow||'{}')}catch(e){}
+  if(Array.isArray(saved.slides)&&saved.slides.length)promoSlides=saved.slides.slice(0,3);
+  renderPromoAdmin();if(msg)msg.textContent='✓ Loaded saved slideshow settings.';
+ }catch(e){if(msg)msg.textContent='Could not load: '+e.message;renderPromoAdmin()}
+}
+$('savePromoSlides')?.addEventListener('click',async()=>{
+ const btn=$('savePromoSlides'),msg=$('promoAdminMessage');
+ btn.disabled=true;msg.textContent='Saving slideshow…';
+ try{
+  const d=await api('savePromoSlideshow',{slides:promoSlides});
+  if(!d.success)throw new Error(d.message||'Save failed.');
+  msg.textContent='✓ Slideshow saved. Refresh the customer website to see changes.';
+ }catch(e){msg.textContent='Could not save: '+e.message}
+ finally{btn.disabled=false}
+});
+$('reloadPromoSlides')?.addEventListener('click',loadPromoSlides);
 
 </script>
 
