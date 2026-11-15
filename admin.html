@@ -987,7 +987,7 @@ async function loadPromoSlides(){
  try{
   const d=await api('settings');let saved={};
   try{saved=JSON.parse(d.settings?.promo_slideshow||'{}')}catch(e){}
-  if(Array.isArray(saved.slides)&&saved.slides.length)promoSlides=saved.slides.slice(0,3);
+  if(Array.isArray(saved.slides)&&saved.slides.length)promoSlides=promoSlides.map((base,i)=>({...base,...(saved.slides[i]||{})}));
   promoDurationSeconds=Math.min(20,Math.max(2,Math.round(Number(saved.durationSeconds)||6)));
   const durationInput=$('promoDuration'),durationLabel=$('promoDurationLabel');
   if(durationInput)durationInput.value=String(promoDurationSeconds);
