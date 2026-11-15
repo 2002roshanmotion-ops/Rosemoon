@@ -585,7 +585,6 @@ function savePromoSlideshow_(payload) {
     theme:allowedThemes.includes(String(s.theme))?String(s.theme):'pink',enabled:s.enabled!==false
   }));
   if(!slides.some(s=>s.enabled)) throw new Error('Keep at least one slide enabled.');
-  if(slides.some(s=>!s.title||!s.button)) throw new Error('Each slide needs a heading and button label.');
   const sheet=ensureSheet_(getSpreadsheet_(),'Settings',SETTINGS_HEADERS,DEFAULT_SETTINGS);
   const values=sheet.getDataRange().getValues();let row=0;
   for(let i=1;i<values.length;i++)if(String(values[i][0])==='promo_slideshow'){row=i+1;break;}
