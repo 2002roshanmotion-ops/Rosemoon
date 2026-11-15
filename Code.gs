@@ -570,9 +570,9 @@ function getSettings_() {
 }
 
 
-function savePromoSlideshow_(payload) {
-  requireAdmin_(payload);
-  const inpnst defaults={desktop:{width:100,height:74,fit:'contain',radius:18},mobile:{width:100,height:74,fit:'contain',radius:18}};
+function getWebsiteLayout_() {
+  const settings=getSettings_().settings;
+  const defaults={desktop:{width:100,height:74,fit:'contain',radius:18},mobile:{width:100,height:74,fit:'contain',radius:18}};
   try {
     const saved=JSON.parse(String(settings.website_layout||'{}'));
     return {success:true,layout:{desktop:Object.assign({},defaults.desktop,saved.desktop||{}),mobile:Object.assign({},defaults.mobile,saved.mobile||{})}};
