@@ -420,11 +420,18 @@
       if(!Array.isArray(saved.slides)||!saved.slides.length)return;
       const root=document.querySelector('.promo-slides');if(!root)return;
       const slides=saved.slides.filter(s=>s&&s.enabled!==false);if(!slides.length)return;
+      const seconds=Math.min(20,Math.max(2,Math.round(Number(saved.durationSeconds)||6)));
+      const total=seconds*slides.length;
+      root.closest('.rosemoon-promo')?.style.setProperty('--promo-duration',total+'s');
+      const slot=100/slides.length,showStart=slot*0.025,showEnd=slot*0.92;
+      let timingStyle=document.getElementById('rosemoon-promo-timing');
+      if(!timingStyle){timingStyle=document.createElement('style');timingStyle.id='rosemoon-promo-timing';document.head.appendChild(timingStyle)}
+      timingStyle.textContent='@keyframes rosePromoCycleDynamic{0%{opacity:0;transform:translateX(4%) scale(.985);visibility:hidden}'+showStart+'%{opacity:1;transform:translateX(0) scale(1);visibility:visible}'+showEnd+'%{opacity:1;transform:translateX(0) scale(1);visibility:visible}'+slot+'%{opacity:0;transform:translateX(-4%) scale(.985);visibility:hidden}100%{opacity:0;visibility:hidden}}';
       const themes={pink:'linear-gradient(112deg,#fff0f5 0%,#f9d7e4 53%,#efb8ce 100%)',peach:'linear-gradient(112deg,#fff5ed 0%,#f6d8dc 53%,#eeb7c7 100%)',lilac:'linear-gradient(112deg,#f8f0fa 0%,#ead7ef 53%,#dcb8e2 100%)'};
       root.innerHTML=slides.map((s,i)=>{
         const lines=String(s.title||'').split('|').map(x=>escapeHtml(x));
-        const heading=lines.length>1?lines[0]+'<br><em>'+lines.slice(1).join(' '):lines[0];
-        return '<article class="promo-slide promo-slide-admin" style="background:radial-gradient(circle at 78% 45%,rgba(255,255,255,.82),transparent 30%),'+(themes[s.theme]||themes.pink)+';animation-delay:'+(-i*6)+'s"><div class="promo-copy"><span class="promo-kicker">'+escapeHtml(s.kicker||'ROSEMOON')+'</span><h2>'+heading+'</em></h2><p>'+escapeHtml(s.description||'')+'</p><a href="#productsGrid" class="promo-cta">'+escapeHtml(s.button||'Explore Bouquets')+' <span>↗</span></a></div><div class="promo-art" aria-hidden="true"><span class="promo-orbit"></span><span class="promo-flower">'+(i===0?'🌸':i===1?'💐':'🌷')+'</span><span class="promo-spark promo-spark-a">✦</span><span class="promo-spark promo-spark-b">✧</span><span class="promo-ribbon">ROSEMOON</span></div><span class="promo-number">0'+(i+1)+' <i>/ 0'+slides.length+'</i></span></article>';
+        const heading=lines.length>1?lines[0]+'<br><em>'+lines.slice(1).join(' ')+'</em>':lines[0];
+        return '<article class="promo-slide promo-slide-admin" style="background:radial-gradient(circle at 78% 45%,rgba(255,255,255,.82),transparent 30%),'+(themes[s.theme]||themes.pink)+';animation:rosePromoCycleDynamic '+total+'s infinite;animation-delay:'+(-i*seconds)+'s"><div class="promo-copy"><span class="promo-kicker">'+escapeHtml(s.kicker||'ROSEMOON')+'</span><h2>'+heading+'</em></h2><p>'+escapeHtml(s.description||'')+'</p><a href="#productsGrid" class="promo-cta">'+escapeHtml(s.button||'Explore Bouquets')+' <span>↗</span></a></div><div class="promo-art" aria-hidden="true"><span class="promo-orbit"></span><span class="promo-flower">'+(i===0?'🌸':i===1?'💐':'🌷')+'</span><span class="promo-spark promo-spark-a">✦</span><span class="promo-spark promo-spark-b">✧</span><span class="promo-ribbon">ROSEMOON</span></div><span class="promo-number">0'+(i+1)+' <i>/ 0'+slides.length+'</i></span></article>';
       }).join('');
     }catch(e){console.warn('Rosemoon promo settings unavailable; using built-in slides.',e)}
   }
