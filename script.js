@@ -431,8 +431,32 @@
       root.innerHTML=slides.map((s,i)=>{
         const lines=String(s.title||'').split('|').map(x=>escapeHtml(x));
         const heading=lines.length>1?lines[0]+'<br><em>'+lines.slice(1).join(' ')+'</em>':lines[0];
-        return '<article class="promo-slide promo-slide-admin" style="background:radial-gradient(circle at 78% 45%,rgba(255,255,255,.82),transparent 30%),'+(themes[s.theme]||themes.pink)+';animation:rosePromoCycleDynamic '+total+'s infinite;animation-delay:'+(i*seconds)+'s"><div class="promo-copy"><span class="promo-kicker">'+escapeHtml(s.kicker||'ROSEMOON')+'</span><h2>'+heading+'</em></h2><p>'+escapeHtml(s.description||'')+'</p><a href="#productsGrid" class="promo-cta">'+escapeHtml(s.button||'Explore Bouquets')+' <span>↗</span></a></div><div class="promo-art" aria-hidden="true"><span class="promo-orbit"></span><span class="promo-flower">'+(i===0?'🌸':i===1?'💐':'🌷')+'</span><span class="promo-spark promo-spark-a">✦</span><span class="promo-spark promo-spark-b">✧</span><span class="promo-ribbon">ROSEMOON</span></div><span class="promo-number">0'+(i+1)+' <i>/ 0'+slides.length+'</i></span></article>';
+        return '<article class="promo-slide promo-slide-admin" style="background:radial-gradient(circle at 78% 45%,rgba(255,255,255,.82),transparent 30%),'+(themes[s.theme]||themes.pink)+';animation:rosePromoCycleDynamic '+total+'s infinite;animation-delay:'+(-i*seconds)+'s"><div class="promo-copy"><span class="promo-kicker">'+escapeHtml(s.kicker||'ROSEMOON')+'</span><h2>'+heading+'</h2><p>'+escapeHtml(s.description||'')+'</p><a href="#productsGrid" class="promo-cta">'+escapeHtml(s.button||'Explore Bouquets')+' <span>↗</span></a></div><div class="promo-art" aria-hidden="true"><span class="promo-orbit"></span><span class="promo-flower">'+(i===0?'🌸':i===1?'💐':'🌷')+'</span><span class="promo-spark promo-spark-a">✦</span><span class="promo-spark promo-spark-b">✧</span><span class="promo-ribbon">ROSEMOON</span></div><span class="promo-number">0'+(i+1)+' <i>/ 0'+slides.length+'</i></span></article>';
       }).join('');
+      const section=root.closest('.rosemoon-promo');
+      let controls=section.querySelector('.promo-controls');
+      if(!controls){controls=document.createElement('div');controls.className='promo-controls';controls.setAttribute('aria-label','Slideshow controls');section.appendChild(controls)}
+      controls.innerHTML='<button type="button" class="promo-arrow promo-prev" aria-label="Previous slide">‹</button><div class="promo-dots">'+slides.map((_,i)=>'<button type="button" class="promo-dot" data-promo-index="'+i+'" aria-label="Go to slide '+(i+1)+'"><span></span></button>').join('')+'</div><button type="button" class="promo-arrow promo-next" aria-label="Next slide">›</button>';
+      let active=0;
+      const activate=(next)=>{
+        active=(next+slides.length)%slides.length;
+        const cards=[...root.querySelectorAll('.promo-slide')];
+        cards.forEach((card,i)=>{
+          const delay=-(((i-active+slides.length)%slides.length)*seconds);
+          card.style.animation='none';card.style.opacity='';card.style.visibility='';
+          card.offsetWidth;
+          card.style.animation='rosePromoCycleDynamic '+total+'s infinite';
+          card.style.animationDelay=delay+'s';
+        });
+        controls.querySelectorAll('.promo-dot').forEach((dot,i)=>{dot.classList.toggle('active',i===active);dot.setAttribute('aria-current',i===active?'true':'false')});
+      };
+      controls.onclick=e=>{
+        const dot=e.target.closest('[data-promo-index]');
+        if(e.target.closest('.promo-prev'))activate(active-1);
+        else if(e.target.closest('.promo-next'))activate(active+1);
+        else if(dot)activate(Number(dot.dataset.promoIndex));
+      };
+      activate(0);
     }catch(e){console.warn('Rosemoon promo settings unavailable; using built-in slides.',e)}
   }
   syncPromoSlideshow();
