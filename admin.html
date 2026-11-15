@@ -310,7 +310,6 @@ function setTab(name){
   if(name==='inventory'||name==='dashboard'||name==='editFlowers')loadProducts();
   if(name==='editFlowers')populateCategoryManager();
   if(name==='music'&&typeof loadMusic==='function')loadMusic();
-  if(name==='promotions'&&typeof loadPromoSlides==='function')loadPromoSlides();
   if(name==='orders'&&typeof loadOrders==='function')loadOrders();
 }
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
