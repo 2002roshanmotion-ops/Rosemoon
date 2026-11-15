@@ -729,3 +729,30 @@ body.flower-popup-open{
   .landing-main-flower{width:48px!important;height:48px!important}
   .start-shopping{padding:9px 22px!important}
 }
+
+
+/* View Details: use a consistent square image frame, without cropping the artwork. */
+.flower-popup-grid .flower-popup-detail-card .flower-popup-art{
+  width:100%!important;
+  height:auto!important;
+  aspect-ratio:1 / 1!important;
+  min-height:0!important;
+  max-height:none!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  overflow:hidden!important;
+  background:#fff7fa!important;
+  border-radius:var(--rm-image-radius,18px)!important;
+}
+.flower-popup-grid .flower-popup-detail-card .flower-popup-art > img,
+.flower-popup-grid .flower-popup-detail-card .flower-popup-art > img.decoration-full-image{
+  width:100%!important;
+  height:100%!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  display:block!important;
+  margin:0!important;
+}
