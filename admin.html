@@ -236,7 +236,7 @@ function rosemoonQuickLogin(){
     <div class="card">
       <h2>✨ Promotional Slideshow</h2>
       <p class="hint">Edit the three animated slides shown directly above “Choose Your Bouquets” on the customer website.</p>
-      <div class="field" style="max-width:340px;margin:16px 0 22px"><label for="promoDuration">SLIDE DISPLAY TIME (SECONDS)</label><input id="promoDuration" type="number" min="2" max="20" step="1" value="6"><div class="hint">How long each slide stays on screen before moving to the next (2–20 seconds).</div></div>
+      <div class="field" style="max-width:520px;margin:16px 0 22px;padding:16px 18px;border:1px solid #efd5e0;border-radius:16px;background:linear-gradient(135deg,#fff8fb,#fff0f5)"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><label for="promoDuration" style="margin:0">SLIDE DISPLAY TIME</label><strong id="promoDurationLabel" style="color:#a34d70;font-size:16px">6 seconds</strong></div><input id="promoDuration" type="range" min="2" max="20" step="1" value="6" style="width:100%;accent-color:#a34d70;margin:14px 0 6px"><div style="display:flex;justify-content:space-between" class="hint"><span>2 sec · Fast</span><span>20 sec · Slow</span></div><div class="hint">Choose how long each slide stays visible before the next one appears.</div></div>
       <div id="promoAdminSlides"></div>
       <div class="actions" style="margin-top:18px;align-items:center">
         <button class="primary" type="button" id="savePromoSlides">💾 Save Slideshow</button>
@@ -988,6 +988,10 @@ async function loadPromoSlides(){
   const d=await api('settings');let saved={};
   try{saved=JSON.parse(d.settings?.promo_slideshow||'{}')}catch(e){}
   if(Array.isArray(saved.slides)&&saved.slides.length)promoSlides=saved.slides.slice(0,3);
+  promoDurationSeconds=Math.min(20,Math.max(2,Math.round(Number(saved.durationSeconds)||6)));
+  const durationInput=$('promoDuration'),durationLabel=$('promoDurationLabel');
+  if(durationInput)durationInput.value=String(promoDurationSeconds);
+  if(durationLabel)durationLabel.textContent=promoDurationSeconds+' seconds';
   renderPromoAdmin();if(msg)msg.textContent='✓ Loaded saved slideshow settings.';
  }catch(e){if(msg)msg.textContent='Could not load: '+e.message;renderPromoAdmin()}
 }
@@ -1003,6 +1007,7 @@ $('savePromoSlides')?.addEventListener('click',async()=>{
  }catch(e){msg.textContent='Could not save: '+e.message}
  finally{btn.disabled=false}
 });
+$('promoDuration')?.addEventListener('input',e=>{promoDurationSeconds=Number(e.target.value)||6;const label=$('promoDurationLabel');if(label)label.textContent=promoDurationSeconds+' seconds'});
 $('reloadPromoSlides')?.addEventListener('click',loadPromoSlides);
 
 </script>
