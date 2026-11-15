@@ -993,6 +993,8 @@ async function loadPromoSlides(){
 }
 $('savePromoSlides')?.addEventListener('click',async()=>{
  const btn=$('savePromoSlides'),msg=$('promoAdminMessage');
+ promoDurationSeconds=Math.round(Number($('promoDuration')?.value)||6);
+ if(promoDurationSeconds<2||promoDurationSeconds>20){msg.textContent='Choose a time between 2 and 20 seconds.';return}
  btn.disabled=true;msg.textContent='Saving slideshow…';
  try{
   const d=await api('savePromoSlideshow',{slides:promoSlides,durationSeconds:promoDurationSeconds});
