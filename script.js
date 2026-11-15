@@ -421,18 +421,10 @@
       const response=await fetchWithTimeout(`${API_URL}?action=settings&_=${Date.now()}`,{cache:"no-store"},10000);
       const data=await response.json();
       const saved=JSON.parse(String(data.settings?.promo_slideshow||'{}'));
-      if(Array.isArray(saved.slides)&&saved.slides.length)slides=saved.slides.filter(s=>s&&s.enabled!==false);
+      const builtInSlides=[...root.querySelectorAll('.promo-slide')].map((card,i)=>({kicker:card.querySelector('.promo-kicker')?.textContent||'ROSEMOON',title:(card.querySelector('h2')?.innerText||'').replace(/\n/g,'|'),description:card.querySelector('.promo-copy p')?.textContent||'',button:card.querySelector('.promo-cta')?.childNodes[0]?.textContent?.trim()||'Explore Bouquets',theme:['pink','peach','lilac'][i]||'pink',enabled:true}));
+      slides=builtInSlides.map((base,i)=>({...base,...(Array.isArray(saved.slides)?(saved.slides[i]||{}):{})})).filter(s=>s&&s.enabled!==false);
       seconds=Math.min(20,Math.max(2,Math.round(Number(saved.durationSeconds)||6)));
     }catch(error){console.warn('Rosemoon slideshow settings could not load; showing built-in slides.',error)}
-    if(!slides.length){
-      slides=[...root.querySelectorAll('.promo-slide')].map((card,i)=>({
-        kicker:card.querySelector('.promo-kicker')?.textContent||'ROSEMOON',
-        title:(card.querySelector('h2')?.innerText||'').replace(/\n/g,'|'),
-        description:card.querySelector('.promo-copy p')?.textContent||'',
-        button:card.querySelector('.promo-cta')?.childNodes[0]?.textContent?.trim()||'Explore Bouquets',
-        theme:['pink','peach','lilac'][i]||'pink'
-      }));
-    }
     if(!slides.length)return;
     const themes={
       pink:'linear-gradient(112deg,#fff0f5 0%,#f9d7e4 53%,#efb8ce 100%)',
