@@ -432,9 +432,7 @@
       lilac:'linear-gradient(112deg,#f8f0fa 0%,#ead7ef 53%,#dcb8e2 100%)'
     };
     root.innerHTML=slides.map((slide,i)=>{
-      const lines=String(slide.title||'').split('|').map(escapeHtml);
-      const heading=lines.length>1?lines[0]+'<br><em>'+lines.slice(1).join(' ')+'</em>':(lines[0]||'Something Lovely');
-      return '<article class="promo-slide promo-slide-admin" style="background:radial-gradient(circle at 78% 45%,rgba(255,255,255,.82),transparent 30%),'+(themes[slide.theme]||themes.pink)+'">'+(slide.imageUrl?'<img class="promo-photo" src="'+escapeHtml(slide.imageUrl)+'" alt="" loading="eager">':'')+'<div class="promo-photo-shade"></div><div class="promo-copy"><span class="promo-kicker">'+escapeHtml(slide.kicker||'ROSEMOON')+'</span><h2>'+heading+'</h2><p>'+escapeHtml(slide.description||'')+'</p><a href="#productsGrid" class="promo-cta">'+escapeHtml(slide.button||'Explore Bouquets')+' <span>↗</span></a></div><div class="promo-art" aria-hidden="true"><span class="promo-orbit"></span><span class="promo-flower">'+(i%3===0?'🌸':i%3===1?'💐':'🌷')+'</span><span class="promo-spark promo-spark-a">✦</span><span class="promo-spark promo-spark-b">✧</span><span class="promo-ribbon">ROSEMOON</span></div><span class="promo-number">0'+(i+1)+' <i>/ 0'+slides.length+'</i></span></article>';
+      return '<article class="promo-slide promo-slide-admin" aria-label="Slideshow picture '+(i+1)+'" style="background:#f8dce7">'+(slide.imageUrl?'<img class="promo-photo" src="'+escapeHtml(slide.imageUrl)+'" alt="" loading="eager">':'')+'</article>';
     }).join('');
     const cards=[...root.querySelectorAll('.promo-slide')];
     const controls=section.querySelector('.promo-controls')||document.createElement('div');
