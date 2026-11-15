@@ -413,59 +413,98 @@
 
 
   async function syncPromoSlideshow(){
+    const root=document.querySelector('.promo-slides');
+    const section=root?.closest('.rosemoon-promo');
+    if(!root||!section)return;
+    let slides=[],seconds=6;
     try{
-      const r=await fetchWithTimeout(`${API_URL}?action=settings&_=${Date.now()}`,{cache:"no-store"},8000);
-      const d=await r.json();if(!d.success)return;
-      const saved=JSON.parse(String(d.settings?.promo_slideshow||'{}'));
-      if(!Array.isArray(saved.slides)||!saved.slides.length)return;
-      const root=document.querySelector('.promo-slides');if(!root)return;
-      const slides=saved.slides.filter(s=>s&&s.enabled!==false);if(!slides.length)return;
-      const seconds=Math.min(20,Math.max(2,Math.round(Number(saved.durationSeconds)||6)));
-      const total=seconds*slides.length;
-      const promoSection=root.closest('.rosemoon-promo');
-      promoSection?.style.setProperty('--promo-duration',total+'s');
-      promoSection?.style.setProperty('--promo-slide-seconds',seconds+'s');
-      const slot=100/slides.length,showStart=slot*0.025,showEnd=slot*0.92;
-      let timingStyle=document.getElementById('rosemoon-promo-timing');
-      if(!timingStyle){timingStyle=document.createElement('style');timingStyle.id='rosemoon-promo-timing';document.head.appendChild(timingStyle)}
-      timingStyle.textContent='@keyframes rosePromoCycleDynamic{0%{opacity:0;transform:translateX(4%) scale(.985);visibility:hidden}'+showStart+'%{opacity:1;transform:translateX(0) scale(1);visibility:visible}'+showEnd+'%{opacity:1;transform:translateX(0) scale(1);visibility:visible}'+slot+'%{opacity:0;transform:translateX(-4%) scale(.985);visibility:hidden}100%{opacity:0;visibility:hidden}}';
-      const themes={pink:'linear-gradient(112deg,#fff0f5 0%,#f9d7e4 53%,#efb8ce 100%)',peach:'linear-gradient(112deg,#fff5ed 0%,#f6d8dc 53%,#eeb7c7 100%)',lilac:'linear-gradient(112deg,#f8f0fa 0%,#ead7ef 53%,#dcb8e2 100%)'};
-      root.innerHTML=slides.map((s,i)=>{
-        const lines=String(s.title||'').split('|').map(x=>escapeHtml(x));
-        const heading=lines.length>1?lines[0]+'<br><em>'+lines.slice(1).join(' ')+'</em>':lines[0];
-        return '<article class="promo-slide promo-slide-admin" style="background:radial-gradient(circle at 78% 45%,rgba(255,255,255,.82),transparent 30%),'+(themes[s.theme]||themes.pink)+';animation:rosePromoCycleDynamic '+total+'s infinite;animation-delay:'+(-i*seconds)+'s"><div class="promo-copy"><span class="promo-kicker">'+escapeHtml(s.kicker||'ROSEMOON')+'</span><h2>'+heading+'</h2><p>'+escapeHtml(s.description||'')+'</p><a href="#productsGrid" class="promo-cta">'+escapeHtml(s.button||'Explore Bouquets')+' <span>↗</span></a></div><div class="promo-art" aria-hidden="true"><span class="promo-orbit"></span><span class="promo-flower">'+(i===0?'🌸':i===1?'💐':'🌷')+'</span><span class="promo-spark promo-spark-a">✦</span><span class="promo-spark promo-spark-b">✧</span><span class="promo-ribbon">ROSEMOON</span></div><span class="promo-number">0'+(i+1)+' <i>/ 0'+slides.length+'</i></span></article>';
-      }).join('');
-      const section=root.closest('.rosemoon-promo');
-      let controls=section.querySelector('.promo-controls');
-      if(!controls){controls=document.createElement('div');controls.className='promo-controls';controls.setAttribute('aria-label','Slideshow controls');section.appendChild(controls)}
-      controls.innerHTML='<button type="button" class="promo-arrow promo-prev" aria-label="Previous slide">‹</button><div class="promo-dots">'+slides.map((_,i)=>'<button type="button" class="promo-dot" data-promo-index="'+i+'" aria-label="Go to slide '+(i+1)+'"><span></span></button>').join('')+'</div><button type="button" class="promo-arrow promo-next" aria-label="Next slide">›</button>';
-      let active=0,autoAdvance=null;
-      const activate=(next)=>{
-        active=(next+slides.length)%slides.length;
-        const cards=[...root.querySelectorAll('.promo-slide')];
-        cards.forEach((card,i)=>{
-          const delay=((i-active+slides.length)%slides.length)*seconds;
-          card.style.animation='none';card.style.opacity='';card.style.visibility='';
-          card.offsetWidth;
-          card.style.animation='rosePromoCycleDynamic '+total+'s infinite';
-          card.style.animationDelay=delay+'s';
-        });
-        controls.querySelectorAll('.promo-dot').forEach((dot,i)=>{dot.classList.toggle('active',i===active);dot.setAttribute('aria-current',i===active?'true':'false')});
-      };
-      const restartAuto=()=>{
-        if(autoAdvance)clearInterval(autoAdvance);
-        if(slides.length>1)autoAdvance=setInterval(()=>activate(active+1),seconds*1000);
-      };
-      controls.onclick=e=>{
+      const response=await fetchWithTimeout(`${API_URL}?action=settings&_=${Date.now()}`,{cache:"no-store"},10000);
+      const data=await response.json();
+      const saved=JSON.parse(String(data.settings?.promo_slideshow||'{}'));
+      if(Array.isArray(saved.slides)&&saved.slides.length)slides=saved.slides.filter(s=>s&&s.enabled!==false);
+      seconds=Math.min(20,Math.max(2,Math.round(Number(saved.durationSeconds)||6)));
+    }catch(error){console.warn('Rosemoon slideshow settings could not load; showing built-in slides.',error)}
+    if(!slides.length){
+      slides=[...root.querySelectorAll('.promo-slide')].map((card,i)=>({
+        kicker:card.querySelector('.promo-kicker')?.textContent||'ROSEMOON',
+        title:(card.querySelector('h2')?.innerText||'').replace(/\n/g,'|'),
+        description:card.querySelector('.promo-copy p')?.textContent||'',
+        button:card.querySelector('.promo-cta')?.childNodes[0]?.textContent?.trim()||'Explore Bouquets',
+        theme:['pink','peach','lilac'][i]||'pink'
+      }));
+    }
+    if(!slides.length)return;
+    const themes={
+      pink:'linear-gradient(112deg,#fff0f5 0%,#f9d7e4 53%,#efb8ce 100%)',
+      peach:'linear-gradient(112deg,#fff5ed 0%,#f6d8dc 53%,#eeb7c7 100%)',
+      lilac:'linear-gradient(112deg,#f8f0fa 0%,#ead7ef 53%,#dcb8e2 100%)'
+    };
+    root.innerHTML=slides.map((slide,i)=>{
+      const lines=String(slide.title||'').split('|').map(escapeHtml);
+      const heading=lines.length>1?lines[0]+'<br><em>'+lines.slice(1).join(' ')+'</em>':(lines[0]||'Something Lovely');
+      return '<article class="promo-slide promo-slide-admin" style="background:radial-gradient(circle at 78% 45%,rgba(255,255,255,.82),transparent 30%),'+(themes[slide.theme]||themes.pink)+'"><div class="promo-copy"><span class="promo-kicker">'+escapeHtml(slide.kicker||'ROSEMOON')+'</span><h2>'+heading+'</h2><p>'+escapeHtml(slide.description||'')+'</p><a href="#productsGrid" class="promo-cta">'+escapeHtml(slide.button||'Explore Bouquets')+' <span>↗</span></a></div><div class="promo-art" aria-hidden="true"><span class="promo-orbit"></span><span class="promo-flower">'+(i%3===0?'🌸':i%3===1?'💐':'🌷')+'</span><span class="promo-spark promo-spark-a">✦</span><span class="promo-spark promo-spark-b">✧</span><span class="promo-ribbon">ROSEMOON</span></div><span class="promo-number">0'+(i+1)+' <i>/ 0'+slides.length+'</i></span></article>';
+    }).join('');
+    const cards=[...root.querySelectorAll('.promo-slide')];
+    const controls=section.querySelector('.promo-controls')||document.createElement('div');
+    controls.className='promo-controls';
+    controls.setAttribute('aria-label','Slideshow controls');
+    controls.innerHTML='<button type="button" class="promo-arrow promo-prev" aria-label="Previous slide">‹</button><div class="promo-dots">'+slides.map((_,i)=>'<button type="button" class="promo-dot" data-promo-index="'+i+'" aria-label="Go to slide '+(i+1)+'"><span></span></button>').join('')+'</div><button type="button" class="promo-arrow promo-next" aria-label="Next slide">›</button>';
+    if(!controls.parentNode)section.appendChild(controls);
+    section.style.setProperty('--promo-slide-seconds',seconds+'s');
+    section.style.setProperty('--promo-duration',(seconds*slides.length)+'s');
+    root.style.cssText+=';display:flex!important;position:absolute!important;inset:0!important;width:100%;height:100%;gap:0;perspective:1400px;transition:transform 900ms cubic-bezier(.2,.75,.2,1);will-change:transform;';
+    cards.forEach(card=>{
+      card.style.setProperty('position','relative','important');
+      card.style.setProperty('inset','auto','important');
+      card.style.setProperty('display','flex','important');
+      card.style.setProperty('flex','0 0 100%','important');
+      card.style.setProperty('width','100%','important');
+      card.style.setProperty('height','100%','important');
+      card.style.setProperty('min-width','100%','important');
+      card.style.setProperty('opacity','1','important');
+      card.style.setProperty('visibility','visible','important');
+      card.style.setProperty('animation','none','important');
+      card.style.setProperty('transform','translateZ(0)','important');
+      card.style.setProperty('backface-visibility','hidden','important');
+    });
+    let active=0,timer=null,startX=0,startY=0,dragging=false;
+    const paint=()=>{
+      root.style.transform='translate3d('+(-active*100)+'%,0,0)';
+      cards.forEach((card,i)=>card.classList.toggle('promo-current',i===active));
+      controls.querySelectorAll('.promo-dot').forEach((dot,i)=>{
+        dot.classList.toggle('active',i===active);
+        dot.setAttribute('aria-current',i===active?'true':'false');
+      });
+      const num=cards[active]?.querySelector('.promo-number');
+      if(num)num.innerHTML='0'+(active+1)+' <i>/ 0'+slides.length+'</i>';
+    };
+    const goTo=(index)=>{active=(index+slides.length)%slides.length;paint();restartTimer()};
+    const restartTimer=()=>{
+      if(timer)clearInterval(timer);
+      if(slides.length>1)timer=setInterval(()=>{active=(active+1)%slides.length;paint()},seconds*1000);
+    };
+    controls.onclick=e=>{
+      if(e.target.closest('.promo-prev'))goTo(active-1);
+      else if(e.target.closest('.promo-next'))goTo(active+1);
+      else{
         const dot=e.target.closest('[data-promo-index]');
-        if(e.target.closest('.promo-prev'))activate(active-1);
-        else if(e.target.closest('.promo-next'))activate(active+1);
-        else if(dot)activate(Number(dot.dataset.promoIndex));
-        else return;
-        restartAuto();
-      };
-      activate(0);restartAuto();
-    }catch(e){console.warn('Rosemoon promo settings unavailable; using built-in slides.',e)}
+        if(dot)goTo(Number(dot.dataset.promoIndex));
+      }
+    };
+    section.addEventListener('touchstart',e=>{
+      if(e.touches.length!==1)return;
+      startX=e.touches[0].clientX;startY=e.touches[0].clientY;dragging=true;
+    },{passive:true});
+    section.addEventListener('touchend',e=>{
+      if(!dragging)return;dragging=false;
+      const dx=e.changedTouches[0].clientX-startX,dy=e.changedTouches[0].clientY-startY;
+      if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy)*1.2)goTo(active+(dx<0?1:-1));
+    },{passive:true});
+    section.addEventListener('keydown',e=>{
+      if(e.key==='ArrowRight')goTo(active+1);
+      if(e.key==='ArrowLeft')goTo(active-1);
+    });
+    paint();restartTimer();
   }
   syncPromoSlideshow();
 
