@@ -236,6 +236,7 @@ function rosemoonQuickLogin(){
     <div class="card">
       <h2>✨ Promotional Slideshow</h2>
       <p class="hint">Edit the three animated slides shown directly above “Choose Your Bouquets” on the customer website.</p>
+      <div class="field" style="max-width:340px;margin:16px 0 22px"><label for="promoDuration">SLIDE DISPLAY TIME (SECONDS)</label><input id="promoDuration" type="number" min="2" max="20" step="1" value="6"><div class="hint">How long each slide stays on screen before moving to the next (2–20 seconds).</div></div>
       <div id="promoAdminSlides"></div>
       <div class="actions" style="margin-top:18px;align-items:center">
         <button class="primary" type="button" id="savePromoSlides">💾 Save Slideshow</button>
@@ -956,6 +957,7 @@ $('addMusicBtn').addEventListener('click',async()=>{
 });
 
 
+let promoDurationSeconds=6;
 let promoSlides=[
  {kicker:'A LITTLE BEAUTY, MADE BY HAND',title:'Make Their Day|Bloom',description:'Thoughtful handmade flowers for the moments that matter.',button:'Explore Bouquets',theme:'pink',enabled:true},
  {kicker:'HANDMADE WITH LOVE',title:'Little Gifts.|Big Feelings.',description:'Find a special piece to make an ordinary day unforgettable.',button:'Find Your Favourite',theme:'peach',enabled:true},
@@ -993,7 +995,7 @@ $('savePromoSlides')?.addEventListener('click',async()=>{
  const btn=$('savePromoSlides'),msg=$('promoAdminMessage');
  btn.disabled=true;msg.textContent='Saving slideshow…';
  try{
-  const d=await api('savePromoSlideshow',{slides:promoSlides});
+  const d=await api('savePromoSlideshow',{slides:promoSlides,durationSeconds:promoDurationSeconds});
   if(!d.success)throw new Error(d.message||'Save failed.');
   msg.textContent='✓ Slideshow saved. Refresh the customer website to see changes.';
  }catch(e){msg.textContent='Could not save: '+e.message}
