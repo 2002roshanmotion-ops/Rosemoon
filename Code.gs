@@ -581,6 +581,7 @@ function savePromoSlideshow_(payload) {
   const slides=input.map(s=>({
     kicker:clean_(s.kicker).slice(0,70),title:clean_(s.title).slice(0,90),
     description:clean_(s.description).slice(0,180),button:clean_(s.button).slice(0,35),
+    imageUrl:String(s.imageUrl||'').slice(0,2000),
     theme:allowedThemes.includes(String(s.theme))?String(s.theme):'pink',enabled:s.enabled!==false
   }));
   if(!slides.some(s=>s.enabled)) throw new Error('Keep at least one slide enabled.');
