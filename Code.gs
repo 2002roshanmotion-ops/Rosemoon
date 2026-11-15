@@ -575,6 +575,8 @@ function savePromoSlideshow_(payload) {
   requireAdmin_(payload);
   const input=Array.isArray(payload.slides)?payload.slides:[];
   if(input.length!==3) throw new Error('Exactly three promotional slides are required.');
+  const durationSeconds=Number(payload.durationSeconds??6);
+  if(!Number.isInteger(durationSeconds)||durationSeconds<2||durationSeconds>20) throw new Error('Slide display time must be between 2 and 20 seconds.');
   const allowedThemes=['pink','peach','lilac'];
   const slides=input.map(s=>({
     kicker:clean_(s.kicker).slice(0,70),title:clean_(s.title).slice(0,90),
@@ -586,7 +588,7 @@ function savePromoSlideshow_(payload) {
   const sheet=ensureSheet_(getSpreadsheet_(),'Settings',SETTINGS_HEADERS,DEFAULT_SETTINGS);
   const values=sheet.getDataRange().getValues();let row=0;
   for(let i=1;i<values.length;i++)if(String(values[i][0])==='promo_slideshow'){row=i+1;break;}
-  const serialized=JSON.stringify({slides:slides});
+  const serialized=JSON.stringify({slides:slides,durationSeconds:durationSeconds});
   if(row)sheet.getRange(row,2).setValue(serialized);
   else sheet.appendRow(['promo_slideshow',serialized,'Customer website promotional slideshow']);
   logActivity_('UPDATE_PROMO_SLIDESHOW','Updated promotional slideshow content');
