@@ -926,3 +926,75 @@ body.flower-popup-open{
  .rosemoon-promo .promo-dot.active{width:30px}
  .rosemoon-promo .promo-number{right:14px;bottom:48px}
 }
+
+
+/* Rosemoon reliable 3D horizontal slideshow track and touch navigation */
+.rosemoon-promo{perspective:1400px;touch-action:pan-y}
+.rosemoon-promo .promo-slides{transform-style:preserve-3d}
+.rosemoon-promo .promo-slide-admin{
+  transform-style:preserve-3d;
+  backface-visibility:hidden;
+  animation:none!important;
+  opacity:1!important;
+  visibility:visible!important;
+}
+.rosemoon-promo .promo-slide-admin .promo-copy{
+  opacity:0;transform:translate3d(34px,0,55px) rotateY(-9deg);
+  animation:none!important;
+  transition:opacity .55s ease,transform .85s cubic-bezier(.2,.75,.2,1);
+}
+.rosemoon-promo .promo-slide-admin .promo-art{
+  opacity:0;transform:translate3d(35px,-50%,65px) rotateY(14deg) scale(.82);
+  transition:opacity .7s ease .12s,transform 1s cubic-bezier(.2,.75,.2,1) .08s;
+}
+.rosemoon-promo .promo-slide-admin.promo-current .promo-copy{
+  opacity:1;transform:translate3d(0,0,0) rotateY(0);
+}
+.rosemoon-promo .promo-slide-admin.promo-current .promo-art{
+  opacity:1;transform:translate3d(0,-50%,0) rotateY(0) scale(1);
+}
+.rosemoon-promo .promo-progress{display:none!important}
+.rosemoon-promo .promo-controls{
+  position:absolute;z-index:20;left:50%;right:auto;bottom:13px;
+  transform:translateX(-50%);display:flex;align-items:center;
+  justify-content:center;gap:12px;padding:7px 12px;
+  border:1px solid rgba(255,255,255,.55);border-radius:999px;
+  background:rgba(255,255,255,.55);backdrop-filter:blur(12px);
+  box-shadow:0 8px 24px rgba(93,43,64,.12);
+}
+.rosemoon-promo .promo-arrow{
+  width:34px;height:34px;display:grid;place-items:center;
+  border:1px solid rgba(139,82,106,.25);border-radius:50%;
+  background:rgba(255,255,255,.9);color:#704052;
+  font:400 25px/1 "DM Sans",sans-serif;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.rosemoon-promo .promo-dots{display:flex;align-items:center;gap:7px}
+.rosemoon-promo .promo-dot,
+.rosemoon-promo .promo-dot.active{
+  position:relative;width:28px;height:6px;padding:0;overflow:hidden;
+  border:0;border-radius:20px;background:rgba(139,82,106,.22);
+  cursor:pointer;transition:width .25s ease;
+}
+.rosemoon-promo .promo-dot.active{width:42px}
+.rosemoon-promo .promo-dot::before{
+  content:"";position:absolute;inset:0 auto 0 0;width:0;
+  border-radius:inherit;background:#a34d70;
+}
+.rosemoon-promo .promo-dot.active::before{
+  animation:rosePromoDotFill var(--promo-slide-seconds,6s) linear forwards;
+}
+@keyframes rosePromoDotFill{from{width:0}to{width:100%}}
+.rosemoon-promo .promo-arrow:active{transform:scale(.92)}
+@media(max-width:650px){
+  .rosemoon-promo .promo-controls{bottom:9px;gap:7px;padding:5px 8px}
+  .rosemoon-promo .promo-arrow{width:30px;height:30px;font-size:22px}
+  .rosemoon-promo .promo-dot{width:18px;height:5px}
+  .rosemoon-promo .promo-dot.active{width:30px}
+  .rosemoon-promo .promo-slide-admin .promo-copy{max-width:72%}
+}
+@media(prefers-reduced-motion:reduce){
+  .rosemoon-promo .promo-slides{transition:none!important}
+  .rosemoon-promo .promo-slide-admin .promo-copy,
+  .rosemoon-promo .promo-slide-admin .promo-art{transition:none!important}
+}
