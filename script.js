@@ -41,6 +41,7 @@
           emoji:String(o?.emoji||choices[i]?.[1]||'🌸'),
           price:Math.max(0,Number(o?.price ?? product?.price ?? 0)),
           imageUrl:driveImageUrl(o?.imageUrl)||'',
+          description:String(o?.description||'').trim(),
           // Legacy colour data is ignored; customers select flowers only.
         }));
       }
