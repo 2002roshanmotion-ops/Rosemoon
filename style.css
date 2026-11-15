@@ -756,3 +756,16 @@ body.flower-popup-open{
   display:block!important;
   margin:0!important;
 }
+
+
+/* Center the remaining How to Order navigation item in the header. */
+.header{position:sticky}
+.header .nav{
+  position:absolute!important;
+  left:50%!important;
+  top:50%!important;
+  transform:translate(-50%,-50%)!important;
+  justify-content:center!important;
+  width:max-content!important;
+  margin:0!important;
+}
