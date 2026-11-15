@@ -452,25 +452,30 @@
     if(!controls.parentNode)section.appendChild(controls);
     section.style.setProperty('--promo-slide-seconds',seconds+'s');
     section.style.setProperty('--promo-duration',(seconds*slides.length)+'s');
-    root.style.cssText+=';display:flex!important;position:absolute!important;inset:0!important;width:100%;height:100%;gap:0;perspective:1400px;transition:transform 900ms cubic-bezier(.2,.75,.2,1);will-change:transform;';
-    cards.forEach(card=>{
-      card.style.setProperty('position','relative','important');
-      card.style.setProperty('inset','auto','important');
+    root.style.cssText+=';display:block!important;position:absolute!important;inset:0!important;width:100%;height:100%;overflow:visible;perspective:1400px;transform:none!important;';
+    cards.forEach((card,i)=>{
+      card.style.setProperty('position','absolute','important');
+      card.style.setProperty('inset','0','important');
       card.style.setProperty('display','flex','important');
-      card.style.setProperty('flex','0 0 100%','important');
       card.style.setProperty('width','100%','important');
       card.style.setProperty('height','100%','important');
-      card.style.setProperty('min-width','100%','important');
+      card.style.setProperty('min-width','0','important');
       card.style.setProperty('opacity','1','important');
       card.style.setProperty('visibility','visible','important');
       card.style.setProperty('animation','none','important');
-      card.style.setProperty('transform','translateZ(0)','important');
+      card.style.setProperty('transition','transform 900ms cubic-bezier(.2,.75,.2,1), filter 900ms ease','important');
       card.style.setProperty('backface-visibility','hidden','important');
+      card.style.setProperty('will-change','transform','important');
+      card.style.setProperty('transform','translate3d('+((i)*100)+'%,0,0) rotateY(-5deg)','important');
     });
     let active=0,timer=null,startX=0,startY=0,dragging=false;
     const paint=()=>{
-      root.style.transform='translate3d('+(-active*100)+'%,0,0)';
-      cards.forEach((card,i)=>card.classList.toggle('promo-current',i===active));
+      cards.forEach((card,i)=>{
+        const offset=i-active;
+        card.style.setProperty('transform','translate3d('+(offset*100)+'%,0,0) rotateY('+(offset===0?0:offset>0?-5:5)+'deg)','important');
+        card.style.setProperty('z-index',offset===0?'2':'1','important');
+        card.classList.toggle('promo-current',i===active);
+      });
       controls.querySelectorAll('.promo-dot').forEach((dot,i)=>{
         dot.classList.toggle('active',i===active);
         dot.setAttribute('aria-current',i===active?'true':'false');
