@@ -110,7 +110,6 @@ function doPost(e) {
       case 'setup': requireAdmin_(payload); return json_(setupRosemoonSheet());
       case 'saveDeliveryLocations': return json_(saveDeliveryLocations_(payload));
       case 'saveWebsiteLayout': return json_(saveWebsiteLayout_(payload));
-      case 'savePromoSlideshow': return json_(savePromoSlideshow_(payload));
       case 'placeOrder': return json_(placeOrder_(payload));
       case 'updateStock': return json_(updateStock_(payload));
       case 'addProduct': return json_(addProduct_(payload));
@@ -573,31 +572,7 @@ function getSettings_() {
 
 function savePromoSlideshow_(payload) {
   requireAdmin_(payload);
-  const input=Array.isArray(payload.slides)?payload.slides:[];
-  if(input.length!==3) throw new Error('Exactly three promotional slides are required.');
-  const durationSeconds=Number(payload.durationSeconds??6);
-  if(!Number.isInteger(durationSeconds)||durationSeconds<2||durationSeconds>20) throw new Error('Slide display time must be between 2 and 20 seconds.');
-  const allowedThemes=['pink','peach','lilac'];
-  const slides=input.map(s=>({
-    kicker:clean_(s.kicker).slice(0,70),title:clean_(s.title).slice(0,90),
-    description:clean_(s.description).slice(0,180),button:clean_(s.button).slice(0,35),
-    imageUrl:String(s.imageUrl||'').slice(0,2000),
-    theme:allowedThemes.includes(String(s.theme))?String(s.theme):'pink',enabled:s.enabled!==false
-  }));
-  if(!slides.some(s=>s.enabled)) throw new Error('Keep at least one slide enabled.');
-  const sheet=ensureSheet_(getSpreadsheet_(),'Settings',SETTINGS_HEADERS,DEFAULT_SETTINGS);
-  const values=sheet.getDataRange().getValues();let row=0;
-  for(let i=1;i<values.length;i++)if(String(values[i][0])==='promo_slideshow'){row=i+1;break;}
-  const serialized=JSON.stringify({slides:slides,durationSeconds:durationSeconds});
-  if(row)sheet.getRange(row,2).setValue(serialized);
-  else sheet.appendRow(['promo_slideshow',serialized,'Customer website promotional slideshow']);
-  logActivity_('UPDATE_PROMO_SLIDESHOW','Updated promotional slideshow content');
-  return {success:true,slides:slides};
-}
-
-function getWebsiteLayout_() {
-  const settings=getSettings_().settings;
-  const defaults={desktop:{width:100,height:74,fit:'contain',radius:18},mobile:{width:100,height:74,fit:'contain',radius:18}};
+  const inpnst defaults={desktop:{width:100,height:74,fit:'contain',radius:18},mobile:{width:100,height:74,fit:'contain',radius:18}};
   try {
     const saved=JSON.parse(String(settings.website_layout||'{}'));
     return {success:true,layout:{desktop:Object.assign({},defaults.desktop,saved.desktop||{}),mobile:Object.assign({},defaults.mobile,saved.mobile||{})}};
