@@ -411,6 +411,25 @@
   }
   syncWebsiteLayout();
 
+
+  async function syncPromoSlideshow(){
+    try{
+      const r=await fetchWithTimeout(`${API_URL}?action=settings&_=${Date.now()}`,{cache:"no-store"},8000);
+      const d=await r.json();if(!d.success)return;
+      const saved=JSON.parse(String(d.settings?.promo_slideshow||'{}'));
+      if(!Array.isArray(saved.slides)||!saved.slides.length)return;
+      const root=document.querySelector('.promo-slides');if(!root)return;
+      const slides=saved.slides.filter(s=>s&&s.enabled!==false);if(!slides.length)return;
+      const themes={pink:'linear-gradient(112deg,#fff0f5 0%,#f9d7e4 53%,#efb8ce 100%)',peach:'linear-gradient(112deg,#fff5ed 0%,#f6d8dc 53%,#eeb7c7 100%)',lilac:'linear-gradient(112deg,#f8f0fa 0%,#ead7ef 53%,#dcb8e2 100%)'};
+      root.innerHTML=slides.map((s,i)=>{
+        const lines=String(s.title||'').split('|').map(x=>escapeHtml(x));
+        const heading=lines.length>1?lines[0]+'<br><em>'+lines.slice(1).join(' '):lines[0];
+        return '<article class="promo-slide promo-slide-admin" style="background:radial-gradient(circle at 78% 45%,rgba(255,255,255,.82),transparent 30%),'+(themes[s.theme]||themes.pink)+';animation-delay:'+(-i*6)+'s"><div class="promo-copy"><span class="promo-kicker">'+escapeHtml(s.kicker||'ROSEMOON')+'</span><h2>'+heading+'</em></h2><p>'+escapeHtml(s.description||'')+'</p><a href="#productsGrid" class="promo-cta">'+escapeHtml(s.button||'Explore Bouquets')+' <span>↗</span></a></div><div class="promo-art" aria-hidden="true"><span class="promo-orbit"></span><span class="promo-flower">'+(i===0?'🌸':i===1?'💐':'🌷')+'</span><span class="promo-spark promo-spark-a">✦</span><span class="promo-spark promo-spark-b">✧</span><span class="promo-ribbon">ROSEMOON</span></div><span class="promo-number">0'+(i+1)+' <i>/ 0'+slides.length+'</i></span></article>';
+      }).join('');
+    }catch(e){console.warn('Rosemoon promo settings unavailable; using built-in slides.',e)}
+  }
+  syncPromoSlideshow();
+
 })();
     if(cartBtn){cartBtn.classList.remove('cart-add-bounce');void cartBtn.offsetWidth;cartBtn.classList.add('cart-add-bounce');setTimeout(()=>cartBtn.classList.remove('cart-add-bounce'),750)}
     if(count){count.classList.remove('cart-count-pop');void count.offsetWidth;count.classList.add('cart-count-pop')}
