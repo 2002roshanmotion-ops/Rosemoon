@@ -680,3 +680,52 @@ body.flower-popup-open{
 .landing-main-flower{width:72px;height:72px;margin:0 auto 10px!important}
 .start-shopping{padding:15px 26px 15px 30px!important;gap:24px!important;font-size:14px!important}
 .start-shopping b{font-size:20px!important}
+
+
+/* Final viewport fit: keep the complete opening screen visible without vertical scrolling. */
+.landing-page{
+  height:100vh!important;
+  height:100dvh!important;
+  min-height:0!important;
+  padding: max(12px, env(safe-area-inset-top)) 14px max(12px, env(safe-area-inset-bottom))!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+}
+.landing-content{
+  width:100%!important;
+  max-width:760px!important;
+  max-height:100%!important;
+  margin:auto!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:clamp(5px,1.3svh,12px)!important;
+}
+.landing-logo{width:100%!important;min-height:0!important;flex:0 1 auto!important}
+.landing-logo img{
+  width:clamp(170px, min(58vw, 38svh), 360px)!important;
+  max-width:100%!important;
+  max-height:38svh!important;
+  object-fit:contain!important;
+}
+.landing-mark{font-size:clamp(18px,3.2svh,26px)!important;line-height:1!important;margin:0!important;flex:0 0 auto!important}
+.landing-main-flower{
+  width:clamp(48px,10svh,72px)!important;
+  height:clamp(48px,10svh,72px)!important;
+  margin:0!important;
+  flex:0 0 auto!important;
+}
+.start-shopping{
+  padding:clamp(10px,2svh,15px) 25px!important;
+  gap:22px!important;
+  font-size:13px!important;
+  flex:0 0 auto!important;
+}
+.start-shopping b{font-size:19px!important}
+@media(max-height:650px){
+  .landing-content{gap:5px!important}
+  .landing-logo img{width:clamp(150px,52vw,270px)!important;max-height:31svh!important}
+  .landing-main-flower{width:48px!important;height:48px!important}
+  .start-shopping{padding:9px 22px!important}
+}
