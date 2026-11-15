@@ -437,12 +437,12 @@
       let controls=section.querySelector('.promo-controls');
       if(!controls){controls=document.createElement('div');controls.className='promo-controls';controls.setAttribute('aria-label','Slideshow controls');section.appendChild(controls)}
       controls.innerHTML='<button type="button" class="promo-arrow promo-prev" aria-label="Previous slide">‹</button><div class="promo-dots">'+slides.map((_,i)=>'<button type="button" class="promo-dot" data-promo-index="'+i+'" aria-label="Go to slide '+(i+1)+'"><span></span></button>').join('')+'</div><button type="button" class="promo-arrow promo-next" aria-label="Next slide">›</button>';
-      let active=0;
+      let active=0,autoAdvance=null;
       const activate=(next)=>{
         active=(next+slides.length)%slides.length;
         const cards=[...root.querySelectorAll('.promo-slide')];
         cards.forEach((card,i)=>{
-          const delay=-(((i-active+slides.length)%slides.length)*seconds);
+          const delay=((i-active+slides.length)%slides.length)*seconds;
           card.style.animation='none';card.style.opacity='';card.style.visibility='';
           card.offsetWidth;
           card.style.animation='rosePromoCycleDynamic '+total+'s infinite';
@@ -450,13 +450,19 @@
         });
         controls.querySelectorAll('.promo-dot').forEach((dot,i)=>{dot.classList.toggle('active',i===active);dot.setAttribute('aria-current',i===active?'true':'false')});
       };
+      const restartAuto=()=>{
+        if(autoAdvance)clearInterval(autoAdvance);
+        if(slides.length>1)autoAdvance=setInterval(()=>activate(active+1),seconds*1000);
+      };
       controls.onclick=e=>{
         const dot=e.target.closest('[data-promo-index]');
         if(e.target.closest('.promo-prev'))activate(active-1);
         else if(e.target.closest('.promo-next'))activate(active+1);
         else if(dot)activate(Number(dot.dataset.promoIndex));
+        else return;
+        restartAuto();
       };
-      activate(0);
+      activate(0);restartAuto();
     }catch(e){console.warn('Rosemoon promo settings unavailable; using built-in slides.',e)}
   }
   syncPromoSlideshow();
