@@ -769,3 +769,26 @@ body.flower-popup-open{
   width:max-content!important;
   margin:0!important;
 }
+
+
+/* True three-column header: center How to Order in the exact viewport midpoint. */
+.header{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)!important;
+  align-items:center!important;
+  justify-content:stretch!important;
+}
+.header>.logo{grid-column:1;justify-self:start!important}
+.header>.nav{
+  grid-column:2;
+  position:static!important;
+  inset:auto!important;
+  left:auto!important;
+  top:auto!important;
+  transform:none!important;
+  width:auto!important;
+  justify-self:center!important;
+  justify-content:center!important;
+  margin:0!important;
+}
+.header>.cart-btn{grid-column:3;justify-self:end!important}
