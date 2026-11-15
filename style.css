@@ -998,3 +998,15 @@ body.flower-popup-open{
   .rosemoon-promo .promo-slide-admin .promo-copy,
   .rosemoon-promo .promo-slide-admin .promo-art{transition:none!important}
 }
+
+/* Admin-uploaded photo artwork for the homepage slideshow */
+.rosemoon-promo .promo-slide-admin .promo-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;z-index:0}
+.rosemoon-promo .promo-slide-admin .promo-photo-shade{position:absolute;inset:0;z-index:1;background:linear-gradient(90deg,rgba(255,247,250,.94) 0%,rgba(255,247,250,.78) 42%,rgba(255,247,250,.08) 100%);pointer-events:none}
+.rosemoon-promo .promo-slide-admin .promo-copy{z-index:3}
+.rosemoon-promo .promo-slide-admin .promo-art{z-index:2}
+.promo-admin-photo{display:grid;gap:9px;margin:14px 0 18px;padding:14px;border:1px solid #efdbe3;border-radius:16px;background:#fff7fa}
+.promo-admin-photo>label{font-size:11px;font-weight:800;letter-spacing:.1em;color:#805064}
+.promo-admin-preview{width:100%;max-width:420px;aspect-ratio:16/7;display:grid;place-items:center;overflow:hidden;border:1px dashed #d9b7c5;border-radius:12px;background:#fff;color:#9a7181;font-size:12px}
+.promo-admin-preview img{width:100%;height:100%;object-fit:cover}
+.promo-admin-photo-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.promo-admin-photo-actions input{max-width:100%;font-size:12px}
