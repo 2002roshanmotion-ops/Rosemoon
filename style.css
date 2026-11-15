@@ -1010,3 +1010,5 @@ body.flower-popup-open{
 .promo-admin-preview img{width:100%;height:100%;object-fit:cover}
 .promo-admin-photo-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .promo-admin-photo-actions input{max-width:100%;font-size:12px}
+
+.rosemoon-promo .promo-slide-admin:has(.promo-photo) .promo-art{display:none}
