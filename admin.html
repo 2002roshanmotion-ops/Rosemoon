@@ -89,7 +89,6 @@ function rosemoonQuickLogin(){
       <button class="tab" data-tab="editFlowers">✏️ <span>Edit Flowers</span></button>
       <button class="tab" data-tab="orders">📋 <span>Orders</span></button>
       <button class="tab" data-tab="music">🎵 <span>Music</span></button>
-      <button class="tab" data-tab="promotions">✨ <span>Promotional Slideshow</span></button>
     </nav>
     <div class="side-bottom">RoseMmoon Admin<br>Live store management</div>
   </aside>
@@ -231,20 +230,6 @@ function rosemoonQuickLogin(){
   </section>
 
   <section class="panel" id="music"><div class="card"><h2>🎵 Add Music</h2><div class="form-grid"><div class="field"><label>SONG NAME (OPTIONAL)</label><input id="musicTitle" placeholder="Leave blank to use MP3 filename"></div><div class="field"><label>AUDIO FILES (MP3)</label><input id="musicFile" type="file" accept=".mp3,audio/mpeg" multiple><div class="hint" style="margin-top:6px">Select one MP3 or multiple MP3 files. Title is optional; blank uses the filename.</div></div><div class="field full"><button class="primary" id="addMusicBtn">🎵 Add Music</button><span class="hint" id="musicMessage" style="margin-left:10px"></span><div id="musicUploadList" class="upload-list" aria-live="polite"></div></div></div></div><div class="card"><h2>Playlist order</h2><p class="hint">Use ↑ and ↓ to arrange the order, then save your changes. The customer website follows the saved order.</p><div id="musicList"></div><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:16px"><button class="primary" type="button" id="saveMusicOrder" disabled>💾 Save Changes</button><span class="hint" id="musicOrderMessage" aria-live="polite">No unsaved changes.</span></div></div></section>
-
-  <section class="panel" id="promotions">
-    <div class="card">
-      <h2>✨ Promotional Slideshow</h2>
-      <p class="hint">Upload up to three pictures for the customer website slideshow.</p>
-      <div class="field" style="max-width:520px;margin:16px 0 22px;padding:16px 18px;border:1px solid #efd5e0;border-radius:16px;background:linear-gradient(135deg,#fff8fb,#fff0f5)"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><label for="promoDuration" style="margin:0">SLIDE DISPLAY TIME</label><strong id="promoDurationLabel" style="color:#a34d70;font-size:16px">6 seconds</strong></div><input id="promoDuration" type="range" min="2" max="20" step="1" value="6" style="width:100%;accent-color:#a34d70;margin:14px 0 6px"><div style="display:flex;justify-content:space-between" class="hint"><span>2 sec · Fast</span><span>20 sec · Slow</span></div><div class="hint">Choose how long each slide stays visible before the next one appears.</div></div>
-      <div id="promoAdminSlides"></div>
-      <div class="actions" style="margin-top:18px;align-items:center">
-        <button class="primary" type="button" id="savePromoSlides">💾 Save Slideshow</button>
-        <button class="secondary" type="button" id="reloadPromoSlides">↻ Reload</button>
-        <span class="hint" id="promoAdminMessage" aria-live="polite"></span>
-      </div>
-    </div>
-  </section>
 
   <section class="panel" id="orders"><div class="card"><h2>📋 Orders</h2><button class="secondary" id="refreshOrders">🔄 Refresh</button><div class="table-wrap"><table><thead><tr><th>Order</th><th>Date</th><th>Customer</th><th>Phone</th><th>Items</th><th>Total</th><th>Status</th></tr></thead><tbody id="ordersTable"></tbody></table></div></div></section>
 </main></div></div>
@@ -957,57 +942,7 @@ $('addMusicBtn').addEventListener('click',async()=>{
 });
 
 
-let promoDurationSeconds=6;
-let promoSlides=[
- {imageUrl:'',enabled:true},
- {imageUrl:'',enabled:true},
- {imageUrl:'',enabled:true}
-];
-function renderPromoAdmin(){
- const box=$('promoAdminSlides');if(!box)return;
- box.innerHTML=promoSlides.map((p,i)=>`<div class="card" style="margin:14px 0;background:#fff9fb;border:1px solid #efdbe3">
- <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px"><strong>Slide 0${i+1}</strong><label><input type="checkbox" data-promo-field="enabled" data-i="${i}" ${p.enabled!==false?'checked':''}> Show this picture</label></div>
- <div class="promo-admin-photo"><label>SLIDE PICTURE</label><div class="promo-admin-preview" id="promoPreview${i}">${p.imageUrl?'<img src="'+esc(p.imageUrl)+'" alt="">':'<span>Upload a picture for this slide</span>'}</div><div class="promo-admin-photo-actions"><input type="file" accept="image/jpeg,image/png,image/webp,image/gif" data-promo-image="${i}"><button type="button" class="secondary" data-promo-remove-image="${i}" ${p.imageUrl?'':'disabled'}>Remove picture</button></div><small class="hint" id="promoImageMessage${i}">JPG, PNG, WEBP or GIF · max 12 MB</small></div>
- </div>`).join('');
- box.querySelectorAll('[data-promo-field]').forEach(el=>el.addEventListener('change',promoAdminChange));
- box.querySelectorAll('[data-promo-image]').forEach(el=>el.addEventListener('change',uploadPromoSlideImage));
- box.querySelectorAll('[data-promo-remove-image]').forEach(el=>el.addEventListener('click',()=>{const i=Number(el.dataset.promoRemoveImage);promoSlides[i].imageUrl='';renderPromoAdmin();$('promoAdminMessage').textContent='Picture removed. Save Slideshow to publish.';}));
-}
-function promoAdminChange(e){const el=e.target,i=Number(el.dataset.i);if(promoSlides[i])promoSlides[i].enabled=el.checked;}
-async function uploadPromoSlideImage(e){
- const input=e.target,i=Number(input.dataset.promoImage),file=input.files?.[0],msg=$('promoImageMessage'+i),preview=$('promoPreview'+i);
- if(!file||!promoSlides[i])return;
- if(!['image/jpeg','image/png','image/webp','image/gif'].includes(file.type)||file.size>12*1024*1024){msg.textContent='Choose JPG, PNG, WEBP or GIF under 12 MB.';input.value='';return;}
- try{const data=await readDataUrl(file);preview.innerHTML='<img src="'+data+'" alt="">';msg.textContent='Uploading…';const result=await api('uploadPhoto',{dataUrl:data,fileName:'rosemoon-slide-'+(i+1)+'-'+file.name});if(!result.url)throw new Error('No image URL returned');promoSlides[i].imageUrl=result.url;msg.textContent='Uploaded. Press Save Slideshow to publish.';const remove=document.querySelector('[data-promo-remove-image="'+i+'"]');if(remove)remove.disabled=false;}
- catch(err){msg.textContent='Upload failed: '+err.message;input.value='';}
-}
-async function loadPromoSlides(){
- const msg=$('promoAdminMessage');if(msg)msg.textContent='Loading saved pictures…';
- try{
-  const d=await api('settings');let saved={};
-  try{saved=JSON.parse(d.settings?.promo_slideshow||'{}')}catch(e){}
-  if(Array.isArray(saved.slides)&&saved.slides.length)promoSlides=promoSlides.map((base,i)=>({...base,...(saved.slides[i]||{})}));
-  promoDurationSeconds=Math.min(20,Math.max(2,Math.round(Number(saved.durationSeconds)||6)));
-  const durationInput=$('promoDuration'),durationLabel=$('promoDurationLabel');
-  if(durationInput)durationInput.value=String(promoDurationSeconds);
-  if(durationLabel)durationLabel.textContent=promoDurationSeconds+' seconds';
-  renderPromoAdmin();if(msg)msg.textContent='✓ Loaded saved slideshow pictures.';
- }catch(e){if(msg)msg.textContent='Could not load: '+e.message;renderPromoAdmin()}
-}
-$('savePromoSlides')?.addEventListener('click',async()=>{
- const btn=$('savePromoSlides'),msg=$('promoAdminMessage');
- promoDurationSeconds=Math.round(Number($('promoDuration')?.value)||6);
- if(promoDurationSeconds<2||promoDurationSeconds>20){msg.textContent='Choose a time between 2 and 20 seconds.';return}
- btn.disabled=true;msg.textContent='Saving slideshow…';
- try{
-  const d=await api('savePromoSlideshow',{slides:promoSlides.map(p=>({imageUrl:p.imageUrl||'',enabled:p.enabled!==false})),durationSeconds:promoDurationSeconds});
-  if(!d.success)throw new Error(d.message||'Save failed.');
-  msg.textContent='✓ Pictures saved. Refresh the customer website to see changes.';
- }catch(e){msg.textContent='Could not save: '+e.message}
- finally{btn.disabled=false}
-});
-$('promoDuration')?.addEventListener('input',e=>{promoDurationSeconds=Number(e.target.value)||6;const label=$('promoDurationLabel');if(label)label.textContent=promoDurationSeconds+' seconds'});
-$('reloadPromoSlides')?.addEventListener('click',loadPromoSlides);
+
 </script>
 
 <script src="crop-editor.js?v=21"></script>
