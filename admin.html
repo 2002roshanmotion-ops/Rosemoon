@@ -966,21 +966,26 @@ let promoSlides=[
 function renderPromoAdmin(){
  const box=$('promoAdminSlides');if(!box)return;
  box.innerHTML=promoSlides.map((p,i)=>`<div class="card" style="margin:14px 0;background:#fff9fb;border:1px solid #efdbe3">
-  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px"><strong>Slide 0${i+1}</strong><label style="font-size:12px;font-weight:700"><input type="checkbox" data-promo-field="enabled" data-i="${i}" ${p.enabled!==false?'checked':''}> Show this slide</label></div>
-  <div class="form-grid">
-   <div class="field"><label>SMALL TOP LINE</label><input data-promo-field="kicker" data-i="${i}" value="${esc(p.kicker)}" maxlength="70"></div>
-   <div class="field"><label>BUTTON TEXT</label><input data-promo-field="button" data-i="${i}" value="${esc(p.button)}" maxlength="35"></div>
-   <div class="field full"><label>MAIN HEADING (use | to start a new line)</label><input data-promo-field="title" data-i="${i}" value="${esc(p.title)}" maxlength="90"></div>
-   <div class="field full"><label>DESCRIPTION</label><input data-promo-field="description" data-i="${i}" value="${esc(p.description)}" maxlength="180"></div>
-   <div class="field"><label>COLOUR STYLE</label><select data-promo-field="theme" data-i="${i}"><option value="pink" ${p.theme==='pink'?'selected':''}>Rose pink</option><option value="peach" ${p.theme==='peach'?'selected':''}>Peach</option><option value="lilac" ${p.theme==='lilac'?'selected':''}>Soft lilac</option></select></div>
-  </div>
- </div>`).join('');
+ <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px"><strong>Slide 0${i+1}</strong><label><input type="checkbox" data-promo-field="enabled" data-i="${i}" ${p.enabled!==false?'checked':''}> Show this slide</label></div>
+ <div class="promo-admin-photo"><label>SLIDE PICTURE</label><div class="promo-admin-preview" id="promoPreview${i}">${p.imageUrl?'<img src="'+esc(p.imageUrl)+'" alt="">':'<span>Picture preview</span>'}</div><div class="promo-admin-photo-actions"><input type="file" accept="image/jpeg,image/png,image/webp,image/gif" data-promo-image="${i}"><button type="button" class="secondary" data-promo-remove-image="${i}" ${p.imageUrl?'':'disabled'}>Remove picture</button></div><small class="hint" id="promoImageMessage${i}">JPG, PNG, WEBP or GIF · max 12 MB</small></div>
+ <div class="form-grid">
+ <div class="field"><label>SMALL TOP LINE</label><input data-promo-field="kicker" data-i="${i}" value="${esc(p.kicker)}" maxlength="70"></div>
+ <div class="field"><label>BUTTON TEXT</label><input data-promo-field="button" data-i="${i}" value="${esc(p.button)}" maxlength="35"></div>
+ <div class="field full"><label>MAIN HEADING (use | to start a new line)</label><input data-promo-field="title" data-i="${i}" value="${esc(p.title)}" maxlength="90"></div>
+ <div class="field full"><label>DESCRIPTION</label><input data-promo-field="description" data-i="${i}" value="${esc(p.description)}" maxlength="180"></div>
+ <div class="field"><label>COLOUR STYLE</label><select data-promo-field="theme" data-i="${i}"><option value="pink" ${p.theme==='pink'?'selected':''}>Rose pink</option><option value="peach" ${p.theme==='peach'?'selected':''}>Peach</option><option value="lilac" ${p.theme==='lilac'?'selected':''}>Soft lilac</option></select></div>
+ </div></div>`).join('');
  box.querySelectorAll('[data-promo-field]').forEach(el=>{el.addEventListener('input',promoAdminChange);el.addEventListener('change',promoAdminChange)});
+ box.querySelectorAll('[data-promo-image]').forEach(el=>el.addEventListener('change',uploadPromoSlideImage));
+ box.querySelectorAll('[data-promo-remove-image]').forEach(el=>el.addEventListener('click',()=>{const i=Number(el.dataset.promoRemoveImage);promoSlides[i].imageUrl='';renderPromoAdmin();$('promoAdminMessage').textContent='Picture removed. Save Slideshow to publish.';}));
 }
-function promoAdminChange(e){
- const el=e.target,i=Number(el.dataset.i),field=el.dataset.promoField;
- if(!promoSlides[i])return;
- promoSlides[i][field]=field==='enabled'?el.checked:el.value;
+function promoAdminChange(e){const el=e.target,i=Number(el.dataset.i),field=el.dataset.promoField;if(promoSlides[i])promoSlides[i][field]=field==='enabled'?el.checked:el.value;}
+async function uploadPromoSlideImage(e){
+ const input=e.target,i=Number(input.dataset.promoImage),file=input.files?.[0],msg=$('promoImageMessage'+i),preview=$('promoPreview'+i);
+ if(!file||!promoSlides[i])return;
+ if(!['image/jpeg','image/png','image/webp','image/gif'].includes(file.type)||file.size>12*1024*1024){msg.textContent='Choose JPG, PNG, WEBP or GIF under 12 MB.';input.value='';return;}
+ try{const data=await readDataUrl(file);preview.innerHTML='<img src="'+data+'" alt="">';msg.textContent='Uploading…';const result=await api('uploadPhoto',{dataUrl:data,fileName:'rosemoon-slide-'+(i+1)+'-'+file.name});if(!result.url)throw new Error('No image URL returned');promoSlides[i].imageUrl=result.url;msg.textContent='Uploaded. Press Save Slideshow to publish.';const remove=document.querySelector('[data-promo-remove-image="'+i+'"]');if(remove)remove.disabled=false;}
+ catch(err){msg.textContent='Upload failed: '+err.message;input.value='';}
 }
 async function loadPromoSlides(){
  const msg=$('promoAdminMessage');if(msg)msg.textContent='Loading saved slides…';
