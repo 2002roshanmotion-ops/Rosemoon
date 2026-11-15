@@ -216,7 +216,7 @@
         <div class="flower-popup-art">${art}</div>
         <h3>${escapeHtml(type)}</h3>
         <div class="flower-popup-price">${money(Math.max(0,Number(o.price ?? 0)))}</div>
-        <button type="button" class="flower-popup-view-button">View Design →</button>
+        <button type="button" class="flower-popup-view-button">View Details →</button>
       </article>`;
     }).join("");
   }
